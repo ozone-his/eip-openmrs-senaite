@@ -2,7 +2,15 @@
 
 Follow instructions here: https://github.com/openmrs/openmrs-distro-referenceapplication/tree/3.x
 
-Remember to open port `3306` for MySQL
+#### Open port `3306` + enable the bin log:
+If running in Docker, you can do it by setting the `ports` and overriding the `command`:
+```
+    ports:
+      - 3306:3306
+    command: "mysqld --character-set-server=utf8 --collation-server=utf8_general_ci --log-bin --binlog-format=ROW"
+```
+to the `mysql` service definition in **docker-compose.yml** file.
+
 
 ## 2. Run SENAITE on port 8085
 ```
@@ -35,15 +43,21 @@ db-event.destinations=outbound-lims
 
 camel.springboot.xmlRoutes=file:./distribution/springboot_setup/sender/routes/*.xml
 
-debezium.offsetFilename=/tmp/offset.debezium
-debezium.historyFilename=/tmp/history.debezium
+debezium.db.user=root
+debezium.db.password=mysql_root_password
+
+debezium.offsetFilename=offset.debezium
+debezium.historyFilename=history.debezium
 
 senaite.baseUrl=http://localhost:8085/senaite
 senaite.username=admin
 senaite.password=admin
 
 openmrs.username=admin
-openmrs.password=Admin123
+openmrs.password=your_admin_password
+
+spring.openmrs-datasource.username=root
+spring.openmrs-datasource.password=mysql_root_password
 ```
 
 #### Optional: Send the log to console
