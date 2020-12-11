@@ -8,7 +8,7 @@
                 <simple>${body.tableName} == 'test_order'</simple>
                 <setProperty name="lab-order-uuid">
                     <simple>${body.identifier}</simple>
-                </setProperty>
+                </setProperty>                
                 <setBody>
                     <simple>{{openmrs.username}}:{{openmrs.password}}</simple>
                 </setBody>
@@ -22,7 +22,7 @@
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
                 </setHeader>
-
+                
                 <!--retreiving service request from openmrs fhir-->
 
                 <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}"/>
@@ -38,24 +38,50 @@
                     <jsonpath>$.occurrencePeriod.start</jsonpath>
                 </setProperty>
 
+                <setProperty name="patient-reference">
+                    <jsonpath>$.subject.reference</jsonpath>
+                </setProperty>
+
+                <setProperty name="requester-reference">
+                    <jsonpath>$.requester.reference</jsonpath>
+                </setProperty>
+
+                <!--retrieving real patient names using openmrs fhir-->
+
+                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}"/>
+                <unmarshal>
+                    <json library="Jackson"/>
+                </unmarshal>
+
                 <setProperty name="patient-id">
-                    <jsonpath>$.subject.identifier.id</jsonpath>
+                    <jsonpath>$.id</jsonpath>
                 </setProperty>
 
-                <!--to retrieve real patient names using fhir-->
-
-                <setProperty name="patient-name">
-                    <jsonpath>$.subject.display</jsonpath>
+                <setProperty name="patient-family-name">
+                    <jsonpath>$.name[0].family</jsonpath>
                 </setProperty>
 
-                <!--to retrieve real requester names using fhir-->
-
-                <setProperty name="requester-first-name">
-                    <jsonpath>$.requester.identifier.value</jsonpath>
+                <setProperty name="patient-given-name">
+                    <jsonpath>$.name[0].given[0]</jsonpath>
                 </setProperty>
 
-                <setProperty name="requester-last-name">
-                    <jsonpath>$.requester.identifier.value</jsonpath>
+                <setProperty name="patient-name-unique">
+                    <simple>${exchangeProperty.patient-given-name} ${exchangeProperty.patient-family-name} (${exchangeProperty.patient-id})</simple>
+                </setProperty>
+
+                <!--retrieving requester's names using fhir (to be used as senaite's client contact's)-->
+
+                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}"/>
+                <unmarshal>
+                    <json library="Jackson"/>
+                </unmarshal>
+
+                <setProperty name="requester-family-name">
+                    <jsonpath>$.name[0].family</jsonpath>
+                </setProperty>
+
+                <setProperty name="requester-given-name">
+                    <jsonpath>$.name[0].given[0]</jsonpath>
                 </setProperty>
 
                <!--setting up authentication to SENAITE-->
@@ -79,8 +105,8 @@
 
                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
 
-                <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getName=${exchangeProperty.patient-name}"/>
-
+                <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getName=${exchangeProperty.patient-name-unique}"/>
+                
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>
@@ -97,7 +123,7 @@
                     </when>
                     <otherwise>
                         <setBody>
-                            <simple>{"portal_type":"Client","title":"${exchangeProperty.patient-name}","ClientID":"${exchangeProperty.patient-id}","parent_path":"/senaite/clients"}</simple>
+                            <simple>{"portal_type":"Client","title":"${exchangeProperty.patient-name-unique}","ClientID":"${exchangeProperty.patient-id}","parent_path":"/senaite/clients"}</simple>
                         </setBody>
 
                         <setHeader name="CamelHttpMethod">
@@ -119,9 +145,9 @@
                 </choice>
 
                 <!--create client contact from ServiceRequest.requester and save contact UID property-->
-
+                
                 <setBody>
-                    <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}","Firstname": "${exchangeProperty.requester-first-name}","Surname": "${exchangeProperty.requester-first-name}"}</simple>
+                    <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}","Firstname": "${exchangeProperty.requester-given-name}","Surname": "${exchangeProperty.requester-family-name}"}</simple>
                 </setBody>
 
                 <setHeader name="CamelHttpMethod">
@@ -137,8 +163,7 @@
                 </setProperty>
 
                 <!--retrieve Analysis Template from SENAITE-->
-
-
+            
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
                 </setHeader>
@@ -163,11 +188,11 @@
                             <jsonpath>$.items[0].AnalysisProfile.uid</jsonpath>
                         </setProperty>
                     </when>
-                </choice>
+                </choice>  
 
                 <setBody>
                     <jsonpath>$.items[0].Analyses</jsonpath>
-                </setBody>
+                </setBody>              
 
                 <marshal>
                     <json library="Jackson"/>
@@ -192,7 +217,6 @@
 
                 <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
 
-                <toD uri="file:{{camel.output.endpoint.file.location}}/docs?noop=true&amp;recursive=true"/>
             </when>
         </choice>
     </route>
