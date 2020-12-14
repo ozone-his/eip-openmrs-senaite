@@ -16,9 +16,15 @@
                     <base64/>
                 </marshal>
                 <convertBodyTo type="java.lang.String"/>
-                <setHeader name="Authorization">
+                
+                <setProperty name="basic-openmrs-authentication">
                     <simple>Basic ${body}</simple>
+                </setProperty>
+
+                <setHeader name="Authorization">
+                    <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
                 </setHeader>
+
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
                 </setHeader>
@@ -216,6 +222,24 @@
                 <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
 
                 <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
+
+                <!--creating FHIR Task to track progress of the ServiceRequest(Analysis Requests registered) starting with 'accepted' status-->
+
+                <setHeader name="Authorization">
+                    <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
+                </setHeader>
+                
+                <setHeader name="CamelHttpMethod">
+                    <constant>GET</constant>
+                </setHeader>
+
+                <setBody>
+                    <simple>{"resourceType": "Task", "status": "accepted", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
+                </setBody>
+
+                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task"/>
+
+                <log message="FHIR Task posted results             :          ${body}"/>
 
             </when>
         </choice>
