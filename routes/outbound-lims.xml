@@ -234,7 +234,7 @@
                 </setHeader>
 
                 <setBody>
-                    <simple>{"resourceType": "Task", "status": "accepted", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
+                    <simple>{"resourceType": "Task", "status": "requested", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
                 </setBody>
 
                 <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task"/>
