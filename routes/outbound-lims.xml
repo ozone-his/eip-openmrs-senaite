@@ -230,7 +230,7 @@
                 </setHeader>
                 
                 <setHeader name="CamelHttpMethod">
-                    <constant>GET</constant>
+                    <constant>POST</constant>
                 </setHeader>
 
                 <setBody>
