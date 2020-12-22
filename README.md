@@ -1,3 +1,9 @@
+<img src="readme/crudem-hsc-logo.png" alt="hsc-logo" width="400"/>
+
+------
+
+# EIP Routes SENAITE
+
 ## 1. Run OpenMRS on port 8080 and MySQL on port 3306
 
 Follow instructions here: https://github.com/openmrs/openmrs-distro-referenceapplication/tree/3.x
