@@ -4,5 +4,9 @@
       <property>fhir2.paging.default</property>
       <value>1000000</value>
     </globalProperty>
+    <globalProperty>
+      <property>fhir2.paging.maximum</property>
+      <value>1000000</value>
+    </globalProperty>
   </globalProperties>
 </config>
