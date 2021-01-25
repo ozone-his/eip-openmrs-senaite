@@ -47,8 +47,6 @@
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>
-
-        <log message="FHIR Tasks bundle             :          ${body}"/>
         
         <choice>
             <!---process Tasks status if tasks are present -->
@@ -124,6 +122,10 @@
 
                             <setProperty name="service-request-visit-uuid">
                                 <jsonpath>$.visit.uuid</jsonpath>
+                            </setProperty>
+
+                            <setProperty name="service-request-encounter-datetime">
+                                <jsonpath>$.encounterDatetime</jsonpath>
                             </setProperty> 
 
                             <!---retrieving equivalent analysis-request from senaite -->
@@ -142,8 +144,6 @@
                             <unmarshal>
                                 <json library="Jackson"/>
                             </unmarshal>
-
-                            <log message="Senaite analysis request results             :          ${body}"/>
 
                             <choice>
                                 <!---only update ServiceRequest status for which an equivalent Analysis Request was created on Senaite -->
@@ -200,42 +200,67 @@
 
                                     <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
 
-                                    <log message="FHIR Task updated results             :          ${body}"/>
-
                                 </when>
                             </choice>
-
-                            <setBody>
-                                <simple>${exchangeProperty.service-request-tests}</simple>
-                            </setBody>
-                            <marshal>
-                                <json library="Jackson"/>
-                            </marshal>
-
-                            <convertBodyTo type="java.lang.String"/>
-
-                            <setBody>
-                                <simple>(I am going to swing the bell)</simple>
-                            </setBody>
-
-                            <convertBodyTo type="java.lang.String"/>
-
-                            <setProperty name="start-index">
-                                <simple>${body.indexOf("(")}++</simple>
-                            </setProperty>
-
-                            <setProperty name="last-index">
-                                <simple>${body.indexOf(")")}</simple>
-                            </setProperty>
-
-                            <setProperty name="service-request-test-concept-uuid">
-                                <simple>${body.substring(${exchangeProperty.start-index},${exchangeProperty.last-index})}</simple>
-                            </setProperty>
 
                             <choice>
                                 <!---to create lab results once the ServiceRequest is completed -->
                                 <when>
                                     <simple>${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} == 'completed'</simple>
+
+                                    <setHeader name="Authorization">
+                                        <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
+                                    </setHeader>
+                                    
+                                    <setHeader name="CamelHttpMethod">
+                                        <constant>GET</constant>
+                                    </setHeader>
+
+                                    <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter?encounterType={{results.encounterType.uuid}}&amp;patient=${exchangeProperty.patient-uuid}&amp;v=custom:(uuid,encounterDatetime,patient:(uuid),location:(uuid))"/>
+                                    <unmarshal>
+                                        <json library="Jackson"/>
+                                    </unmarshal>
+
+                                    <choice>
+                                        <when>
+                                            <jsonpath suppressExceptions="true">$.[?(@.results)]</jsonpath>
+
+                                            <setBody>
+                                                <jsonpath>$.results</jsonpath>
+                                            </setBody>
+                                            <marshal>
+                                                <json library="Jackson"/>
+                                            </marshal>
+
+                                            <setProperty name="results-encounter-uuid">
+                                                <method beanType="org.openmrs.eip.component.utils.JsonUtils" method="getPropertyValueWhereKeyMatchesValue(${body}, uuid, encounterDatetime, ${exchangeProperty.service-request-encounter-datetime})" />
+                                            </setProperty>
+                                        </when>
+                                    </choice>
+
+                                    <choice>
+                                        <when>
+                                            <!---Create results encounter if it does not exist -->
+                                            <simple>${exchangeProperty.results-encounter-uuid} == null || ${exchangeProperty.results-encounter-uuid} == ""</simple>
+
+                                            <setBody>
+                                                <simple>{"location": "${exchangeProperty.service-request-location-uuid}","encounterType": "{{results.encounterType.uuid}}","encounterDatetime": "${exchangeProperty.service-request-encounter-datetime}","patient": "${exchangeProperty.patient-uuid}","visit":"${exchangeProperty.service-request-visit-uuid}", "encounterProviders":[{"provider": "${exchangeProperty.service-request-requester}","encounterRole": "{{unknown.encounter.role}}"}]}</simple>
+                                            </setBody>
+
+                                            <setHeader name="CamelHttpMethod">
+                                                <constant>POST</constant>
+                                            </setHeader>
+
+                                            <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter"/>
+                                            <unmarshal>
+                                                <json library="Jackson"/>
+                                            </unmarshal>
+
+                                            <setProperty name="results-encounter-uuid">
+                                                <jsonpath>$.uuid</jsonpath>
+                                            </setProperty>
+                                        </when>
+                                    </choice>
 
                                     <setBody>
                                         <simple>${exchangeProperty.service-request-tests}</simple>
@@ -305,46 +330,29 @@
                                     </setProperty>  
 
                                     <choice>
-                                        <!---Create panel results obs if results are more than 1 -->
+                                        <!---Create panel results obs if results are more than 1 otherwise attach encounter to test obs-->
                                         <when>
                                             <simple>${exchangeProperty.number-of-service-request-tests} &gt; 1 </simple>
 
                                             <setProperty name="result-obs">
-                                                <simple>{"concept":"${exchangeProperty.service-request-concept-uuid}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","groupMembers":[${exchangeProperty.result-obs}]}</simple>
+                                                <simple>{"concept":"${exchangeProperty.service-request-concept-uuid}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","encounter": "${exchangeProperty.results-encounter-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","groupMembers":[${exchangeProperty.result-obs}]}</simple>
                                             </setProperty>
                                         </when>
+                                        <otherwise>
+                                            <setProperty name="result-obs">
+                                                <simple>{"encounter": "${exchangeProperty.results-encounter-uuid}",${body.substring(1)}</simple>
+                                            </setProperty>
+                                        </otherwise>
                                     </choice>
 
-                                    <!---Create encounter as body for the results -->
-
-                                    <setBody>
-                                        <simple>{"location": "${exchangeProperty.service-request-location-uuid}","encounterType": "{{results.encounterType.uuid}}","encounterDatetime": "${exchangeProperty.service-request-resultCaptureDate}","patient": "${exchangeProperty.patient-uuid}","visit":"${exchangeProperty.service-request-visit-uuid}", "encounterProviders":[{"provider": "${exchangeProperty.service-request-requester}","encounterRole": "a0b03050-c99b-11e0-9572-0800200c9a66"}], "obs":[${exchangeProperty.result-obs}]}</simple>
-                                    </setBody>
-
-                                    <setHeader name="Authorization">
-                                        <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
-                                    </setHeader>
-                                    
                                     <setHeader name="CamelHttpMethod">
                                         <constant>POST</constant>
                                     </setHeader>
+                                    <setBody>
+                                        <simple>${exchangeProperty.result-obs}</simple>
+                                    </setBody>
 
-                                    <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter"/>
-                                    <unmarshal>
-                                        <json library="Jackson"/>
-                                    </unmarshal>
-
-                                    <setProperty name="created-encounter-obs">
-                                        <jsonpath>$.obs[0].uuid</jsonpath>
-                                    </setProperty>
-
-                                    <setHeader name="CamelHttpMethod">
-                                        <constant>GET</constant>
-                                    </setHeader>
-
-                                    <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/latestobs/${exchangeProperty.created-encounter-obs}?v=custom:(uuid,display,concept:(uuid,display),person:(uuid,display),obsDatetime,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,value,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,value,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,value)))))"/>
-
-                                    <log message="=======================>>>>>>>         ${body}"/>                                    
+                                    <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/obs"/>
 
                                 </when>
                             </choice>
