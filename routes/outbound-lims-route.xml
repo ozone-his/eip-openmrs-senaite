@@ -205,7 +205,7 @@
                 </marshal>
 
                 <setProperty name="sample-analyses-uids">
-                    <method beanType="org.openmrs.eip.component.utils.JsonUtils" method="concvertToValuesArrayForKey(${body}, service_uid)" />
+                    <method beanType="org.openmrs.eip.component.utils.JsonUtils" method="convertToValuesArrayForKey(${body}, service_uid)" />
                 </setProperty>
 
                 <!--fill sample payload-->
