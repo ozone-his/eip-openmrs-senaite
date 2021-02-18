@@ -23,7 +23,7 @@
                 <convertBodyTo type="java.lang.String"/>
                 
                 <setProperty name="basic-openmrs-authentication">
-                    <simple>Basic ${body.trim()}</simple>
+                    <simple>Basic ${body}</simple>
                 </setProperty>
 
                 <setHeader name="Authorization">

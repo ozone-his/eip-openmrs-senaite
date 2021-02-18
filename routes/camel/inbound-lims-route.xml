@@ -15,7 +15,7 @@
         <convertBodyTo type="java.lang.String"/>
         
         <setProperty name="basic-openmrs-authentication">
-            <simple>Basic ${body.trim()}</simple>
+            <simple>Basic ${body}</simple>
         </setProperty>
 
         <!--- setting up authorization/authentication details for senaite-->
@@ -29,7 +29,7 @@
         <convertBodyTo type="java.lang.String"/>
 
         <setProperty name="basic-senaite-authentication">
-            <simple>Basic ${body.trim()}</simple>
+            <simple>Basic ${body}</simple>
         </setProperty>
 
 
@@ -47,6 +47,8 @@
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>
+
+        <log message="FHIR Tasks bundle             :          ${body}"/>
         
         <choice>
             <!---process Tasks status if tasks are present -->
@@ -145,6 +147,8 @@
                                 <json library="Jackson"/>
                             </unmarshal>
 
+                            <log message="Senaite analysis request results             :          ${body}"/>
+
                             <choice>
                                 <!---only update ServiceRequest status for which an equivalent Analysis Request was created on Senaite -->
                                 <when>
@@ -180,7 +184,7 @@
                             <setProperty name="number-of-service-request-tests">
                                 <jsonpath>$.items[0].Analyses.length()</jsonpath>
                             </setProperty>
-
+                            <log message="Status updates ===========>>>>>>>>>       ${exchangeProperty.service-request-current-status} : ${exchangeProperty.service-request-transitioned-status} "/>
                             <choice>
                                 <!---to only update Task status if it is valid(not null - happens if the associated ServiceRequest was never created on senaite) and has actually changed -->
                                 <when>
@@ -199,6 +203,8 @@
                                     </setBody>
 
                                     <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
+
+                                    <log message="FHIR Task updated results             :          ${body}"/>
 
                                 </when>
                             </choice>
@@ -235,6 +241,7 @@
                                             <setProperty name="results-encounter-uuid">
                                                 <method beanType="org.openmrs.eip.component.utils.JsonUtils" method="getPropertyValueWhereKeyMatchesValue(${body}, uuid, encounterDatetime, ${exchangeProperty.service-request-encounter-datetime})" />
                                             </setProperty>
+                                            <log message="66666======================>>>>>>>         ${body}"/>
                                         </when>
                                     </choice>
 
@@ -259,6 +266,7 @@
                                             <setProperty name="results-encounter-uuid">
                                                 <jsonpath>$.uuid</jsonpath>
                                             </setProperty>
+                                            <log message="77777======================>>>>>>>         ${body}"/>
                                         </when>
                                     </choice>
 
@@ -287,7 +295,6 @@
                                         </setHeader>
 
                                         <toD cacheSize="-1" uri="${exchangeProperty.analysis-api_url}"/>
-                                        
                                         <unmarshal>
                                             <json library="Jackson"/>
                                         </unmarshal>
@@ -330,6 +337,8 @@
                                         <simple>${body}</simple>
                                     </setProperty>  
 
+                                    <log message="88888======================>>>>>>>         ${body}"/>
+
                                     <choice>
                                         <!---Create panel results obs if results are more than 1 otherwise attach encounter to test obs-->
                                         <when>
@@ -352,12 +361,22 @@
                                     <setHeader name="Authorization">
                                         <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
                                     </setHeader>
-                                    
                                     <setBody>
                                         <simple>${exchangeProperty.result-obs}</simple>
                                     </setBody>
+                                    <log message="99999======================>>>>>>>         ${body}"/>
 
                                     <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/obs"/>
+
+                                    <setProperty name="created-encounter-obs">
+                                        <jsonpath>$.uuid</jsonpath>
+                                    </setProperty>
+                                    <setHeader name="CamelHttpMethod">
+                                        <constant>GET</constant>
+                                    </setHeader>
+                                    <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/obs/${exchangeProperty.created-encounter-obs}?v=custom:(uuid,display,concept:(uuid,display),person:(uuid,display),obsDatetime,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,value,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,value,groupMembers:(uuid,display,concept:(uuid,display),obsDatetime,value)))))"/>
+
+                                    <log message="1010======================>>>>>>>         ${body}"/>                            
 
                                 </when>
                             </choice>

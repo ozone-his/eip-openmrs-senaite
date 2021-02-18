@@ -18,7 +18,7 @@
                 <convertBodyTo type="java.lang.String"/>
                 
                 <setProperty name="basic-openmrs-authentication">
-                    <simple>Basic ${body.trim()}</simple>
+                    <simple>Basic ${body}</simple>
                 </setProperty>
 
                 <setHeader name="Authorization">
@@ -100,7 +100,7 @@
                 </marshal>
                 <convertBodyTo type="java.lang.String"/>
                 <setHeader name="Authorization">
-                    <simple>Basic ${body.trim()}</simple>
+                    <simple>Basic ${body}</simple>
                 </setHeader>
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
@@ -219,6 +219,9 @@
                 <setHeader name="CamelHttpMethod">
                     <constant>POST</constant>
                 </setHeader>
+                
+                <log message="aaaaaaaaaaaaaaaaaaaaaaaaaaa senaite posted body            :          ${body}"/>
+                
                 <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
 
                 <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
