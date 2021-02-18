@@ -15,7 +15,7 @@
         <convertBodyTo type="java.lang.String"/>
         
         <setProperty name="basic-openmrs-authentication">
-            <simple>Basic ${body}</simple>
+            <simple>Basic ${body.trim()}</simple>
         </setProperty>
 
         <!--- setting up authorization/authentication details for senaite-->
@@ -29,7 +29,7 @@
         <convertBodyTo type="java.lang.String"/>
 
         <setProperty name="basic-senaite-authentication">
-            <simple>Basic ${body}</simple>
+            <simple>Basic ${body.trim()}</simple>
         </setProperty>
 
 
@@ -348,6 +348,10 @@
                                     <setHeader name="CamelHttpMethod">
                                         <constant>POST</constant>
                                     </setHeader>
+                                    <setHeader name="Authorization">
+                                        <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
+                                    </setHeader>
+                                    
                                     <setBody>
                                         <simple>${exchangeProperty.result-obs}</simple>
                                     </setBody>

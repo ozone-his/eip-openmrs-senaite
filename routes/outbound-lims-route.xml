@@ -18,7 +18,7 @@
                 <convertBodyTo type="java.lang.String"/>
                 
                 <setProperty name="basic-openmrs-authentication">
-                    <simple>Basic ${body}</simple>
+                    <simple>Basic ${body.trim()}</simple>
                 </setProperty>
 
                 <setHeader name="Authorization">
@@ -100,7 +100,7 @@
                 </marshal>
                 <convertBodyTo type="java.lang.String"/>
                 <setHeader name="Authorization">
-                    <simple>Basic ${body}</simple>
+                    <simple>Basic ${body.trim()}</simple>
                 </setHeader>
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
