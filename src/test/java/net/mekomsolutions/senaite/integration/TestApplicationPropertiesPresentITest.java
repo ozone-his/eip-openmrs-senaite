@@ -90,15 +90,6 @@ public class TestApplicationPropertiesPresentITest extends BaseCamelContextSensi
     @Value("${senaite.password}") 
     private String senaitePassword;
     
-    @Value("${logging.level.root}") 
-    private String loggingLevelRoot;
-    
-    @Value("${openmrs.eip.log.level}") 
-    private String openmrsEipLogLevel;
-    
-    @Value("${logging.level.outbound-lims}") 
-    private String loggingLevelOutboundLims;
-    
     @Value("${db-event.retry.interval}") 
     private String dbEventRetryInterval;
     
@@ -144,9 +135,6 @@ public class TestApplicationPropertiesPresentITest extends BaseCamelContextSensi
     	assertNotNull(senaiteBaseUrl);
     	assertNotNull(senaiteUsername);
     	assertNotNull(senaitePassword);
-    	assertNotNull(loggingLevelRoot);
-    	assertNotNull(openmrsEipLogLevel);
-    	assertNotNull(loggingLevelOutboundLims);
     	assertNotNull(dbEventRetryInterval);
     	assertNotNull(dbEventRetryInitialDelay);
     	assertNotNull(serviceRequestTaskStatusUpdateInterval);

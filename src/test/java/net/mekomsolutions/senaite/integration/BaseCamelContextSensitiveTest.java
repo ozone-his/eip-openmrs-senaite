@@ -19,7 +19,7 @@ import com.google.common.io.Resources;
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestConfiguration.class)
 @MockEndpoints
-@TestPropertySource(locations="classpath:application-test.properties")
+@TestPropertySource(locations="classpath:application.properties")
 public abstract class BaseCamelContextSensitiveTest {
 
     @Autowired
