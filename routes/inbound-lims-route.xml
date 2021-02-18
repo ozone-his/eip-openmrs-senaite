@@ -43,7 +43,7 @@
             <constant>GET</constant>
         </setHeader>
 
-        <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task?status=requested,accepted"/>
+        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task?status=requested,accepted"/>
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>
@@ -79,7 +79,7 @@
 
                             <!---retrieving associated ServiceRequest -->
 
-                            <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}"/>
+                            <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}"/>
                             <unmarshal>
                                 <json library="Jackson"/>
                             </unmarshal>
@@ -111,7 +111,7 @@
 
                             <!---retrieving associated location and visit-->
 
-                            <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}"/>
+                            <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}"/>
                             <unmarshal>
                                 <json library="Jackson"/>
                             </unmarshal>
@@ -140,7 +140,7 @@
                                 <constant>application/json</constant>
                             </setHeader>
 
-                            <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&amp;getClientID=${exchangeProperty.patient-uuid}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true"/>
+                            <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&amp;getClientID=${exchangeProperty.patient-uuid}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true"/>
                             <unmarshal>
                                 <json library="Jackson"/>
                             </unmarshal>
@@ -198,7 +198,7 @@
                                         <simple>{"resourceType": "Task", "id": "${exchangeProperty.task-id}", "status": "${exchangeProperty.service-request-transitioned-status}", "intent": "order"}</simple>
                                     </setBody>
 
-                                    <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
+                                    <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
 
                                 </when>
                             </choice>
@@ -216,7 +216,7 @@
                                         <constant>GET</constant>
                                     </setHeader>
 
-                                    <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter?encounterType={{results.encounterType.uuid}}&amp;patient=${exchangeProperty.patient-uuid}&amp;v=custom:(uuid,encounterDatetime,patient:(uuid),location:(uuid))"/>
+                                    <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter?encounterType={{results.encounterType.uuid}}&amp;patient=${exchangeProperty.patient-uuid}&amp;v=custom:(uuid,encounterDatetime,patient:(uuid),location:(uuid))"/>
                                     <unmarshal>
                                         <json library="Jackson"/>
                                     </unmarshal>
@@ -251,7 +251,7 @@
                                                 <constant>POST</constant>
                                             </setHeader>
 
-                                            <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter"/>
+                                            <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/encounter"/>
                                             <unmarshal>
                                                 <json library="Jackson"/>
                                             </unmarshal>
@@ -286,7 +286,7 @@
                                             <constant>GET</constant>
                                         </setHeader>
 
-                                        <toD uri="${exchangeProperty.analysis-api_url}"/>
+                                        <toD cacheSize="-1" uri="${exchangeProperty.analysis-api_url}"/>
                                         <unmarshal>
                                             <json library="Jackson"/>
                                         </unmarshal>
@@ -356,7 +356,7 @@
                                         <simple>${exchangeProperty.result-obs}</simple>
                                     </setBody>
 
-                                    <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/obs"/>
+                                    <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/obs"/>
 
                                 </when>
                             </choice>
