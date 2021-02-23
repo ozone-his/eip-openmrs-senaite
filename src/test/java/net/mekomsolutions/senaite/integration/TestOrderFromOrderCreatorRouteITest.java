@@ -10,7 +10,7 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.reifier.RouteReifier;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.eip.component.entity.Event;
+import org.openmrs.eip.mysql.watcher.Event;
 import org.springframework.beans.factory.annotation.Value;
 
 

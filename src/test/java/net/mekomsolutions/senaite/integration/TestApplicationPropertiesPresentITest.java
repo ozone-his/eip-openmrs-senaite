@@ -2,17 +2,7 @@ package net.mekomsolutions.senaite.integration;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
-import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.eip.component.entity.Event;
 import org.springframework.beans.factory.annotation.Value;
 
 

@@ -11,7 +11,6 @@ import org.apache.camel.reifier.RouteReifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.eip.component.entity.Event;
 import org.springframework.beans.factory.annotation.Value;
 
 public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {  

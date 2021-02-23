@@ -11,7 +11,7 @@ import org.apache.camel.reifier.RouteReifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.eip.component.entity.Event;
+import org.openmrs.eip.mysql.watcher.Event;
 
 public class OutboundLimsRouteITest extends BaseCamelContextSensitiveTest {  
 
