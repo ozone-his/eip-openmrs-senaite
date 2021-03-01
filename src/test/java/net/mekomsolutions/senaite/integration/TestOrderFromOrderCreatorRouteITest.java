@@ -46,7 +46,7 @@ public class TestOrderFromOrderCreatorRouteITest extends BaseCamelContextSensiti
     		
     	});
     	labOrderEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	labOrderEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	labOrderEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	labOrderEndpoint.expectedPropertyReceived("lab-order-uuid", "order-uuid");
     	
     	sqlEndpoint.expectedPropertyReceived("lab-order-id", "1");

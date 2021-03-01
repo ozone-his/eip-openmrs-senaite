@@ -174,7 +174,7 @@ public class OutboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirServiceRequestEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsFhirServiceRequestEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirServiceRequestEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirServiceRequestEndpoint.expectedPropertyReceived("lab-order-uuid", "eed578b7-86cb-43f5-91cd-daebdebfe6f8");
     	openmrsFhirServiceRequestEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
@@ -186,7 +186,7 @@ public class OutboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirPatientEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsFhirPatientEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirPatientEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirPatientEndpoint.expectedPropertyReceived("patient-reference", "Patient/a7f86f7c-89b7-4549-ae9c-51c80286b930");
     	openmrsFhirPatientEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
@@ -198,7 +198,7 @@ public class OutboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirRequesterEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsFhirRequesterEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirRequesterEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirRequesterEndpoint.expectedPropertyReceived("requester-reference", "Practitioner/1d0c6b21-60bd-11eb-afa0-0242ac18000a");
     	openmrsFhirRequesterEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
@@ -258,7 +258,7 @@ public class OutboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirTaskEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-    	openmrsFhirTaskEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirTaskEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirTaskEndpoint.expectedPropertyReceived("lab-order-uuid", "eed578b7-86cb-43f5-91cd-daebdebfe6f8");
     	openmrsFhirTaskEndpoint.expectedBodiesReceived("{\"resourceType\": \"Task\", \"status\": \"requested\", \"intent\": \"order\", \"basedOn\": [{\"reference\":\"eed578b7-86cb-43f5-91cd-daebdebfe6f8\", \"type\": \"ServiceRequest\"}]}");
     	openmrsFhirTaskEndpoint.setResultWaitTime(resultWaitTimeMillis);

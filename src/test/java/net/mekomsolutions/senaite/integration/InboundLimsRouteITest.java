@@ -111,7 +111,7 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirTaskSearchEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsFhirTaskSearchEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirTaskSearchEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirTaskSearchEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
     	openmrsFhirServiceRequestEndpoint.whenAnyExchangeReceived(new Processor () {
@@ -122,7 +122,7 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirServiceRequestEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsFhirServiceRequestEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirServiceRequestEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirServiceRequestEndpoint.expectedPropertyReceived("service-request-id", "f1e7ed13-5512-49b9-9d90-90dd66e8e397");
     	openmrsFhirServiceRequestEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
@@ -134,7 +134,7 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsEncounterApiEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsEncounterApiEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsEncounterApiEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsEncounterApiEndpoint.expectedPropertyReceived("service-request-encounter-reference", "ca51b8c1-3dba-44ba-99b1-9f04119130ad");
     	openmrsEncounterApiEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
@@ -159,7 +159,7 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsFhirTaskEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "PUT");
-    	openmrsFhirTaskEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsFhirTaskEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsFhirTaskEndpoint.expectedPropertyReceived("task-id", "15df1d72-f400-4428-b229-1febb94a6a9a");
     	openmrsFhirTaskEndpoint.expectedPropertyReceived("service-request-transitioned-status", "completed");
     	openmrsFhirTaskEndpoint.expectedBodiesReceived("{\"resourceType\": \"Task\", \"id\": \"15df1d72-f400-4428-b229-1febb94a6a9a\", \"status\": \"completed\", \"intent\": \"order\"}");
@@ -173,7 +173,7 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsPatientEncounterForResultsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	openmrsPatientEncounterForResultsEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsPatientEncounterForResultsEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsPatientEncounterForResultsEndpoint.expectedPropertyReceived("patient-uuid", "8bd3db1d-533b-4e56-a945-b045bd9d3cb2");
     	openmrsPatientEncounterForResultsEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
@@ -185,13 +185,13 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsEncounterCreationEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-    	openmrsEncounterCreationEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsEncounterCreationEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsEncounterCreationEndpoint.expectedPropertyReceived("service-request-location-uuid", "833d0c66-e29a-4d31-ac13-ca9050d1bfa9");
     	openmrsEncounterCreationEndpoint.expectedPropertyReceived("service-request-encounter-datetime", "2021-02-17T12:39:20.000+0000");
     	openmrsEncounterCreationEndpoint.expectedPropertyReceived("patient-uuid", "8bd3db1d-533b-4e56-a945-b045bd9d3cb2");
     	openmrsEncounterCreationEndpoint.expectedPropertyReceived("service-request-visit-uuid", "16301f3a-6ba1-498a-bcb1-13a1d20092b8");
     	openmrsEncounterCreationEndpoint.expectedPropertyReceived("service-request-requester", "1d0c6b21-60bd-11eb-afa0-0242ac18000a");
-    	openmrsEncounterCreationEndpoint.expectedBodiesReceived("{\"location\": \"833d0c66-e29a-4d31-ac13-ca9050d1bfa9\",\"encounterType\": \"0fe04e74-562f-11eb-87ac-0242ac1f0002\",\"encounterDatetime\": \"2021-02-17T12:39:20.000+0000\",\"patient\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"visit\":\"16301f3a-6ba1-498a-bcb1-13a1d20092b8\", \"encounterProviders\":[{\"provider\": \"1d0c6b21-60bd-11eb-afa0-0242ac18000a\",\"encounterRole\": \"a0b03050-c99b-11e0-9572-0800200c9a66\"}]}");
+    	openmrsEncounterCreationEndpoint.expectedBodiesReceived("{\"location\": \"833d0c66-e29a-4d31-ac13-ca9050d1bfa9\",\"encounterType\": \"7aa974b5-7523-11eb-8077-0242ac120009\",\"encounterDatetime\": \"2021-02-17T12:39:20.000+0000\",\"patient\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"visit\":\"16301f3a-6ba1-498a-bcb1-13a1d20092b8\", \"encounterProviders\":[{\"provider\": \"1d0c6b21-60bd-11eb-afa0-0242ac18000a\",\"encounterRole\": \"a0b03050-c99b-11e0-9572-0800200c9a66\"}]}");
     	openmrsEncounterCreationEndpoint.setResultWaitTime(resultWaitTimeMillis);
     	
     	senaiteAnalysisResultsEndpoint.whenAnyExchangeReceived(new Processor () {
@@ -218,7 +218,7 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     		
     	});
     	openmrsObsCreationEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-    	openmrsObsCreationEndpoint.expectedHeaderReceived("Authorization", "Basic YWRtaW46QWRtaW4xMjM=");
+    	openmrsObsCreationEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	openmrsObsCreationEndpoint.expectedBodiesReceived("{\"concept\":\"1019AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"encounter\": \"359eeb8f-e938-4558-ad4a-cbf2b2449a5d\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"groupMembers\":[{\"concept\":\"1015AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"groupMembers\":[{\"concept\":\"1015AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"groupMembers\":[{\"value\":\"3\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"concept\":\"1015AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}]}]},{\"concept\":\"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"groupMembers\":[{\"concept\":\"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"groupMembers\":[{\"value\":\"9\",\"order\": \"f1e7ed13-5512-49b9-9d90-90dd66e8e397\",\"person\": \"8bd3db1d-533b-4e56-a945-b045bd9d3cb2\",\"obsDatetime\": \"2021-02-17T15:38:01+00:00\",\"concept\":\"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}]}]}]}");
     	openmrsObsCreationEndpoint.setResultWaitTime(resultWaitTimeMillis);
     }

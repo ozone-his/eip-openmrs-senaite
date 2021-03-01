@@ -34,7 +34,7 @@ public abstract class BaseCamelContextSensitiveTest {
 	}
     
     protected void loadXmlDefinedRoute(String fileName) throws Exception {
-    	URL url = Resources.getResource(fileName);
+    	URL url = Resources.getResource("camel/" + fileName);
     	
     	RoutesDefinition routes = (RoutesDefinition) camelContext.adapt(ExtendedCamelContext.class).getXMLRoutesDefinitionLoader().loadRoutesDefinition(camelContext, url.openStream());
     	camelContext.adapt(ModelCamelContext.class).addRouteDefinitions(routes.getRoutes());
