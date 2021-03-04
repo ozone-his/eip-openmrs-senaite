@@ -1,5 +1,7 @@
 package net.mekomsolutions.senaite.integration;
 
+import java.util.stream.Collectors;
+
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -8,12 +10,17 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.reifier.RouteReifier;
+import org.apache.camel.test.spring.MockEndpoints;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Import;
 
-public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {  
+@MockEndpoints
+@Import({ TestConfiguration.class})
+public class InboundLimsRouteITest extends BaseWatcherRouteTest {  
 
     @EndpointInject(value = "mock:openmrsFhirTaskSearchEndpoint")
     private MockEndpoint openmrsFhirTaskSearchEndpoint;
@@ -49,8 +56,8 @@ public class InboundLimsRouteITest extends BaseCamelContextSensitiveTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlDefinedRoute("inbound-lims-route.xml");  
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().get(0);
+    	loadXmlRoutesInCamelDirectory("inbound-lims-route.xml");  
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "inbound-lims".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {

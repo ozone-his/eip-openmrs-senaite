@@ -3,10 +3,12 @@ package net.mekomsolutions.senaite.integration;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
+import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Import;
 
-
-public class TestApplicationPropertiesPresentITest extends BaseCamelContextSensitiveTest {  
+@Import({ TestConfiguration.class})
+public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest {  
     
     @Value("${${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
