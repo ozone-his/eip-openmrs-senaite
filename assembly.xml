@@ -16,5 +16,12 @@
       <outputDirectory>routes</outputDirectory>
       <directory>routes</directory>
     </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/configuration/eip</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+      	<include>application.properties</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>
