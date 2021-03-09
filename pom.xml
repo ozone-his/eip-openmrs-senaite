@@ -102,12 +102,6 @@
    </dependencies>
    
    <build>
-   	  <resources>
-	    <resource>
-	      <directory>${project.basedir}/routes</directory>
-	    </resource>
-	  </resources>
-	  
       <testResources>
          <testResource>
             <directory>${project.basedir}/src/test/resources</directory>
