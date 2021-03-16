@@ -107,7 +107,7 @@
             <directory>${project.basedir}/src/test/resources</directory>
          </testResource>
          <testResource>
-            <directory>${project.basedir}/configuration/eip</directory>
+            <directory>${project.basedir}/config/eip</directory>
          </testResource>
          <testResource>
             <directory>${project.basedir}/routes</directory>

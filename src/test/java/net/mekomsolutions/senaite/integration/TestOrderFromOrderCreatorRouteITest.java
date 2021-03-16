@@ -33,7 +33,7 @@ public class TestOrderFromOrderCreatorRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInCamelDirectory("test_order-from-order-creator-route.xml");  
+    	loadXmlRoutesInDirectory("senaite", "test_order-from-order-creator-route.xml");
     	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "test_order-from-order-creator".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override

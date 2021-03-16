@@ -17,8 +17,8 @@
       <directory>routes</directory>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/configuration/eip</directory>
-      <outputDirectory>/</outputDirectory>
+      <directory>${project.basedir}/config/eip</directory>
+      <outputDirectory>/config/senaite</outputDirectory>
       <includes>
       	<include>application.properties</include>
       </includes>

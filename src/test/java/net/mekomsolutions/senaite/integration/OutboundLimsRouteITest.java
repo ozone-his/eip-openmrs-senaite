@@ -51,7 +51,7 @@ public class OutboundLimsRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInCamelDirectory("outbound-lims-route.xml");  
+    	loadXmlRoutesInDirectory("senaite", "outbound-lims-route.xml");
     	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "outbound-lims".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
