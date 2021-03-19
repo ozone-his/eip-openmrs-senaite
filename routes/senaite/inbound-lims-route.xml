@@ -1,6 +1,6 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
     <route id="inbound-lims" errorHandlerRef="deadLetterChannelBuilder">
-        <from uri="scheduler:taskUpdate?initialDelay={{serviceRequest-task-status.update.initial.delay}}&amp;delay={{serviceRequest-task-status.update.interval}}" />
+        <from uri="scheduler:taskUpdate?initialDelay=10000&amp;delay=10000" />
         
         <log message="Sheduled FHIR Task status updater " />
 
@@ -244,7 +244,7 @@
                                             <simple>${exchangeProperty.results-encounter-uuid} == null || ${exchangeProperty.results-encounter-uuid} == ""</simple>
 
                                             <setBody>
-                                                <simple>{"location": "${exchangeProperty.service-request-location-uuid}","encounterType": "{{results.encounterType.uuid}}","encounterDatetime": "${exchangeProperty.service-request-encounter-datetime}","patient": "${exchangeProperty.patient-uuid}","visit":"${exchangeProperty.service-request-visit-uuid}", "encounterProviders":[{"provider": "${exchangeProperty.service-request-requester}","encounterRole": "{{unknown.encounter.role}}"}]}</simple>
+                                                <simple>{"location": "${exchangeProperty.service-request-location-uuid}","encounterType": "{{results.encounterType.uuid}}","encounterDatetime": "${exchangeProperty.service-request-encounter-datetime}","patient": "${exchangeProperty.patient-uuid}","visit":"${exchangeProperty.service-request-visit-uuid}", "encounterProviders":[{"provider": "${exchangeProperty.service-request-requester}","encounterRole": "a0b03050-c99b-11e0-9572-0800200c9a66"}]}</simple>
                                             </setBody>
 
                                             <setHeader name="CamelHttpMethod">

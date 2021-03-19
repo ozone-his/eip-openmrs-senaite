@@ -37,9 +37,6 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     @Value("${results.encounterType.uuid}") 
     private String resultsEncounterTypeUuid;
     
-    @Value("${unknown.encounter.role}") 
-    private String unknownEncounterRole;
-    
     @Value("${bahmni.test.orderType.uuid}") 
     private String bahmniOestOrderTypeUuid;
     
@@ -82,20 +79,6 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     @Value("${senaite.password}") 
     private String senaitePassword;
     
-    @Value("${db-event.retry.interval}") 
-    private String dbEventRetryInterval;
-    
-    @Value("${db-event.retry.initial.delay}") 
-    private String dbEventRetryInitialDelay;
-    
-    @Value("${serviceRequest-task-status.update.interval}") 
-    private String serviceRequestTaskStatusUpdateInterval;
-    
-    @Value("${serviceRequest-task-status.update.initial.delay}") 
-    private String serviceRequestTaskStatusUpdateInitialDelay;
-    
-    
-
     @Test
     public void shouldLoadApplicationProperties() throws Exception {
     	// setup
@@ -112,7 +95,6 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     	assertNotNull(openmrsDbPort);
     	assertNotNull(openmrsDbName);
     	assertNotNull(resultsEncounterTypeUuid);
-    	assertNotNull(unknownEncounterRole);
     	assertNotNull(bahmniOestOrderTypeUuid);
     	assertNotNull(springOpenmrsDatasourceDriverClassName);
     	assertNotNull(springOpenmrsDatasourceJdbcUrl);
@@ -127,11 +109,6 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     	assertNotNull(senaiteBaseUrl);
     	assertNotNull(senaiteUsername);
     	assertNotNull(senaitePassword);
-    	assertNotNull(dbEventRetryInterval);
-    	assertNotNull(dbEventRetryInitialDelay);
-    	assertNotNull(serviceRequestTaskStatusUpdateInterval);
-    	assertNotNull(serviceRequestTaskStatusUpdateInitialDelay);
-    	
     	
     }
 

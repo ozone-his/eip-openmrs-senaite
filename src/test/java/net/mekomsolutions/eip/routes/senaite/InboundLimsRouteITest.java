@@ -49,8 +49,7 @@ public class InboundLimsRouteITest extends BaseWatcherRouteTest {
     @EndpointInject(value = "mock:openmrsObsCreationEndpoint")
     private MockEndpoint openmrsObsCreationEndpoint;
     
-    @Value("${serviceRequest-task-status.update.initial.delay}") 
-    private String initialDelay;
+    private int initialDelay = 10000;
     
     private int resultWaitTimeMillis = 100; 
     
@@ -95,7 +94,7 @@ public class InboundLimsRouteITest extends BaseWatcherRouteTest {
     	// setup
     	
     	// replay
-    	Thread.sleep(Integer.parseInt(initialDelay));
+    	Thread.sleep(initialDelay);
     	
     	// verify
     	openmrsFhirTaskSearchEndpoint.assertIsSatisfied();
