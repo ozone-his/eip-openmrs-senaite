@@ -9,12 +9,13 @@
 .settings
 .springBeans
 .sts4-cache
+*.txt
 
 
 # Created by https://www.gitignore.io/api/git,java,maven,eclipse,windows
 
 ### Eclipse ###
-
+.DS_Store
 .metadata
 bin/
 tmp/

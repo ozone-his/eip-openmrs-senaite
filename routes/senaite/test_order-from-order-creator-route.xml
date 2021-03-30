@@ -23,7 +23,7 @@
                 <convertBodyTo type="java.lang.String"/>
                 
                 <setProperty name="basic-openmrs-authentication">
-                    <simple>Basic ${body}</simple>
+                    <simple>Basic ${body.trim()}</simple>
                 </setProperty>
 
                 <setHeader name="Authorization">
@@ -36,7 +36,7 @@
 
                 <!--fetch associated order, check whether it is of a lab ordre type and create test_order entry-->
 
-                <toD uri="{{openmrs.baseUrl}}/ws/rest/v1/order/${exchangeProperty.lab-order-uuid}"/>
+                <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/order/${exchangeProperty.lab-order-uuid}"/>
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>
@@ -44,7 +44,7 @@
                 <choice>
                     <when>
                         <jsonpath>$.[?(@.orderType.uuid == '{{bahmni.test.orderType.uuid}}')]</jsonpath>
-                        <toD uri="sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource" />
+                        <toD cacheSize="-1" uri="sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource" />
                     </when>
                 </choice>
                 

@@ -18,7 +18,7 @@
                 <convertBodyTo type="java.lang.String"/>
                 
                 <setProperty name="basic-openmrs-authentication">
-                    <simple>Basic ${body}</simple>
+                    <simple>Basic ${body.trim()}</simple>
                 </setProperty>
 
                 <setHeader name="Authorization">
@@ -31,7 +31,7 @@
                 
                 <!--retreiving service request from openmrs fhir-->
 
-                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}"/>
+                <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}"/>
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>
@@ -54,7 +54,7 @@
 
                 <!--retrieving real patient names using openmrs fhir-->
 
-                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}"/>
+                <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}"/>
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>
@@ -77,7 +77,7 @@
 
                 <!--retrieving requester's names using fhir (to be used as senaite's client contact's)-->
 
-                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}"/>
+                <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}"/>
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>
@@ -100,7 +100,7 @@
                 </marshal>
                 <convertBodyTo type="java.lang.String"/>
                 <setHeader name="Authorization">
-                    <simple>Basic ${body}</simple>
+                    <simple>Basic ${body.trim()}</simple>
                 </setHeader>
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
@@ -111,7 +111,7 @@
 
                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
 
-                <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getName=${exchangeProperty.patient-name-unique}"/>
+                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getName=${exchangeProperty.patient-name-unique}"/>
                 
                 <unmarshal>
                     <json library="Jackson"/>
@@ -135,7 +135,7 @@
                         <setHeader name="CamelHttpMethod">
                             <constant>POST</constant>
                         </setHeader>
-                        <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
+                        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
                         <unmarshal>
                             <json library="Jackson"/>
                         </unmarshal>
@@ -159,7 +159,7 @@
                 <setHeader name="CamelHttpMethod">
                     <constant>POST</constant>
                 </setHeader>
-                <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
+                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>
@@ -173,7 +173,7 @@
                 <setHeader name="CamelHttpMethod">
                     <constant>GET</constant>
                 </setHeader>
-                <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&amp;Description=${exchangeProperty.service-analysis-template}&amp;catalog=bika_setup_catalog&amp;portal_type=ARTemplate"/>
+                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&amp;Description=${exchangeProperty.service-analysis-template}&amp;catalog=bika_setup_catalog&amp;portal_type=ARTemplate"/>
 
                 <unmarshal>
                     <json library="Jackson"/>
@@ -219,7 +219,7 @@
                 <setHeader name="CamelHttpMethod">
                     <constant>POST</constant>
                 </setHeader>
-                <toD uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
+                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
 
                 <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
 
@@ -237,7 +237,7 @@
                     <simple>{"resourceType": "Task", "status": "requested", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
                 </setBody>
 
-                <toD uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task"/>
+                <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task"/>
 
                 <log message="FHIR Task posted results             :          ${body}"/>
 

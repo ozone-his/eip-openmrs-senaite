@@ -13,8 +13,12 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <outputDirectory>routes</outputDirectory>
       <directory>routes</directory>
+      <outputDirectory>routes</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>config</directory>
+      <outputDirectory>config</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>
