@@ -13,9 +13,6 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     @Value("${${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
     
-    @Value("${db-event.destinations}") 
-    private String dbEventDestination;
-    
     @Value("${openmrs.username}") 
     private String openmrsUsername;
     
@@ -87,7 +84,6 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     	
     	// verify
     	assertNotNull(bahmniTestOrderTypeUuid);
-    	assertNotNull(dbEventDestination);
     	assertNotNull(openmrsUsername);
     	assertNotNull(openmrsPassword);
     	assertNotNull(openmrsBaseUrl);
