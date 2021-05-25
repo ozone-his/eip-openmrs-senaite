@@ -233,7 +233,7 @@
                                             </marshal>
 
                                             <setProperty name="results-encounter-uuid">
-                                                <method beanType="org.openmrs.eip.component.utils.JsonUtils" method="getPropertyValueWhereKeyMatchesValue(${body}, uuid, encounterDatetime, ${exchangeProperty.service-request-encounter-datetime})" />
+                                                <method beanType="org.openmrs.eip.utils.JsonUtils" method="getPropertyValueWhereKeyMatchesValue(${body}, uuid, encounterDatetime, ${exchangeProperty.service-request-encounter-datetime})" />
                                             </setProperty>
                                         </when>
                                     </choice>
