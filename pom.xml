@@ -33,31 +33,25 @@
    
    <dependencies>
    	  <dependency>
-   	  	<groupId>org.openmrs.eip</groupId>
-	    <artifactId>openmrs-watcher</artifactId>
-   	  	<version>2.0.0-SNAPSHOT</version>
+   	  	<groupId>net.mekomsolutions</groupId>
+	    <artifactId>eip-api</artifactId>
+   	  	<version>1.0.0-SNAPSHOT</version>
    	  	<scope>test</scope>
    	  </dependency>
    	  <dependency>
-          <groupId>org.openmrs.eip</groupId>
-          <artifactId>common</artifactId>
-          <version>2.0.0-SNAPSHOT</version>
-          <scope>test</scope>
-      </dependency>
-   	  <dependency>
-          <groupId>org.openmrs.eip</groupId>
-          <artifactId>common</artifactId>
-          <type>test-jar</type>
-          <version>2.0.0-SNAPSHOT</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
+        <groupId>org.openmrs.eip</groupId>
+        <artifactId>openmrs-watcher</artifactId>
+        <type>test-jar</type>
+        <version>2.0.0-SNAPSHOT</version>
+        <scope>test</scope>
+     </dependency>
+     <dependency>
          <groupId>org.openmrs.eip</groupId>
-         <artifactId>openmrs-watcher</artifactId>
+         <artifactId>commons</artifactId>
          <type>test-jar</type>
          <version>2.0.0-SNAPSHOT</version>
          <scope>test</scope>
-      </dependency>
+     </dependency>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
@@ -65,16 +59,7 @@
       </dependency>
 
       <!-- Camel --> 
-      <dependency>
-         <groupId>org.apache.camel</groupId>
-         <artifactId>camel-jackson</artifactId>
-         <version>${camel-version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.camel</groupId>
-         <artifactId>camel-jaxb</artifactId>
-         <version>${camel-version}</version>
-      </dependency> 
+      
       <dependency>
          <groupId>org.apache.camel</groupId>
          <artifactId>camel-test-spring</artifactId>
@@ -85,8 +70,26 @@
 	     <groupId>org.apache.camel</groupId>
 	     <artifactId>camel-jpa</artifactId>
 	     <version>${camel-version}</version>
+	     <scope>test</scope>
 	  </dependency>
-	  
+	  <dependency>
+		 <groupId>org.apache.camel</groupId>
+		 <artifactId>camel-base64</artifactId>
+		 <version>${camel-version}</version>
+		 <scope>test</scope>
+	  </dependency>
+	  <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-jackson</artifactId>
+         <version>${camel-version}</version>
+         <scope>test</scope>
+      </dependency>
+	  <dependency>
+         <groupId>org.apache.camel</groupId>
+         <artifactId>camel-jaxb</artifactId>
+         <version>${camel-version}</version>
+         <scope>test</scope>
+      </dependency> 
 	   <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
