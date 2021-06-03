@@ -16,7 +16,7 @@
       <maven.compiler.target>1.8</maven.compiler.target>
       <camelVersion>3.3.0</camelVersion>
       <testContainersVersion>1.15.2</testContainersVersion>
-      <eipVersion>1.0.0-SNAPSHOT</eipVersion>
+      <eipClientVersion>1.0.0-SNAPSHOT</eipClientVersion>
    </properties>
 
    <dependencyManagement>
@@ -36,7 +36,7 @@
    	  <dependency>
    	  	<groupId>net.mekomsolutions.eip</groupId>
    	  	<artifactId>client-commons</artifactId>
-   	  	<version>${eipVersion}</version>
+   	  	<version>${eipClientVersion}</version>
    	  	<scope>test</scope>
    	  </dependency>
    	  <dependency>
