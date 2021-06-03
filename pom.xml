@@ -34,8 +34,8 @@
    
    <dependencies>
    	  <dependency>
-   	  	<groupId>net.mekomsolutions</groupId>
-	    <artifactId>eip-api</artifactId>
+   	  	<groupId>net.mekomsolutions.eip</groupId>
+   	  	<artifactId>client-commons</artifactId>
    	  	<version>${eipVersion}</version>
    	  	<scope>test</scope>
    	  </dependency>
