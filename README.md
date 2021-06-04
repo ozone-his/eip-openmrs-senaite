@@ -35,7 +35,7 @@ user/password `admin/admin`
 
 ## 3. How to use the routes
 
-Follow the instructions here: https://github.com/mekomsolutions/eip-app
+Follow the instructions here: https://github.com/mekomsolutions/eip-client
 
 #### Note
 Remember to provide an `application.properties` file defining the required runtime properties needed by the routes. Use this [template file](src/test/resources/application.properties). Uncomment the properties prefixed with `##` and set them appropriately.
