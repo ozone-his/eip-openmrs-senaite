@@ -35,7 +35,7 @@
    <dependencies>
    	  <dependency>
    	  	<groupId>net.mekomsolutions.eip</groupId>
-   	  	<artifactId>client-commons</artifactId>
+   	  	<artifactId>openmrs-eip-client-commons</artifactId>
    	  	<version>${eipClientVersion}</version>
    	  	<scope>test</scope>
    	  </dependency>
