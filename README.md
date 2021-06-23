@@ -9,7 +9,7 @@
 Follow instructions here: https://github.com/openmrs/openmrs-distro-referenceapplication/tree/3.x
 
 #### Enable mysql bin log
-IF using docker-compose, you can do it by exposing the `port` and overriding the `command` parameters for example;
+If using Docker Compose, expose the `port` and override the `command` parameters in **docker-compose.yml**. For example:
 
 ```
     ports:
