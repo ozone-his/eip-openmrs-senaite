@@ -19,7 +19,7 @@ If using Docker Compose, expose the `port` and override the `command` parameters
 ```
 
 
-## 2. Run SENAITE on port 8085
+## 2. Run SENAITE on port 8088
 
 ```
 git clone https://github.com/senaite/senaite.docker
@@ -27,7 +27,7 @@ cd senaite.docker
 docker build -t senaite .
 docker run --rm --name senaite -p 8085:8080 senaite
 ```
-Access http://localhost:8085/
+Access http://localhost:8088/
 and follow the steps to "Install SENAITE"
 
 user/password `admin/admin`
@@ -39,3 +39,23 @@ Follow the instructions here: https://github.com/mekomsolutions/eip-client
 
 #### Note
 Remember to provide an `application.properties` file defining the required runtime properties needed by the routes. Use this [template file](src/test/resources/application.properties). Uncomment the properties prefixed with `##` and set them appropriately.
+
+## 4. Workflows
+
+Below are sequence diagrams showing a quick overview of what the routes do.
+
+#### a) Placing lab orders
+
+<img src="readme/creation_workflow.png" alt="hsc-logo" width="700"/>
+
+#### b) Deleting, Voiding and Canceling/Discontinuing lab orders
+
+<img src="readme/delete_void_cancel_worklow.png" alt="hsc-logo" width="700"/>
+
+##### c) Renewing, Revising lab orders
+
+<img src="readme/renew_revise_workflow.png" alt="hsc-logo" width="700"/>
+
+##### d) Updating and Fulfilling lab orders
+
+<img src="readme/updating_workflow.png" alt="hsc-logo" width="700"/>
