@@ -52,10 +52,10 @@ Below are sequence diagrams showing a quick overview of what the routes do.
 
 <img src="readme/delete_void_cancel_worklow.png" alt="hsc-logo" width="700"/>
 
-##### c) Renewing, Revising lab orders
+#### c) Renewing, Revising lab orders
 
 <img src="readme/renew_revise_workflow.png" alt="hsc-logo" width="700"/>
 
-##### d) Updating and Fulfilling lab orders
+#### d) Updating and Fulfilling lab orders
 
 <img src="readme/updating_workflow.png" alt="hsc-logo" width="700"/>
