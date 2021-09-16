@@ -17,6 +17,12 @@
     <dependencies>
         <dependency>
             <groupId>net.mekomsolutions.eip</groupId>
+            <artifactId>openmrs-eip-client-commons</artifactId>
+            <version>${eipClientVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.mekomsolutions.eip</groupId>
             <artifactId>openmrs-eip-client-test</artifactId>
             <type>pom</type>
             <version>${eipClientVersion}</version>
