@@ -61,7 +61,7 @@ public class InboundLimsRouteITest extends BaseWatcherRouteTest {
     	    @Override
     	    public void configure() throws Exception {
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Task?status=requested,accepted]").replace().toD("mock:openmrsFhirTaskSearchEndpoint");
-    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
+    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}]").replace().toD("mock:openmrsEncounterApiEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-uuid}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().toD("mock:senaiteClientsSampleSearchEndpoint");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}]").replace().toD("mock:openmrsFhirTaskEndpoint");
