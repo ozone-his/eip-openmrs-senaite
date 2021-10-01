@@ -6,75 +6,65 @@
         <choice>
             <when>
                 <simple>${body.tableName} == 'test_order' || ${body.tableName} == 'orders'</simple>
+                
                 <setProperty name="lab-order-uuid">
                     <simple>${body.identifier}</simple>
                 </setProperty>
+                
                 <setProperty name="event">
                     <simple>${body}</simple>
                 </setProperty>
-                <!--setting up basic authentication to OpenMRS-->
-                <setBody>
-                    <simple>{{openmrs.username}}:{{openmrs.password}}</simple>
-                </setBody>
-                <marshal>
-                    <base64/>
-                </marshal>
-                <convertBodyTo type="java.lang.String"/>
-                <setProperty name="basic-openmrs-authentication">
-                    <simple>Basic ${body.trim()}</simple>
-                </setProperty>
-                <!--setting up basic authentication to SENAITE-->
-                <setBody>
-                    <simple>{{senaite.username}}:{{senaite.password}}</simple>
-                </setBody>
-                <marshal>
-                    <base64/>
-                </marshal>
-                <convertBodyTo type="java.lang.String"/>
-                <setProperty name="basic-senaite-authentication">
-                    <simple>Basic ${body.trim()}</simple>
-                </setProperty>
+                
                 <setHeader name="Content-Type">
                     <constant>application/json</constant>
                 </setHeader>
+                
                 <!-- Main route starts -->
                 <choice>
                     <!-- Handling deletions -->
                     <when>
                         <simple>${exchangeProperty.event.tableName} == 'test_order' &amp;&amp; ${exchangeProperty.event.operation} == 'd'</simple>
+                        
                         <setProperty name="order-to-cancel">
                             <simple>${exchangeProperty.lab-order-uuid}</simple>
                         </setProperty>
+                        
                         <setBody>
                             <simple>${exchangeProperty.order-to-cancel} </simple>
                         </setBody>
                         <!-- cancel -->
                         <to uri="direct:process-cancelOrder"/>
                     </when>
+                    
                     <!-- Handling voided -->
                     <when>
                         <simple>${exchangeProperty.event.tableName} == 'orders' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
+                        
                         <!--retrieving service request from openmrs fhir-->
-                        <setHeader name="Authorization">
-                            <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
-                        </setHeader>
+                        <to uri="direct:openmrs-authenticate"/>
+                        
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>
                         </setHeader>
+                        
                         <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false"/>
                         <unmarshal>
                             <json library="Jackson"/>
                         </unmarshal>
+                        
                         <choice>
                             <!-- If true, cancel related SENAITE analysis request -->
                             <when>
                                 <jsonpath>$.[?(@.issue &amp;&amp; @.issue[0].diagnostics contains 'is gone/deleted')] </jsonpath>
+                                
                                 <setProperty name="order-to-cancel">
                                     <simple>${exchangeProperty.lab-order-uuid}</simple>
                                 </setProperty>
+                                
                                 <setBody>
                                     <simple>${exchangeProperty.order-to-cancel} </simple>
                                 </setBody>
+                                
                                 <!-- Cancel -->
                                 <to uri="direct:process-cancelOrder"/>
                             </when>
@@ -83,39 +73,48 @@
                     <!-- Handling creation, revision, discontinuation -->
                     <when>
                         <simple>${exchangeProperty.event.tableName} == 'test_order' &amp;&amp; ${exchangeProperty.event.operation} == 'c'</simple>
+                        
                         <!--retrieving service request from openmrs fhir-->
-                        <setHeader name="Authorization">
-                            <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
-                        </setHeader>
+                        <to uri="direct:openmrs-authenticate"/>
+                        
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>
                         </setHeader>
+                        
                         <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}"/>
                         <unmarshal>
                             <json library="Jackson"/>
                         </unmarshal>
+                        
                         <setProperty name="service-analysis-template">
                             <jsonpath>$.code.coding[0].code</jsonpath>
                         </setProperty>
+                        
                         <setProperty name="lab-order-start-date">
                             <jsonpath>$.occurrencePeriod.start</jsonpath>
                         </setProperty>
+                        
                         <setProperty name="patient-reference">
                             <jsonpath>$.subject.reference</jsonpath>
                         </setProperty>
+                        
                         <setProperty name="requester-reference">
                             <jsonpath>$.requester.reference</jsonpath>
                         </setProperty>
+                        
                         <choice>
                             <!-- If discontinuation order, then cancel their previous analysis request on senaite -->
                             <when>
                                 <jsonpath>$.[?((@.status == 'revoked' || @.status == 'unknown') &amp;&amp; @.replaces)]</jsonpath>
+                                
                                 <setProperty name="order-to-cancel">
                                     <jsonpath>$.replaces[0].reference</jsonpath>
                                 </setProperty>
+                                
                                 <setBody>
                                     <simple>${exchangeProperty.order-to-cancel.substring(15)} </simple>
                                 </setBody>
+                                
                                 <!-- cancel -->
                                 <to uri="direct:process-cancelOrder"/>
                             </when>
@@ -125,67 +124,82 @@
                                     <!-- If revision order, first cancel their previous one on senaite -->
                                     <when>
                                         <jsonpath>$.[?(@.basedOn)]</jsonpath>
+                                        
                                         <setProperty name="order-to-cancel">
                                             <jsonpath>$.basedOn[0].reference</jsonpath>
                                         </setProperty>
+                                        
                                         <setBody>
                                             <simple>${exchangeProperty.order-to-cancel.substring(15)} </simple>
                                         </setBody>
+                                        
                                         <!-- cancel -->
                                         <to uri="direct:process-cancelOrder"/>
                                     </when>
                                 </choice>
+                                
                                 <!--retrieving real patient names using openmrs fhir-->
-                                <setHeader name="Authorization">
-                                    <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
-                                </setHeader>
+                                <to uri="direct:openmrs-authenticate"/>
+                                
                                 <setHeader name="CamelHttpMethod">
                                     <constant>GET</constant>
                                 </setHeader>
+                                
                                 <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}"/>
                                 <unmarshal>
                                     <json library="Jackson"/>
                                 </unmarshal>
+                                
                                 <setProperty name="patient-id">
                                     <jsonpath>$.id</jsonpath>
                                 </setProperty>
+                                
                                 <setProperty name="patient-family-name">
                                     <jsonpath>$.name[0].family</jsonpath>
                                 </setProperty>
+                                
                                 <setProperty name="patient-given-name">
                                     <jsonpath>$.name[0].given[0]</jsonpath>
                                 </setProperty>
+                                
                                 <setProperty name="patient-name-unique">
                                     <simple>${exchangeProperty.patient-given-name} ${exchangeProperty.patient-family-name} (${exchangeProperty.patient-id})</simple>
                                 </setProperty>
+                                
                                 <!--retrieving requester's names using fhir (to be used as senaite's client contact's)-->
                                 <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}"/>
                                 <unmarshal>
                                     <json library="Jackson"/>
                                 </unmarshal>
+                                
                                 <setProperty name="requester-family-name">
                                     <jsonpath>$.name[0].family</jsonpath>
                                 </setProperty>
+                                
                                 <setProperty name="requester-given-name">
                                     <jsonpath>$.name[0].given[0]</jsonpath>
                                 </setProperty>
+                                
                                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
-                                <setHeader name="Authorization">
-                                    <simple>${exchangeProperty.basic-senaite-authentication}</simple>
-                                </setHeader>
+                                <to uri="direct:senaite-authenticate"/>
+                                
                                 <setHeader name="CamelHttpMethod">
                                     <constant>GET</constant>
                                 </setHeader>
+                                
                                 <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getName=${exchangeProperty.patient-name-unique}"/>
                                 <unmarshal>
                                     <json library="Jackson"/>
                                 </unmarshal>
+                                
                                 <choice>
                                     <when>
                                         <jsonpath>$.[?(@.count==1)]</jsonpath>
+                                        
                                         <setProperty name="client-uid">
                                             <jsonpath>$.items[0].uid</jsonpath>
                                         </setProperty>
+                                        
                                         <setProperty name="client-storage-path">
                                             <jsonpath>$.items[0].path</jsonpath>
                                         </setProperty>
@@ -194,86 +208,107 @@
                                         <setBody>
                                             <simple>{"portal_type":"Client","title":"${exchangeProperty.patient-name-unique}","ClientID":"${exchangeProperty.patient-id}","parent_path":"/senaite/clients"}</simple>
                                         </setBody>
+                                        
                                         <setHeader name="CamelHttpMethod">
                                             <constant>POST</constant>
                                         </setHeader>
+                                        
                                         <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
                                         <unmarshal>
                                             <json library="Jackson"/>
                                         </unmarshal>
+                                        
                                         <setProperty name="client-uid">
                                             <jsonpath>$.items[0].uid</jsonpath>
                                         </setProperty>
+                                        
                                         <setProperty name="client-storage-path">
                                             <jsonpath>$.items[0].path</jsonpath>
                                         </setProperty>
                                     </otherwise>
                                 </choice>
+                                
                                 <!--create client contact from ServiceRequest.requester and save contact UID property-->
                                 <setBody>
                                     <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}","Firstname": "${exchangeProperty.requester-given-name}","Surname": "${exchangeProperty.requester-family-name}"}</simple>
                                 </setBody>
+                                
                                 <setHeader name="CamelHttpMethod">
                                     <constant>POST</constant>
                                 </setHeader>
+                                
                                 <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
                                 <unmarshal>
                                     <json library="Jackson"/>
                                 </unmarshal>
+                                
                                 <setProperty name="client-contact-uid">
                                     <jsonpath>$.items[0].uid</jsonpath>
                                 </setProperty>
+                                
                                 <!--retrieve Analysis Template from SENAITE-->
                                 <setHeader name="CamelHttpMethod">
                                     <constant>GET</constant>
                                 </setHeader>
+                                
                                 <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&amp;Description=${exchangeProperty.service-analysis-template}&amp;catalog=bika_setup_catalog&amp;portal_type=ARTemplate"/>
                                 <unmarshal>
                                     <json library="Jackson"/>
                                 </unmarshal>
+                                
                                 <setProperty name="sample-type-uid">
                                     <jsonpath>$.items[0].SampleType.uid</jsonpath>
                                 </setProperty>
+                                
                                 <setProperty name="sample-template-uid">
                                     <jsonpath>$.items[0].uid</jsonpath>
                                 </setProperty>
+                                
                                 <choice>
                                     <when>
                                         <jsonpath>$.[?(@.items[0].AnalysisProfile != null)]</jsonpath>
+                                        
                                         <setProperty name="sample-analyses-profile-uid">
                                             <jsonpath>$.items[0].AnalysisProfile.uid</jsonpath>
                                         </setProperty>
                                     </when>
                                 </choice>
+                                
                                 <setBody>
                                     <jsonpath>$.items[0].Analyses</jsonpath>
                                 </setBody>
                                 <marshal>
                                     <json library="Jackson"/>
                                 </marshal>
+                                
                                 <setProperty name="sample-analyses-uids">
                                     <method beanType="net.mekomsolutions.eip.utils.JsonUtils" method="convertToValuesArrayForKey(${body}, service_uid)" />
                                 </setProperty>
+                                
                                 <!--fill sample payload-->
                                 <setBody>
                                     <simple>{"Contact": "${exchangeProperty.client-contact-uid}","SampleType": "${exchangeProperty.sample-type-uid}","DateSampled": "${exchangeProperty.lab-order-start-date}","Template": "${exchangeProperty.sample-template-uid}","Profiles": "${exchangeProperty.sample-analyses-profile-uid}","Analyses": [${exchangeProperty.sample-analyses-uids}],"ClientSampleID": "${exchangeProperty.lab-order-uuid}"}</simple>
                                 </setBody>
+                                
                                 <!--post sample to senaite-->
                                 <setHeader name="CamelHttpMethod">
                                     <constant>POST</constant>
                                 </setHeader>
+                                
                                 <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
                                 <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
+                                
                                 <!--creating FHIR Task to track progress of the ServiceRequest(Analysis Requests registered) starting with 'accepted' status-->
-                                <setHeader name="Authorization">
-                                    <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
-                                </setHeader>
+                                <to uri="direct:openmrs-authenticate"/>
+                                
                                 <setHeader name="CamelHttpMethod">
                                     <constant>POST</constant>
                                 </setHeader>
+                                
                                 <setBody>
                                     <simple>{"resourceType": "Task", "status": "requested", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
                                 </setBody>
+                                
                                 <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task"/>
                                 <log message="FHIR Task posted results             :          ${body}"/>
                             </when>
