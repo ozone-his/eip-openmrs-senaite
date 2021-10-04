@@ -3,14 +3,20 @@
     <route id="senaite-authenticate" errorHandlerRef="deadLetterChannelBuilder">
         <from uri="direct:senaite-authenticate"/>
         <log message="Authenticating application to senaite" />
+
+        <setProperty name="body">
+            <simple>${body}</simple>
+        </setProperty>
         
         <setBody>
             <simple>{{senaite.username}}:{{senaite.password}}</simple>
         </setBody>
+        
         <marshal>
             <base64/>
         </marshal>
         <convertBodyTo type="java.lang.String"/>
+        
         <setProperty name="basic-senaite-authentication">
             <simple>Basic ${body.trim()}</simple>
         </setProperty>
@@ -18,5 +24,9 @@
         <setHeader name="Authorization">
             <simple>${exchangeProperty.basic-senaite-authentication}</simple>
         </setHeader>
+
+        <setBody name="body">
+            <simple>${exchangeProperty.body}</simple>
+        </setBody>
     </route>
 </routes>
