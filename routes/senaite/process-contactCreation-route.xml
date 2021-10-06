@@ -1,0 +1,26 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="process-contactCreation" errorHandlerRef="deadLetterChannelBuilder">
+        <from uri="direct:process-contactCreation"/>
+        
+        <log message="Processing creation contact for order: " />
+
+        <setBody>
+            <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}","Firstname": "${exchangeProperty.requester-given-name}","Surname": "${exchangeProperty.requester-family-name}"}</simple>
+        </setBody>
+        
+        <setHeader name="CamelHttpMethod">
+            <constant>POST</constant>
+        </setHeader>
+        
+        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+        
+        <setProperty name="client-contact-uid">
+            <jsonpath>$.items[0].uid</jsonpath>
+        </setProperty>
+        
+    </route>
+</routes>

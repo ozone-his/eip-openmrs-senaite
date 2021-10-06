@@ -1,0 +1,22 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="process-contactNames" errorHandlerRef="deadLetterChannelBuilder">
+        <from uri="direct:process-contactNames"/>
+        
+        <log message="Processing contact names for order: " />
+
+        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+        
+        <setProperty name="requester-family-name">
+            <jsonpath>$.name[0].family</jsonpath>
+        </setProperty>
+        
+        <setProperty name="requester-given-name">
+            <jsonpath>$.name[0].given[0]</jsonpath>
+        </setProperty>
+        
+    </route>
+</routes>

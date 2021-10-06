@@ -1,0 +1,36 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="process-patientNames" errorHandlerRef="deadLetterChannelBuilder">
+        <from uri="direct:process-patientNames"/>
+        
+        <log message="Processing patient names for order: " />
+        
+        <to uri="direct:openmrs-authenticate"/>
+                                
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
+        
+        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+        
+        <setProperty name="patient-id">
+            <jsonpath>$.id</jsonpath>
+        </setProperty>
+        
+        <setProperty name="patient-family-name">
+            <jsonpath>$.name[0].family</jsonpath>
+        </setProperty>
+        
+        <setProperty name="patient-given-name">
+            <jsonpath>$.name[0].given[0]</jsonpath>
+        </setProperty>
+        
+        <setProperty name="patient-name-unique">
+            <simple>${exchangeProperty.patient-given-name} ${exchangeProperty.patient-family-name} (${exchangeProperty.patient-id})</simple>
+        </setProperty>
+        
+    </route>
+</routes>

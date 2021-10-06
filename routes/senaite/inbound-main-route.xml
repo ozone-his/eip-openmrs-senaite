@@ -57,10 +57,6 @@
                                 <when>
                                     <jsonpath>$.[?((@.issue &amp;&amp; @.issue[0].diagnostics contains 'is gone/deleted') || (@.issue &amp;&amp; @.issue[0].diagnostics contains 'is not known'))] </jsonpath>
 
-                                    <setHeader name="Authorization">
-                                        <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
-                                    </setHeader>
-
                                     <setHeader name="CamelHttpMethod">
                                         <constant>PUT</constant>
                                     </setHeader>

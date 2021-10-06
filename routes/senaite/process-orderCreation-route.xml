@@ -1,0 +1,61 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="process-orderCreation" errorHandlerRef="deadLetterChannelBuilder">
+        <from uri="direct:process-orderCreation"/>
+        
+        <log message="Processing creation of order: " />
+
+        <!--retrieve Analysis Template from SENAITE-->
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
+        
+        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&amp;Description=${exchangeProperty.service-analysis-template}&amp;catalog=bika_setup_catalog&amp;portal_type=ARTemplate"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+        
+        <setProperty name="sample-type-uid">
+            <jsonpath>$.items[0].SampleType.uid</jsonpath>
+        </setProperty>
+        
+        <setProperty name="sample-template-uid">
+            <jsonpath>$.items[0].uid</jsonpath>
+        </setProperty>
+        
+        <choice>
+            <when>
+                <jsonpath>$.[?(@.items[0].AnalysisProfile != null)]</jsonpath>
+                
+                <setProperty name="sample-analyses-profile-uid">
+                    <jsonpath>$.items[0].AnalysisProfile.uid</jsonpath>
+                </setProperty>
+            </when>
+        </choice>
+        
+        <setBody>
+            <jsonpath>$.items[0].Analyses</jsonpath>
+        </setBody>
+        <marshal>
+            <json library="Jackson"/>
+        </marshal>
+        
+        <setProperty name="sample-analyses-uids">
+            <method beanType="net.mekomsolutions.eip.utils.JsonUtils" method="convertToValuesArrayForKey(${body}, service_uid)" />
+        </setProperty>
+        
+        <!--fill sample payload-->
+        <setBody>
+            <simple>{"Contact": "${exchangeProperty.client-contact-uid}","SampleType": "${exchangeProperty.sample-type-uid}","DateSampled": "${exchangeProperty.lab-order-start-date}","Template": "${exchangeProperty.sample-template-uid}","Profiles": "${exchangeProperty.sample-analyses-profile-uid}","Analyses": [${exchangeProperty.sample-analyses-uids}],"ClientSampleID": "${exchangeProperty.lab-order-uuid}"}</simple>
+        </setBody>
+        
+        <!--post sample to senaite-->
+        <setHeader name="CamelHttpMethod">
+            <constant>POST</constant>
+        </setHeader>
+        
+        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
+        <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
+        
+    </route>
+</routes>
