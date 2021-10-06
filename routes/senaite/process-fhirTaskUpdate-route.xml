@@ -1,0 +1,21 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="process-fhirTaskUpdate" errorHandlerRef="deadLetterChannelBuilder">
+        <from uri="direct:process-fhirTaskUpdate"/>
+
+        <log message="Processing FHIR Task update for order: " />
+        
+        <to uri="direct:openmrs-authenticate"/>
+
+        <setHeader name="CamelHttpMethod">
+            <constant>PUT</constant>
+        </setHeader>
+
+        <setBody>
+            <simple>{"resourceType": "Task", "id": "${exchangeProperty.task-id}", "status": "${exchangeProperty.service-request-transitioned-status}", "intent": "order"}</simple>
+        </setBody>
+
+        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
+        
+    </route>
+</routes>
