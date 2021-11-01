@@ -1,5 +1,6 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
-    <route id="inbound-lims" errorHandlerRef="deadLetterChannelBuilder">
+    <!-- No error handling for this route because of its polling nature and that it does not listen for DB/Watcher Events-->
+    <route id="inbound-lims">
         <from uri="scheduler:taskUpdate?initialDelay=10000&amp;delay=10000" />
         
         <log message="Sheduled FHIR Task status updater " />
@@ -119,37 +120,46 @@
                                 <json library="Jackson"/>
                             </unmarshal>
 
-                            <to uri="direct:process-fhirTaskState"/>
-
-                            <setProperty name="service-request-tests">
-                                <jsonpath>$.items[0].Analyses</jsonpath>
-                            </setProperty>
-
-                            <setProperty name="number-of-service-request-tests">
-                                <jsonpath>$.items[0].Analyses.length()</jsonpath>
-                            </setProperty>
-
                             <choice>
-                                <!---to only update Task status if it is valid(not null - happens if the associated ServiceRequest was never created on senaite) and has actually changed -->
                                 <when>
-                                    <simple>${exchangeProperty.service-request-current-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-current-status} != ${exchangeProperty.service-request-transitioned-status}</simple>
-
-                                    <to uri="direct:process-fhirTaskUpdate"/>
+                                    <jsonpath>$.[?(@.count == 0)]</jsonpath>
+                                    <!-- Do not recreate results -->
+                                    <log message="No Analysis Request was found for order:" />
                                 </when>
-                            </choice>
+                                <otherwise>
+                                    <!-- Process order status -->
+                                    <to uri="direct:process-serviceRequest-taskState"/>
 
-                            <choice>
-                                <!---to create lab results once the ServiceRequest is completed -->
-                                <when>
-                                    <simple>${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} == 'completed'</simple>
+                                    <setProperty name="service-request-tests">
+                                        <jsonpath>$.items[0].Analyses</jsonpath>
+                                    </setProperty>
 
-                                    <to uri="direct:process-serviceRequestResults"/>
-                                </when>
+                                    <setProperty name="number-of-service-request-tests">
+                                        <jsonpath>$.items[0].Analyses.length()</jsonpath>
+                                    </setProperty>
+
+                                    <choice>
+                                        <!---to only update Task status if it is valid(not null - happens if the associated ServiceRequest was never created on senaite) and has actually changed -->
+                                        <when>
+                                            <simple>${exchangeProperty.service-request-current-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-current-status} != ${exchangeProperty.service-request-transitioned-status}</simple>
+
+                                            <to uri="direct:update-serviceRequest-task"/>
+                                        </when>
+                                    </choice>
+
+                                    <choice>
+                                        <!---to create lab results once the ServiceRequest is completed -->
+                                        <when>
+                                            <simple>${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} == 'completed'</simple>
+
+                                            <to uri="direct:create-serviceRequestResults-toOpenmrs"/>
+                                        </when>
+                                    </choice>
+                                </otherwise>
                             </choice>
                         </when>
                         <otherwise>
                             <log message="Something went wrong when updating FHIR Task for ServiceRequest identified by uuid: '${exchangeProperty.task-id}'"/>
-
                         </otherwise>
                     </choice>
                 </split>

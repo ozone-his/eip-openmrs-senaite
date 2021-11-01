@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="openmrs-authenticate" errorHandlerRef="deadLetterChannelBuilder">
+    <route id="openmrs-authenticate" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:openmrs-authenticate"/>
         <log message="Authenticating application to openmrs" />
         
@@ -25,7 +25,7 @@
             <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
         </setHeader>
 
-        <setBody name="body">
+        <setBody>
             <simple>${exchangeProperty.body}</simple>
         </setBody>
     </route>

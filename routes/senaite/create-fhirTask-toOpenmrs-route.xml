@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="process-fhirTaskCreation" errorHandlerRef="deadLetterChannelBuilder">
-        <from uri="direct:process-fhirTaskCreation"/>
+    <route id="create-fhirTask-toOpenmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:create-fhirTask-toOpenmrs"/>
         
         <log message="Processing FHIR Task creation for order: " />
         

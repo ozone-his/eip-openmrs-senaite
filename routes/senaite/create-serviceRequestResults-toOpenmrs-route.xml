@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="process-serviceRequestResults" errorHandlerRef="deadLetterChannelBuilder">
-        <from uri="direct:process-serviceRequestResults"/>
+    <route id="create-serviceRequestResults-toOpenmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:create-serviceRequestResults-toOpenmrs"/>
         
         <log message="Processing ServiceRequest results for order: " />
 
@@ -141,16 +141,47 @@
         </choice>
 
         <to uri="direct:openmrs-authenticate"/>
-
+                                
         <setHeader name="CamelHttpMethod">
-            <constant>POST</constant>
+            <constant>GET</constant>
         </setHeader>
         
-        <setBody>
-            <simple>${exchangeProperty.result-obs}</simple>
-        </setBody>
+        <setProperty name="tempPayload">
+            <simple>${body}</simple>
+        </setProperty>
 
-        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/obs"/>
-        
+        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Observation?code=${exchangeProperty.service-request-concept-uuid}&amp;subject=${exchangeProperty.patient-uuid}&amp;encounter=${exchangeProperty.results-encounter-uuid}&amp;date=${exchangeProperty.service-request-resultCaptureDate}"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+
+        <setProperty name="payload">
+            <simple>${body}</simple>
+        </setProperty>
+
+        <!-- To create results observations only if they never where created -->
+        <choice>
+            <when>
+                <jsonpath>$.[?(@.total > 0)]</jsonpath>
+                <!-- Do not recreate results -->
+                <log message="Results already exist for order:" />
+            </when>
+            <otherwise>
+                <!-- Creating results Observations -->
+                <setBody>
+                    <simple>${exchangeProperty.payload}</simple>
+                </setBody>
+
+                <setHeader name="CamelHttpMethod">
+                    <constant>POST</constant>
+                </setHeader>
+                
+                <setBody>
+                    <simple>${exchangeProperty.result-obs}</simple>
+                </setBody>
+
+                <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/rest/v1/obs"/>
+            </otherwise>
+        </choice>
     </route>
 </routes>

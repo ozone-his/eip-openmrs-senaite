@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="process-cancelOrder" errorHandlerRef="deadLetterChannelBuilder">
-        <from uri="direct:process-cancelOrder"/>
+    <route id="cancel-order-toSenaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:cancel-order-toSenaite"/>
         <log message="Processing cancellation of lab order:  '${body}'" />
         
         <setProperty name="order-to-cancel">

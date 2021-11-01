@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="fetch-ServiceRequestTasks" errorHandlerRef="deadLetterChannelBuilder">
+    <route id="fetch-ServiceRequestTasks" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:fetch-ServiceRequestTasks"/>
         
         <log message="Fetching Tasks associated with ServiceRequests " />

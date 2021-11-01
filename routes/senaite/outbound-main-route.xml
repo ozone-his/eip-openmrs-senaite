@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="outbound-lims" errorHandlerRef="deadLetterChannelBuilder">
+    <route id="outbound-lims" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:outbound-lims"/>
         <log message="Processing db event: ${body}" />
         <choice>
@@ -33,7 +33,7 @@
                             <simple>${exchangeProperty.order-to-cancel} </simple>
                         </setBody>
                         <!-- cancel -->
-                        <to uri="direct:process-cancelOrder"/>
+                        <to uri="direct:cancel-order-toSenaite"/>
                     </when>
                     
                     <!-- Handling voided -->
@@ -66,7 +66,7 @@
                                 </setBody>
                                 
                                 <!-- Cancel -->
-                                <to uri="direct:process-cancelOrder"/>
+                                <to uri="direct:cancel-order-toSenaite"/>
                             </when>
                         </choice>
                     </when>
@@ -116,7 +116,7 @@
                                 </setBody>
                                 
                                 <!-- cancel -->
-                                <to uri="direct:process-cancelOrder"/>
+                                <to uri="direct:cancel-order-toSenaite"/>
                             </when>
                             <!-- If revision/renewed or new order -->
                             <when>
@@ -135,7 +135,7 @@
                                         </setBody>
                                         
                                         <!-- cancel -->
-                                        <to uri="direct:process-cancelOrder"/>
+                                        <to uri="direct:cancel-order-toSenaite"/>
                                     </when>
                                 </choice>
                                 
@@ -146,16 +146,16 @@
                                 <to uri="direct:process-contactNames"/>
                                 
                                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
-                                <to uri="direct:process-clientCreation"/>
+                                <to uri="direct:create-client-toSenaite"/>
                                 
                                 <!--create client contact from ServiceRequest.requester and save contact UID property-->
-                                <to uri="direct:process-contactCreation"/>
+                                <to uri="direct:create-contact-toSenaite"/>
                                 
                                 <!-- create analysis request on senaite -->
-                                <to uri="direct:process-orderCreation"/>
+                                <to uri="direct:create-analysisRequest-toSenaite"/>
                                 
                                 <!--creating FHIR Task to track progress of the ServiceRequest(Analysis Requests registered) starting with 'accepted' status-->
-                                <to uri="direct:process-fhirTaskCreation"/>
+                                <to uri="direct:create-fhirTask-toOpenmrs"/>
                                 
                             </when>
                         </choice>
