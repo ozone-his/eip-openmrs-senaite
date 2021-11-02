@@ -7,7 +7,7 @@
         <log message="Fetching Tasks associated with ServiceRequests " />
 
         <!-- Fetch requested & accepted Tasks -->
-        <to uri="direct:openmrs-authenticate"/>
+        <to uri="direct:authenticate-toOpenmrs"/>
 
         <setHeader name="CamelHttpMethod">
             <constant>GET</constant>

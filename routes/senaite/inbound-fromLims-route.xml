@@ -1,6 +1,6 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
     <!-- No error handling for this route because of its polling nature and that it does not listen for DB/Watcher Events-->
-    <route id="inbound-lims">
+    <route id="inbound-fromLims">
         <from uri="scheduler:taskUpdate?initialDelay=10000&amp;delay=10000" />
         
         <log message="Sheduled FHIR Task status updater " />
@@ -106,7 +106,7 @@
 
                             <!---retrieving equivalent analysis-request from senaite -->
 
-                            <to uri="direct:senaite-authenticate"/>
+                            <to uri="direct:authenticate-toSenaite"/>
 
                             <setHeader name="CamelHttpMethod">
                                 <constant>GET</constant>

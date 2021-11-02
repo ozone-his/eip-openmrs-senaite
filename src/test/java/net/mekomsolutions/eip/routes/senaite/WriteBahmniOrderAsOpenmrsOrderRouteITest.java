@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Import;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
-public class TestOrderFromOrderCreatorRouteITest extends BaseWatcherRouteTest {  
+public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTest {  
 
     @EndpointInject(value = "mock:labOrderEndpoint")
     private MockEndpoint labOrderEndpoint;
@@ -33,7 +33,7 @@ public class TestOrderFromOrderCreatorRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "test_order-from-order-creator-route.xml");
+    	loadXmlRoutesInDirectory("senaite", "write-bahmniOrder-as-openmrsOrder-route.xml");
     	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "test_order-from-order-creator".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override

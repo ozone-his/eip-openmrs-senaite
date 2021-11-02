@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="openmrs-authenticate" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:openmrs-authenticate"/>
+    <route id="authenticate-toOpenmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:authenticate-toOpenmrs"/>
         <log message="Authenticating application to openmrs" />
         
         <setProperty name="body">

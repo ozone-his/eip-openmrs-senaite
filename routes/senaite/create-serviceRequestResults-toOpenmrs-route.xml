@@ -6,7 +6,7 @@
         
         <log message="Processing ServiceRequest results for order: " />
 
-        <to uri="direct:openmrs-authenticate"/>
+        <to uri="direct:authenticate-toOpenmrs"/>
                                     
         <setHeader name="CamelHttpMethod">
             <constant>GET</constant>
@@ -75,7 +75,7 @@
                 <jsonpath>$.api_url</jsonpath>
             </setProperty>
 
-            <to uri="direct:senaite-authenticate"/>
+            <to uri="direct:authenticate-toSenaite"/>
 
             <setHeader name="CamelHttpMethod">
                 <constant>GET</constant>
@@ -141,7 +141,7 @@
             </otherwise>
         </choice>
 
-        <to uri="direct:openmrs-authenticate"/>
+        <to uri="direct:authenticate-toOpenmrs"/>
                                 
         <setHeader name="CamelHttpMethod">
             <constant>GET</constant>

@@ -5,7 +5,7 @@
         
         <log message="Processing creation contact for order: " />
 
-        <to uri="direct:senaite-authenticate"/>
+        <to uri="direct:authenticate-toSenaite"/>
                                 
         <setHeader name="CamelHttpMethod">
             <constant>POST</constant>

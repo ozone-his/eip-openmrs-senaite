@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="outbound-lims" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:outbound-lims"/>
+    <route id="outbound-toLims" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:outbound-toLims"/>
         <log message="Processing db event: ${body}" />
         <choice>
             <when>
@@ -41,7 +41,7 @@
                         <simple>${exchangeProperty.event.tableName} == 'orders' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
                         
                         <!--retrieving service request from openmrs fhir-->
-                        <to uri="direct:openmrs-authenticate"/>
+                        <to uri="direct:authenticate-toOpenmrs"/>
                         
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>
@@ -75,13 +75,13 @@
                         <simple>${exchangeProperty.event.tableName} == 'test_order' &amp;&amp; ${exchangeProperty.event.operation} == 'c'</simple>
                         
                         <!--retrieving service request from openmrs fhir-->
-                        <to uri="direct:openmrs-authenticate"/>
+                        <to uri="direct:authenticate-toOpenmrs"/>
                         
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>
                         </setHeader>
                         
-                        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}"/>
+                        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false"/>
                         <unmarshal>
                             <json library="Jackson"/>
                         </unmarshal>
@@ -155,7 +155,7 @@
                                 <to uri="direct:create-analysisRequest-toSenaite"/>
                                 
                                 <!--creating FHIR Task to track progress of the ServiceRequest(Analysis Requests registered) starting with 'accepted' status-->
-                                <to uri="direct:create-fhirTask-toOpenmrs"/>
+                                <to uri="direct:create-serviceRequestTask-toOpenmrs"/>
                                 
                             </when>
                         </choice>

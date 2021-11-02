@@ -21,7 +21,7 @@
                         <jsonpath>$.[?(@.total == 0)]</jsonpath>
                         <!--fetch associated order, check whether it is of a lab order type and create test_order entry-->
 
-                        <to uri="direct:openmrs-authenticate"/>
+                        <to uri="direct:authenticate-toOpenmrs"/>
 
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>

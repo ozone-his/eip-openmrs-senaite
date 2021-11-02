@@ -8,7 +8,7 @@
             <simple>${body}</simple>
         </setProperty>
         
-        <to uri="direct:senaite-authenticate"/>
+        <to uri="direct:authenticate-toSenaite"/>
         
         <setHeader name="Content-Type">
             <constant>application/json</constant>

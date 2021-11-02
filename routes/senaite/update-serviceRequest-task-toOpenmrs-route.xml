@@ -6,7 +6,7 @@
 
         <log message="Processing FHIR Task update for order: " />
         
-        <to uri="direct:openmrs-authenticate"/>
+        <to uri="direct:authenticate-toOpenmrs"/>
 
         <setHeader name="CamelHttpMethod">
             <constant>PUT</constant>

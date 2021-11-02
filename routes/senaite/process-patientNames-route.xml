@@ -5,7 +5,7 @@
         
         <log message="Processing patient names for order: " />
         
-        <to uri="direct:openmrs-authenticate"/>
+        <to uri="direct:authenticate-toOpenmrs"/>
                                 
         <setHeader name="CamelHttpMethod">
             <constant>GET</constant>
