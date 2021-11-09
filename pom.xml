@@ -7,7 +7,7 @@
     <artifactId>eip-routes-senaite</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Routes to integrate OpenMRS and SENAITE</name>
+    <name>Routes to integrate OpenMRS with SENAITE</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
