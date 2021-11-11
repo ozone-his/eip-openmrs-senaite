@@ -123,7 +123,6 @@
                             <choice>
                                 <when>
                                     <jsonpath>$.[?(@.count == 0)]</jsonpath>
-                                    <!-- Do not recreate results -->
                                     <log message="No Analysis Request was found for order:" />
                                 </when>
                                 <otherwise>
@@ -139,20 +138,20 @@
                                     </setProperty>
 
                                     <choice>
-                                        <!---to only update Task status if it is valid(not null - happens if the associated ServiceRequest was never created on senaite) and has actually changed -->
-                                        <when>
-                                            <simple>${exchangeProperty.service-request-current-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-current-status} != ${exchangeProperty.service-request-transitioned-status}</simple>
-
-                                            <to uri="direct:update-serviceRequest-task"/>
-                                        </when>
-                                    </choice>
-
-                                    <choice>
                                         <!---to create lab results once the ServiceRequest is completed -->
                                         <when>
                                             <simple>${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} == 'completed'</simple>
 
                                             <to uri="direct:create-serviceRequestResults-toOpenmrs"/>
+                                        </when>
+                                    </choice>
+
+                                    <choice>
+                                        <!---to only update Task status if it is valid(not null - happens if the associated ServiceRequest was never created on senaite) and has actually changed -->
+                                        <when>
+                                            <simple>${exchangeProperty.service-request-current-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-current-status} != ${exchangeProperty.service-request-transitioned-status}</simple>
+
+                                            <to uri="direct:update-serviceRequest-task"/>
                                         </when>
                                     </choice>
                                 </otherwise>

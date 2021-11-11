@@ -4,6 +4,12 @@
         <from uri="direct:process-contactNames"/>
         
         <log message="Processing contact names for order: " />
+        
+        <to uri="direct:authenticate-toOpenmrs"/>
+                        
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
 
         <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}"/>
         <unmarshal>

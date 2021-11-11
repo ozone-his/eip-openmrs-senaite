@@ -22,11 +22,17 @@ import org.springframework.context.annotation.Import;
 @Import({ TestConfiguration.class})
 public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTest {  
 
+	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
+    private MockEndpoint authenticateToOpenmrs;
+    
     @EndpointInject(value = "mock:labOrderEndpoint")
     private MockEndpoint labOrderEndpoint;
     
-    @EndpointInject(value = "mock:sqlEndpoint")
-    private MockEndpoint sqlEndpoint;
+    @EndpointInject(value = "mock:insertSqlEndpoint")
+    private MockEndpoint insertSqlEndpoint;
+    
+    @EndpointInject(value = "mock:selectSqlEndpoint")
+    private MockEndpoint selectSqlEndpoint;
     
     @Value("${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
@@ -34,13 +40,14 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     @Before
     public void setup() throws Exception {
     	loadXmlRoutesInDirectory("senaite", "write-bahmniOrder-as-openmrsOrder-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "test_order-from-order-creator".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "write-bahmniOrder-as-openmrsOrder".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-
+    	    	weaveByToString("To[direct:authenticate-toOpenmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/order/${exchangeProperty.lab-order-uuid}]").replace().toD("mock:labOrderEndpoint");;
-    	    	weaveByToString("DynamicTo[sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource]").replace().toD("mock:sqlEndpoint");
+    	    	weaveByToString("DynamicTo[sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource]").replace().toD("mock:insertSqlEndpoint");
+    	    	weaveByToString("DynamicTo[sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=openmrsDataSource]").replace().toD("mock:selectSqlEndpoint");
     	    }
     	});
     	
@@ -52,10 +59,18 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     		
     	});
     	labOrderEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
-    	labOrderEndpoint.expectedHeaderReceived("Authorization", "Basic c3VwZXJtYW46QWRtaW4xMjM=");
     	labOrderEndpoint.expectedPropertyReceived("lab-order-uuid", "order-uuid");
     	
-    	sqlEndpoint.expectedPropertyReceived("lab-order-id", "1");
+    	insertSqlEndpoint.expectedPropertyReceived("lab-order-id", "1");
+    	
+    	selectSqlEndpoint.whenAnyExchangeReceived(new Processor () {
+			@Override
+			public void process(Exchange exchange) throws Exception {
+				exchange.getIn().setBody("{\"total\": 0}");
+			}
+    		
+    	});
+    	selectSqlEndpoint.expectedPropertyReceived("lab-order-id", "1");
     }
 
     @Test
@@ -68,11 +83,13 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     	event.setPrimaryKeyId("1");
     	
     	// replay
-    	producerTemplate.sendBody("direct:test_order-from-order-creator", event);
+    	producerTemplate.sendBody("direct:write-bahmniOrder-as-openmrsOrder", event);
     	
     	// verify
+    	authenticateToOpenmrs.assertExchangeReceived(0);
     	labOrderEndpoint.assertIsSatisfied();
-    	sqlEndpoint.assertIsSatisfied();
+    	insertSqlEndpoint.assertIsSatisfied();
+    	selectSqlEndpoint.assertIsSatisfied();
     	
     }
 

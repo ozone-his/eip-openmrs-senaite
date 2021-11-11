@@ -84,51 +84,9 @@ public class OutboundToLimsRouteITest extends BaseWatcherRouteTest {
     public void shouldCreateSenaiteAnalysisRequestFromOpenmrsTestOrderPanelGivePatientAlreadyExistsInSenaite() throws Exception {
     	// setup
     	
-    	Event event = new Event();
-    	event.setTableName("test_order");
-    	event.setIdentifier("eed578b7-86cb-43f5-91cd-daebdebfe6f8");
-    	event.setOperation("c");
-    	event.setPrimaryKeyId("1");
-    	
     	// replay
-    	producerTemplate.sendBody("direct:outbound-toLims", event);
     	
     	// verify
-    	openmrsFhirServiceRequestEndpoint.assertIsSatisfied();
-    }
-    
-    @Test
-    public void shouldCreateSenaiteAnalysisRequestFromOpenmrsTestOrderPanelAfterCreatingPatientInSenaite() throws Exception {
-    	// setup
-    	
-    	Event event = new Event();
-    	event.setTableName("test_order");
-    	event.setIdentifier("eed578b7-86cb-43f5-91cd-daebdebfe6f8");
-    	event.setOperation("c");
-    	event.setPrimaryKeyId("1");
-    	
-    	// replay
-    	producerTemplate.sendBody("direct:outbound-toLims", event);
-    	
-    	// verify
-    	openmrsFhirServiceRequestEndpoint.assertIsSatisfied();
-    	
-    }
-    
-    @Test
-    public void shouldSkipRouteImplementationGivenEventIsNotFromTestOrderTable() throws Exception {
-    	// setup
-    	Event event = new Event();
-    	event.setTableName("example_order");
-    	event.setIdentifier("eed578b7-86cb-43f5-91cd-daebdebfe6f8");
-    	event.setOperation("c");
-    	event.setPrimaryKeyId("1");
-    	
-    	// replay
-    	producerTemplate.sendBody("direct:outbound-toLims", event);
-    	
-    	// verify
-    	openmrsFhirServiceRequestEndpoint.assertIsNotSatisfied();
     	
     }
     
