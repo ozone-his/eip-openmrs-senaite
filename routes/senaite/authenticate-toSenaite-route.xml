@@ -1,0 +1,32 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="authenticate-toSenaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:authenticate-toSenaite"/>
+        <log message="Authenticating application to senaite" />
+
+        <setProperty name="body">
+            <simple>${body}</simple>
+        </setProperty>
+        
+        <setBody>
+            <simple>{{senaite.username}}:{{senaite.password}}</simple>
+        </setBody>
+        
+        <marshal>
+            <base64/>
+        </marshal>
+        <convertBodyTo type="java.lang.String"/>
+        
+        <setProperty name="basic-senaite-authentication">
+            <simple>Basic ${body.trim()}</simple>
+        </setProperty>
+
+        <setHeader name="Authorization">
+            <simple>${exchangeProperty.basic-senaite-authentication}</simple>
+        </setHeader>
+
+        <setBody>
+            <simple>${exchangeProperty.body}</simple>
+        </setBody>
+    </route>
+</routes>

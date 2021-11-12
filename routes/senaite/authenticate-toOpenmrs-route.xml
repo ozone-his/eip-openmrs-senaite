@@ -1,0 +1,32 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="authenticate-toOpenmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:authenticate-toOpenmrs"/>
+        <log message="Authenticating application to openmrs" />
+        
+        <setProperty name="body">
+            <simple>${body}</simple>
+        </setProperty>
+
+        <setBody>
+            <simple>{{openmrs.username}}:{{openmrs.password}}</simple>
+        </setBody>
+        
+        <marshal>
+            <base64/>
+        </marshal>
+        <convertBodyTo type="java.lang.String"/>
+        
+        <setProperty name="basic-openmrs-authentication">
+            <simple>Basic ${body.trim()}</simple>
+        </setProperty>
+
+        <setHeader name="Authorization">
+            <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
+        </setHeader>
+
+        <setBody>
+            <simple>${exchangeProperty.body}</simple>
+        </setBody>
+    </route>
+</routes>

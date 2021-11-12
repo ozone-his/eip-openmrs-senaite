@@ -1,0 +1,28 @@
+<routes
+    xmlns="http://camel.apache.org/schema/spring">
+    <route id="create-contact-toSenaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:create-contact-toSenaite"/>
+        
+        <log message="Processing creation contact for order: " />
+
+        <to uri="direct:authenticate-toSenaite"/>
+                                
+        <setHeader name="CamelHttpMethod">
+            <constant>POST</constant>
+        </setHeader>
+
+        <setBody>
+            <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}","Firstname": "${exchangeProperty.requester-given-name}","Surname": "${exchangeProperty.requester-family-name}"}</simple>
+        </setBody>
+        
+        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+        
+        <setProperty name="client-contact-uid">
+            <jsonpath>$.items[0].uid</jsonpath>
+        </setProperty>
+            
+    </route>
+</routes>
