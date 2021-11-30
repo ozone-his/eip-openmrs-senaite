@@ -18,7 +18,7 @@
             <constant>GET</constant>
         </setHeader>
         
-        <!-- Fetching cancelled lab order  -->
+        <!-- Fetching cancelled lab order if it exists -->
         <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true&amp;review_state=cancelled"/>
         <unmarshal>
             <json library="Jackson"/>
@@ -86,7 +86,6 @@
                         
                         <setBody>
                             <simple>{"uid": "${exchangeProperty.sample-uid}", "Client": "${exchangeProperty.client-uid}", "transition": "cancel"}</simple>
-                        
                         </setBody>
                         
                         <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/update?throwExceptionOnFailure=false"/>

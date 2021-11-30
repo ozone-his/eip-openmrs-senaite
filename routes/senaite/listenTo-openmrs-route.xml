@@ -111,6 +111,7 @@
                                     <jsonpath>$.replaces[0].reference</jsonpath>
                                 </setProperty>
                                 
+                                <!-- Order to cancel uuid is set as body -->
                                 <setBody>
                                     <simple>${exchangeProperty.order-to-cancel.substring(15)} </simple>
                                 </setBody>

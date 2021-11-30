@@ -34,14 +34,19 @@
                     </setProperty> 
 
                     <!-- Retrieving associated ServiceRequest -->
-
+			        <to uri="direct:authenticate-toOpenmrs"/>
+			        
+			        <setHeader name="CamelHttpMethod">
+			            <constant>GET</constant>
+			        </setHeader>
+			        
                     <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false"/>
                     <unmarshal>
                         <json library="Jackson"/>
                     </unmarshal>
                     
                     <choice>
-                        <!-- Transition FHIR Task to 'rejected' if Associated ServiceRequest was voided/deleted or deleted-->
+                        <!-- Transition FHIR Task to 'rejected' if Associated ServiceRequest was voided/deleted-->
                         <when>
                             <jsonpath>$.[?((@.issue &amp;&amp; @.issue[0].diagnostics contains 'is gone/deleted') || (@.issue &amp;&amp; @.issue[0].diagnostics contains 'is not known'))] </jsonpath>
 
@@ -136,7 +141,7 @@
                                     <setProperty name="number-of-service-request-tests">
                                         <jsonpath>$.items[0].Analyses.length()</jsonpath>
                                     </setProperty>
-
+                                    
                                     <choice>
                                         <!---to create lab results once the ServiceRequest is completed -->
                                         <when>
