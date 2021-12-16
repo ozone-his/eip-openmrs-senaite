@@ -32,12 +32,12 @@ public class FetchServiceRequestTasksFromOpenmrsRouteITest extends BaseWatcherRo
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "fetch-ServiceRequestTasks-fromOpenmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "fetch-ServiceRequestTasks".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "fetch-serviceRequestTasks-from-openmrs-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "fetch-serviceRequestTasks-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toOpenmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Task?status=requested,accepted]").replace().toD("mock:fetchTasksEndpoint");
     	    }
     	});
@@ -58,7 +58,7 @@ public class FetchServiceRequestTasksFromOpenmrsRouteITest extends BaseWatcherRo
     	Exchange exchange = new DefaultExchange(camelContext);
     	
     	// replay
-    	producerTemplate.send("direct:fetch-ServiceRequestTasks", exchange);
+    	producerTemplate.send("direct:fetch-serviceRequestTasks-from-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

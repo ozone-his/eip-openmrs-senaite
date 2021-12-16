@@ -1,11 +1,11 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-contact-toSenaite" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:create-contact-toSenaite"/>
+    <route id="create-contact-to-senaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:create-contact-to-senaite"/>
         
         <log message="Processing creation contact for order: " />
 
-        <to uri="direct:authenticate-toSenaite"/>
+        <to uri="direct:authenticate-to-senaite"/>
                                 
         <setHeader name="CamelHttpMethod">
             <constant>POST</constant>

@@ -29,12 +29,12 @@ public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRout
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "update-serviceRequest-task-toOpenmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "update-serviceRequest-task".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "update-serviceRequest-task-to-openmrs-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "update-serviceRequest-task-to-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toOpenmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}]").replace().toD("mock:updateTaskEndpoint");
     	    }
     	});
@@ -56,7 +56,7 @@ public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRout
     	exchange.setProperty("service-request-transitioned-status", "accepted");
     	
     	// replay
-    	producerTemplate.send("direct:update-serviceRequest-task", exchange);
+    	producerTemplate.send("direct:update-serviceRequest-task-to-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

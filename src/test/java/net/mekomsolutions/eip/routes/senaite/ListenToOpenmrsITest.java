@@ -57,19 +57,19 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     @Before
     public void setup() throws Exception {
     	loadXmlRoutesInDirectory("senaite", "listenTo-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "outbound-toLims".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "listenTo-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:cancel-order-toSenaite]").replace().toD("mock:cancelOrderToSenaiteRoute");
-    	    	weaveByToString("To[direct:authenticate-toOpenmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+    	    	weaveByToString("To[direct:cancel-order-to-senaite]").replace().toD("mock:cancelOrderToSenaiteRoute");
+    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
     	    	weaveByToString("To[direct:process-patientNames]").replace().toD("mock:processPatientNamesRoute");
     	    	weaveByToString("To[direct:process-contactNames]").replace().toD("mock:processContacttNamesRoutee");
-    	    	weaveByToString("To[direct:create-client-toSenaite]").replace().toD("mock:creatClientToSenaiteRoute");
-    	    	weaveByToString("To[direct:create-contact-toSenaite]").replace().toD("mock:creatContactToSenaiteRoute");
-    	    	weaveByToString("To[direct:create-analysisRequest-toSenaite]").replace().toD("mock:createAnalysisRequestToSenaite");
-    	    	weaveByToString("To[direct:create-serviceRequestTask-toOpenmrs]").replace().toD("mock:createServiceRequestTasktoOpenmrs");
+    	    	weaveByToString("To[direct:create-client-to-senaite]").replace().toD("mock:creatClientToSenaiteRoute");
+    	    	weaveByToString("To[direct:create-contact-to-senaite]").replace().toD("mock:creatContactToSenaiteRoute");
+    	    	weaveByToString("To[direct:create-analysisRequest-to-senaite]").replace().toD("mock:createAnalysisRequestToSenaite");
+    	    	weaveByToString("To[direct:create-serviceRequestTask-to-openmrs]").replace().toD("mock:createServiceRequestTasktoOpenmrs");
     	    }
     	});
     	
@@ -105,7 +105,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:outbound-toLims", exchange);
+    	producerTemplate.send("direct:listenTo-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
@@ -134,7 +134,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:outbound-toLims", exchange);
+    	producerTemplate.send("direct:listenTo-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
@@ -157,7 +157,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:outbound-toLims", exchange);
+    	producerTemplate.send("direct:listenTo-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
@@ -180,7 +180,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:outbound-toLims", exchange);
+    	producerTemplate.send("direct:listenTo-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

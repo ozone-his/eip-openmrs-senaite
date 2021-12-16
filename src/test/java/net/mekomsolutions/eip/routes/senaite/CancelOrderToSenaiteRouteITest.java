@@ -46,7 +46,7 @@ public class CancelOrderToSenaiteRouteITest extends BaseWatcherRouteTest {
     @Before
     public void setup() throws Exception {
     	loadXmlRoutesInDirectory("senaite", "cancel-order-to-senaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "cancel-order-toSenaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "cancel-order-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -54,7 +54,7 @@ public class CancelOrderToSenaiteRouteITest extends BaseWatcherRouteTest {
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().toD("mock:fetchActiveOrderFromSenaiteEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/update?throwExceptionOnFailure=false]").replace().toD("mock:updateSenaiteWithoutThrowingEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/update]").replace().toD("mock:updateSenaiteEndpoint");
-    	    	weaveByToString("To[direct:authenticate-toSenaite]").replace().toD("mock:authenticateToSenaiteRoute");
+    	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
     	    	
     	    }
     	});
@@ -79,7 +79,7 @@ public class CancelOrderToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.getIn().setBody("27d730cb-1c04-4ced-a2ed-ad0f18fed728");
     	
     	// replay
-    	producerTemplate.send("direct:cancel-order-toSenaite", exchange);
+    	producerTemplate.send("direct:cancel-order-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);
@@ -94,7 +94,7 @@ public class CancelOrderToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.getIn().setBody("e585eced-0dd5-48eb-a267-a3049ab1ee538");
     	
     	// replay
-    	producerTemplate.send("direct:cancel-order-toSenaite", exchange);
+    	producerTemplate.send("direct:cancel-order-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);

@@ -31,12 +31,12 @@ public class CreateContactToSenaiteRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "create-contact-toSenaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-contact-toSenaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "create-contact-to-senaite-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-contact-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toSenaite]").replace().toD("mock:authenticateToSenaiteRoute");
+    	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/create]").replace().toD("mock:createSenaiteEndpoint");
     	    }
     	});
@@ -54,7 +54,7 @@ public class CreateContactToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("requester-family-name", "Man");
     	
     	// replay
-    	producerTemplate.send("direct:create-contact-toSenaite", exchange);
+    	producerTemplate.send("direct:create-contact-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);

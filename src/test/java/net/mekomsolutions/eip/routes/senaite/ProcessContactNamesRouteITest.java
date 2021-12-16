@@ -39,7 +39,7 @@ public class ProcessContactNamesRouteITest extends BaseWatcherRouteTest {
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toOpenmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.requester-reference}]").replace().toD("mock:requesterEndpoint");
     	    }
     	});

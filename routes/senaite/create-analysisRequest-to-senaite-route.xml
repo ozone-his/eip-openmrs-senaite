@@ -1,11 +1,11 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-analysisRequest-toSenaite" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:create-analysisRequest-toSenaite"/>
+    <route id="create-analysisRequest-to-senaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:create-analysisRequest-to-senaite"/>
         
         <log message="Processing creation of order: " />
 
-        <to uri="direct:authenticate-toSenaite"/>
+        <to uri="direct:authenticate-to-senaite"/>
 
         <setHeader name="CamelHttpMethod">
             <constant>GET</constant>

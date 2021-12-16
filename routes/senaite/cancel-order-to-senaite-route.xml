@@ -1,14 +1,14 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="cancel-order-toSenaite" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:cancel-order-toSenaite"/>
+    <route id="cancel-order-to-senaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:cancel-order-to-senaite"/>
         <log message="Processing cancellation of lab order:  '${body}'" />
         
         <setProperty name="order-to-cancel">
             <simple>${body}</simple>
         </setProperty>
         
-        <to uri="direct:authenticate-toSenaite"/>
+        <to uri="direct:authenticate-to-senaite"/>
         
         <setHeader name="Content-Type">
             <constant>application/json</constant>
