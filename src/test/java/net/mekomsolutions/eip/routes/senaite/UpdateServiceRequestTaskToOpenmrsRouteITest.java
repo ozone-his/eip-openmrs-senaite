@@ -35,7 +35,7 @@ public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRout
     	    @Override
     	    public void configure() throws Exception {
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}]").replace().toD("mock:updateTaskEndpoint");
+    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}]").replace().toD("mock:updateTaskEndpoint");
     	    }
     	});
     	

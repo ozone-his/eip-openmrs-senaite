@@ -47,7 +47,7 @@
                             <constant>GET</constant>
                         </setHeader>
                         
-                        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false"/>
+                        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false"/>
                         <unmarshal>
                             <json library="Jackson"/>
                         </unmarshal>
@@ -81,7 +81,7 @@
                             <constant>GET</constant>
                         </setHeader>
                         
-                        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false"/>
+                        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false"/>
                         <unmarshal>
                             <json library="Jackson"/>
                         </unmarshal>

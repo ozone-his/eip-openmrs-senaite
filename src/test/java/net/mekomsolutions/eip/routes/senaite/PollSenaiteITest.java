@@ -65,8 +65,8 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 			@Override
 			public void configure() throws Exception {
 				weaveByToString("To[direct:fetch-serviceRequestTasks-from-openmrs]").replace().toD("mock:fetchServiceRequestTasksRoute");
-				weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false]").replace().toD("mock:serviceRequestEndpoint");
-				weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}]").replace().toD("mock:taskEndpoint");
+				weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false]").replace().toD("mock:serviceRequestEndpoint");
+				weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}]").replace().toD("mock:taskEndpoint");
 				weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}]").replace().toD("mock:encounterEndpoint");
 				weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
 				weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");

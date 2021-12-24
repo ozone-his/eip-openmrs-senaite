@@ -61,7 +61,7 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter?encounterType={{results.encounterType.uuid}}&patient=${exchangeProperty.patient-uuid}&v=custom:(uuid,encounterDatetime,patient:(uuid),location:(uuid))]").replace().toD("mock:searchEncounterOpenmrsEndpoint");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter]").replace().toD("mock:createEncounterOpenmrsEndpoint");
     	    	weaveByToString("DynamicTo[${exchangeProperty.analysis-api_url}]").replace().toD("mock:fetchAnalysisRequestSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/Observation?code=${exchangeProperty.service-request-concept-uuid}&subject=${exchangeProperty.patient-uuid}&encounter=${exchangeProperty.results-encounter-uuid}&date=${exchangeProperty.service-request-resultCaptureDate}]").replace().toD("mock:searchObservationOpenmrsFhirEndpoint");
+    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/Observation?code=${exchangeProperty.service-request-concept-uuid}&subject=${exchangeProperty.patient-uuid}&encounter=${exchangeProperty.results-encounter-uuid}&date=${exchangeProperty.service-request-resultCaptureDate}]").replace().toD("mock:searchObservationOpenmrsFhirEndpoint");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/obs]").replace().toD("mock:createObservationOpenmrsEndpoint");
     	    }
     	});

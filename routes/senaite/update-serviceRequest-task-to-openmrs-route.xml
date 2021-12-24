@@ -16,7 +16,7 @@
             <simple>{"resourceType": "Task", "id": "${exchangeProperty.task-id}", "status": "${exchangeProperty.service-request-transitioned-status}", "intent": "order"}</simple>
         </setBody>
 
-        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
+        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}"/>
         
     </route>
 </routes>

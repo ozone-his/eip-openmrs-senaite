@@ -15,7 +15,7 @@
             <simple>{"resourceType": "Task", "status": "requested", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
         </setBody>
         
-        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task"/>
+        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task"/>
         <log message="FHIR Task posted results             :          ${body}"/>
     </route>
 </routes>
