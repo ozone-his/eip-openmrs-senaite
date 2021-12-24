@@ -1,11 +1,11 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-serviceRequestTask-toOpenmrs" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:create-serviceRequestTask-toOpenmrs"/>
+    <route id="create-serviceRequestTask-to-openmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:create-serviceRequestTask-to-openmrs"/>
         
         <log message="Processing FHIR Task creation for order: " />
         
-        <to uri="direct:authenticate-toOpenmrs"/>
+        <to uri="direct:authenticate-to-openmrs"/>
                                 
         <setHeader name="CamelHttpMethod">
             <constant>POST</constant>

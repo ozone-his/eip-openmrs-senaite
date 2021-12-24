@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="outbound-toLims" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:outbound-toLims"/>
+    <route id="listenTo-openmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:listenTo-openmrs"/>
         <log message="Processing db event: ${body}" />
         <choice>
             <when>
@@ -33,7 +33,7 @@
                             <simple>${exchangeProperty.order-to-cancel} </simple>
                         </setBody>
                         <!-- cancel -->
-                        <to uri="direct:cancel-order-toSenaite"/>
+                        <to uri="direct:cancel-order-to-senaite"/>
                     </when>
                     
                     <!-- Handling voided -->
@@ -41,7 +41,7 @@
                         <simple>${exchangeProperty.event.tableName} == 'orders' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
                         
                         <!--retrieving service request from openmrs fhir-->
-                        <to uri="direct:authenticate-toOpenmrs"/>
+                        <to uri="direct:authenticate-to-openmrs"/>
                         
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>
@@ -66,7 +66,7 @@
                                 </setBody>
                                 
                                 <!-- Cancel -->
-                                <to uri="direct:cancel-order-toSenaite"/>
+                                <to uri="direct:cancel-order-to-senaite"/>
                             </when>
                         </choice>
                     </when>
@@ -75,7 +75,7 @@
                         <simple>${exchangeProperty.event.tableName} == 'test_order' &amp;&amp; ${exchangeProperty.event.operation} == 'c'</simple>
                         
                         <!--retrieving service request from openmrs fhir-->
-                        <to uri="direct:authenticate-toOpenmrs"/>
+                        <to uri="direct:authenticate-to-openmrs"/>
                         
                         <setHeader name="CamelHttpMethod">
                             <constant>GET</constant>
@@ -111,12 +111,13 @@
                                     <jsonpath>$.replaces[0].reference</jsonpath>
                                 </setProperty>
                                 
+                                <!-- Order to cancel uuid is set as body -->
                                 <setBody>
                                     <simple>${exchangeProperty.order-to-cancel.substring(15)} </simple>
                                 </setBody>
                                 
                                 <!-- cancel -->
-                                <to uri="direct:cancel-order-toSenaite"/>
+                                <to uri="direct:cancel-order-to-senaite"/>
                             </when>
                             <!-- If revision/renewed or new order -->
                             <when>
@@ -135,7 +136,7 @@
                                         </setBody>
                                         
                                         <!-- cancel -->
-                                        <to uri="direct:cancel-order-toSenaite"/>
+                                        <to uri="direct:cancel-order-to-senaite"/>
                                     </when>
                                 </choice>
                                 
@@ -146,16 +147,16 @@
                                 <to uri="direct:process-contactNames"/>
                                 
                                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
-                                <to uri="direct:create-client-toSenaite"/>
+                                <to uri="direct:create-client-to-senaite"/>
                                 
                                 <!--create client contact from ServiceRequest.requester and save contact UID property-->
-                                <to uri="direct:create-contact-toSenaite"/>
+                                <to uri="direct:create-contact-to-senaite"/>
                                 
                                 <!-- create analysis request on senaite -->
-                                <to uri="direct:create-analysisRequest-toSenaite"/>
+                                <to uri="direct:create-analysisRequest-to-senaite"/>
                                 
                                 <!--creating FHIR Task to track progress of the ServiceRequest(Analysis Requests registered) starting with 'accepted' status-->
-                                <to uri="direct:create-serviceRequestTask-toOpenmrs"/>
+                                <to uri="direct:create-serviceRequestTask-to-openmrs"/>
                                 
                             </when>
                         </choice>

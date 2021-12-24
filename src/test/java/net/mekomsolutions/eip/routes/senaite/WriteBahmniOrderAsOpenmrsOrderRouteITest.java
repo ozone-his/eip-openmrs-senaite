@@ -44,7 +44,7 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toOpenmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/order/${exchangeProperty.lab-order-uuid}]").replace().toD("mock:labOrderEndpoint");;
     	    	weaveByToString("DynamicTo[sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource]").replace().toD("mock:insertSqlEndpoint");
     	    	weaveByToString("DynamicTo[sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=openmrsDataSource]").replace().toD("mock:selectSqlEndpoint");

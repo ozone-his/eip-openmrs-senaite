@@ -17,7 +17,7 @@ public class AuthenticateToSenaiteRouteITest extends BaseWatcherRouteTest {
 
 	@Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "authenticate-toSenaite-route.xml");
+    	loadXmlRoutesInDirectory("senaite", "authenticate-to-senaite-route.xml");
     }
 
 	@Test
@@ -34,7 +34,7 @@ public class AuthenticateToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.getIn().setBody(event);
     	
     	// replay
-    	producerTemplate.send("direct:authenticate-toSenaite", exchange);
+    	producerTemplate.send("direct:authenticate-to-senaite", exchange);
     	
     	// verify
     	assertEquals("Basic YWRtaW46YWRtaW4=", exchange.getIn().getHeader("Authorization"));

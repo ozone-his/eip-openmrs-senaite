@@ -36,12 +36,12 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "create-analysisRequest-toSenaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-analysisRequest-toSenaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "create-analysisRequest-to-senaite-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-analysisRequest-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toSenaite]").replace().toD("mock:authenticateToSenaiteRoute");
+    	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.lab-order-uuid}&getClientID=${exchangeProperty.patient-id}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().toD("mock:searchAnalysisRequestSenaiteEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&Description=${exchangeProperty.service-analysis-template}&catalog=bika_setup_catalog&portal_type=ARTemplate]").replace().toD("mock:searchAnalysisRequestTemplateSenaiteEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}]").replace().toD("mock:createAnalysisRequestSenaiteEndpoint");
@@ -69,7 +69,7 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     	exchange.setProperty("service-analysis-template", "ab3b5775-7080-4cb1-8be5-54e367940145");
     	
     	// replay
-    	producerTemplate.send("direct:create-analysisRequest-toSenaite", exchange);
+    	producerTemplate.send("direct:create-analysisRequest-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);

@@ -17,7 +17,7 @@ public class AuthenticateToOpenmrsRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "authenticate-toOpenmrs-route.xml");
+    	loadXmlRoutesInDirectory("senaite", "authenticate-to-openmrs-route.xml");
     }
 
 	@Test
@@ -34,7 +34,7 @@ public class AuthenticateToOpenmrsRouteITest extends BaseWatcherRouteTest {
     	exchange.getIn().setBody(event);
     	
     	// replay
-    	producerTemplate.send("direct:authenticate-toOpenmrs", exchange);
+    	producerTemplate.send("direct:authenticate-to-openmrs", exchange);
     	
     	// verify
     	assertEquals("Basic c3VwZXJtYW46QWRtaW4xMjM=", exchange.getIn().getHeader("Authorization"));

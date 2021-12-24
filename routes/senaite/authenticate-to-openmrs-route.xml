@@ -1,15 +1,15 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="authenticate-toSenaite" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:authenticate-toSenaite"/>
-        <log message="Authenticating application to senaite" />
-
+    <route id="authenticate-to-openmrs" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:authenticate-to-openmrs"/>
+        <log message="Authenticating application to openmrs" />
+        
         <setProperty name="body">
             <simple>${body}</simple>
         </setProperty>
-        
+
         <setBody>
-            <simple>{{senaite.username}}:{{senaite.password}}</simple>
+            <simple>{{openmrs.username}}:{{openmrs.password}}</simple>
         </setBody>
         
         <marshal>
@@ -17,13 +17,16 @@
         </marshal>
         <convertBodyTo type="java.lang.String"/>
         
-        <setProperty name="basic-senaite-authentication">
+        <setProperty name="basic-openmrs-authentication">
             <simple>Basic ${body.trim()}</simple>
         </setProperty>
 
         <setHeader name="Authorization">
-            <simple>${exchangeProperty.basic-senaite-authentication}</simple>
+            <simple>${exchangeProperty.basic-openmrs-authentication}</simple>
         </setHeader>
+
+        <!-- If SSO is enabled then override basic authentication in favor of Oauth -->
+        <process ref="oauthProcessor" />
 
         <setBody>
             <simple>${exchangeProperty.body}</simple>

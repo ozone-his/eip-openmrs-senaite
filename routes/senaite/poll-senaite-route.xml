@@ -1,13 +1,13 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
     <!-- No error handling for this route because of its polling nature and that it does not listen for DB/Watcher Events-->
-    <route id="inbound-fromLims">
+    <route id="poll-senaite">
         <from uri="scheduler:taskUpdate?initialDelay=10000&amp;delay=10000" />
         
         <log message="Sheduled FHIR Task status updater " />
 
         <!-- Fetch requested & accepted  orders to transition each to either accepted, rejected or completed-->
         
-        <to uri="direct:fetch-ServiceRequestTasks"/>
+        <to uri="direct:fetch-serviceRequestTasks-from-openmrs"/>
 
         <unmarshal>
             <json library="Jackson"/>
@@ -34,14 +34,19 @@
                     </setProperty> 
 
                     <!-- Retrieving associated ServiceRequest -->
-
+			        <to uri="direct:authenticate-to-openmrs"/>
+			        
+			        <setHeader name="CamelHttpMethod">
+			            <constant>GET</constant>
+			        </setHeader>
+			        
                     <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false"/>
                     <unmarshal>
                         <json library="Jackson"/>
                     </unmarshal>
                     
                     <choice>
-                        <!-- Transition FHIR Task to 'rejected' if Associated ServiceRequest was voided/deleted or deleted-->
+                        <!-- Transition FHIR Task to 'rejected' if Associated ServiceRequest was voided/deleted-->
                         <when>
                             <jsonpath>$.[?((@.issue &amp;&amp; @.issue[0].diagnostics contains 'is gone/deleted') || (@.issue &amp;&amp; @.issue[0].diagnostics contains 'is not known'))] </jsonpath>
 
@@ -106,7 +111,7 @@
 
                             <!---retrieving equivalent analysis-request from senaite -->
 
-                            <to uri="direct:authenticate-toSenaite"/>
+                            <to uri="direct:authenticate-to-senaite"/>
 
                             <setHeader name="CamelHttpMethod">
                                 <constant>GET</constant>
@@ -136,13 +141,13 @@
                                     <setProperty name="number-of-service-request-tests">
                                         <jsonpath>$.items[0].Analyses.length()</jsonpath>
                                     </setProperty>
-
+                                    
                                     <choice>
                                         <!---to create lab results once the ServiceRequest is completed -->
                                         <when>
                                             <simple>${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} == 'completed'</simple>
 
-                                            <to uri="direct:create-serviceRequestResults-toOpenmrs"/>
+                                            <to uri="direct:create-serviceRequestResults-to-openmrs"/>
                                         </when>
                                     </choice>
 
@@ -151,7 +156,7 @@
                                         <when>
                                             <simple>${exchangeProperty.service-request-current-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-current-status} != ${exchangeProperty.service-request-transitioned-status}</simple>
 
-                                            <to uri="direct:update-serviceRequest-task"/>
+                                            <to uri="direct:update-serviceRequest-task-to-openmrs"/>
                                         </when>
                                     </choice>
                                 </otherwise>

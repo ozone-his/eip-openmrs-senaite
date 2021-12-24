@@ -35,12 +35,12 @@ public class CreateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "create-client-toSenaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-client-toSenaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "create-client-to-senaite-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-client-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-toSenaite]").replace().toD("mock:authenticateToSenaiteRoute");
+    	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&getName=${exchangeProperty.patient-name-unique}]").replace().toD("mock:searchClientSenaiteEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/create]").replace().toD("mock:createSenaiteEndpoint");
     	    }
@@ -65,7 +65,7 @@ public class CreateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("patient-id", "86f0b43e-12a2-4e98-9937-6c85d8f05d65");
     	
     	// replay
-    	producerTemplate.send("direct:create-client-toSenaite", exchange);
+    	producerTemplate.send("direct:create-client-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);
@@ -84,7 +84,7 @@ public class CreateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("patient-id", "77a7901-0a73-4849-8c36-fc5a6ae28503");
     	
     	// replay
-    	producerTemplate.send("direct:create-client-toSenaite", exchange);
+    	producerTemplate.send("direct:create-client-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);
