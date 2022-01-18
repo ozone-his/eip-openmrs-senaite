@@ -25,7 +25,7 @@ If using Docker Compose, expose the `port` and override the `command` parameters
 git clone https://github.com/senaite/senaite.docker
 cd senaite.docker
 docker build -t senaite .
-docker run --rm --name senaite -p 8085:8080 senaite
+docker run --rm --name senaite -p 8088:8080 senaite
 ```
 Access http://localhost:8088/
 and follow the steps to "Install SENAITE"
