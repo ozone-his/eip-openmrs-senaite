@@ -63,7 +63,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	    public void configure() throws Exception {
     	    	weaveByToString("To[direct:cancel-order-to-senaite]").replace().toD("mock:cancelOrderToSenaiteRoute");
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
+    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
     	    	weaveByToString("To[direct:process-patientNames]").replace().toD("mock:processPatientNamesRoute");
     	    	weaveByToString("To[direct:process-contactNames]").replace().toD("mock:processContacttNamesRoutee");
     	    	weaveByToString("To[direct:create-client-to-senaite]").replace().toD("mock:creatClientToSenaiteRoute");

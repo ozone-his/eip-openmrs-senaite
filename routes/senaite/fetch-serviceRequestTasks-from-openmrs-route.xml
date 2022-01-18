@@ -13,7 +13,7 @@
             <constant>GET</constant>
         </setHeader>
 
-        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task?status=requested,accepted"/>
+        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task?status=requested,accepted"/>
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>

@@ -37,7 +37,7 @@ public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {
     	    @Override
     	    public void configure() throws Exception {
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}]").replace().toD("mock:patientEndpoint");
+    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/${exchangeProperty.patient-reference}]").replace().toD("mock:patientEndpoint");
     	    }
     	});
     	setupExpectations();

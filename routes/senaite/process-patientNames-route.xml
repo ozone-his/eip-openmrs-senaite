@@ -11,7 +11,7 @@
             <constant>GET</constant>
         </setHeader>
         
-        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/${exchangeProperty.patient-reference}"/>
+        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/${exchangeProperty.patient-reference}"/>
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>

@@ -151,7 +151,7 @@
             <simple>${body}</simple>
         </setProperty>
 
-        <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Observation?code=${exchangeProperty.service-request-concept-uuid}&amp;subject=${exchangeProperty.patient-uuid}&amp;encounter=${exchangeProperty.results-encounter-uuid}&amp;date=${exchangeProperty.service-request-resultCaptureDate}"/>
+        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Observation?code=${exchangeProperty.service-request-concept-uuid}&amp;subject=${exchangeProperty.patient-uuid}&amp;encounter=${exchangeProperty.results-encounter-uuid}&amp;date=${exchangeProperty.service-request-resultCaptureDate}"/>
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>

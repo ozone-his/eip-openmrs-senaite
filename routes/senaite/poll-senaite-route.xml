@@ -40,7 +40,7 @@
 			            <constant>GET</constant>
 			        </setHeader>
 			        
-                    <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false"/>
+                    <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false"/>
                     <unmarshal>
                         <json library="Jackson"/>
                     </unmarshal>
@@ -58,7 +58,7 @@
                                 <simple>{"resourceType": "Task", "id": "${exchangeProperty.task-id}", "status": "rejected", "intent": "order"}</simple>
                             </setBody>
 
-                            <toD cacheSize="-1" uri="{{openmrs.baseUrl}}/ws/fhir2/R4/Task/${exchangeProperty.task-id}"/>
+                            <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}"/>
                             <log message="Updated FHIR Task :  '${body}'"/>
                         </when>
                         <!-- Associated ServiceRequest to Task actually exists -->
