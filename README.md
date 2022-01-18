@@ -4,7 +4,7 @@
 
 # EIP Routes SENAITE
 
-## 1. Run OpenMRS on port 8080 and MySQL on port 3306
+## a) Run OpenMRS on port 8080 and MySQL on port 3306
 
 Follow instructions here: https://github.com/openmrs/openmrs-distro-referenceapplication/tree/3.x
 
@@ -19,13 +19,13 @@ If using Docker Compose, expose the `port` and override the `command` parameters
 ```
 
 
-## 2. Run SENAITE on port 8088
+## b) Run SENAITE on port 8088
 
 ```
 git clone https://github.com/senaite/senaite.docker
 cd senaite.docker
 docker build -t senaite .
-docker run --rm --name senaite -p 8085:8080 senaite
+docker run --rm --name senaite -p 8088:8080 senaite
 ```
 Access http://localhost:8088/
 and follow the steps to "Install SENAITE"
@@ -33,29 +33,29 @@ and follow the steps to "Install SENAITE"
 user/password `admin/admin`
 
 
-## 3. How to use the routes
+## c) How to use the routes
 
 Follow the instructions here: https://github.com/mekomsolutions/eip-client
 
 #### Note
 Remember to provide an `application.properties` file defining the required runtime properties needed by the routes. Use this [template file](src/test/resources/application.properties). Uncomment the properties prefixed with `##` and set them appropriately.
 
-## 4. Workflows
+## d) Workflows
 
 Below are sequence diagrams showing a quick overview of what the routes do.
 
-#### a) Placing lab orders
+#### 1) Placing lab orders
 
-<img src="readme/creation_workflow.png" alt="hsc-logo" width="700"/>
+<img src="readme/placingLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
 
-#### b) Deleting, Voiding and Canceling/Discontinuing lab orders
+#### 2) Deleting, Voiding and Canceling/Discontinuing lab orders
 
-<img src="readme/delete_void_cancel_worklow.png" alt="hsc-logo" width="700"/>
+<img src="readme/discontinueDeleteVoidLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
 
-#### c) Renewing, Revising lab orders
+#### 3) Renewing, Revising lab orders
 
-<img src="readme/renew_revise_workflow.png" alt="hsc-logo" width="700"/>
+<img src="readme/renewingRevisingLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
 
-#### d) Updating and Fulfilling lab orders
+#### 4) Updating and Fulfilling lab orders
 
-<img src="readme/updating_workflow.png" alt="hsc-logo" width="700"/>
+<img src="readme/updatingLabOrderStatusAndCapturingResults.png" alt="hsc-logo" width="700"/>
