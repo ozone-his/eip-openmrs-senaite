@@ -146,6 +146,9 @@
                                 <!--retrieving requester's names using fhir (to be used as senaite's client contact's)-->
                                 <to uri="direct:process-contactNames"/>
                                 
+                                <!--processing patient's identification number (to be used as senaite's client id)-->
+                                <to uri="direct:process-patientId"/>
+
                                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
                                 <to uri="direct:create-client-to-senaite"/>
                                 
@@ -162,6 +165,25 @@
                         </choice>
                     </when>
                 </choice>
+            </when>
+            <when>
+                <simple>${body.tableName} == 'person_name' || ${body.tableName} == 'patient_identifier' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
+
+                <to uri="direct:process-patientUuid"/>
+
+                <setProperty name="patient-reference">
+                    <simple>Patient/${exchangeProperty.patient-uuid}</simple>
+                </setProperty>
+
+                <!--retrieving real patient names using openmrs fhir-->
+                <to uri="direct:process-patientNames"/>
+
+                <!--processing patient's identification number (to be used as senaite's client id)-->
+                <to uri="direct:process-patientId"/>
+
+                <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
+                <to uri="direct:update-client-to-senaite"/>
+
             </when>
         </choice>
     </route>

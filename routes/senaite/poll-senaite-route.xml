@@ -83,12 +83,12 @@
                                 <simple>${exchangeProperty.service-request-requester.substring(13)}</simple>
                             </setProperty>
 
-                            <setProperty name="patient-uuid">
+                            <setProperty name="patient-reference">
                                 <jsonpath resultType="String">$.subject.reference</jsonpath>
                             </setProperty>
-                            <setProperty name="patient-uuid">
-                                <simple>${exchangeProperty.patient-uuid.substring(8)}</simple>
-                            </setProperty>
+                            
+                            <!--processing patient's identification number (to be used as senaite's client id)-->
+                            <to uri="direct:process-patientId"/>
 
                             <!---retrieving associated location and visit-->
 
@@ -120,7 +120,7 @@
                                 <constant>application/json</constant>
                             </setHeader>
 
-                            <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&amp;getClientID=${exchangeProperty.patient-uuid}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true"/>
+                            <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&amp;getClientID=${exchangeProperty.patient-id}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true"/>
                             <unmarshal>
                                 <json library="Jackson"/>
                             </unmarshal>

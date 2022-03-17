@@ -38,6 +38,9 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     @EndpointInject(value = "mock:processContacttNamesRoutee")
     private MockEndpoint processContacttNamesRoute;
     
+    @EndpointInject(value = "mock:processPatientId")
+    private MockEndpoint processPatientId;
+
     @EndpointInject(value = "mock:creatClientToSenaiteRoute")
     private MockEndpoint creatClientToSenaiteRoute;
     
@@ -66,6 +69,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
     	    	weaveByToString("To[direct:process-patientNames]").replace().toD("mock:processPatientNamesRoute");
     	    	weaveByToString("To[direct:process-contactNames]").replace().toD("mock:processContacttNamesRoutee");
+                weaveByToString("To[direct:process-patientId]").replace().toD("mock:processPatientId");
     	    	weaveByToString("To[direct:create-client-to-senaite]").replace().toD("mock:creatClientToSenaiteRoute");
     	    	weaveByToString("To[direct:create-contact-to-senaite]").replace().toD("mock:creatContactToSenaiteRoute");
     	    	weaveByToString("To[direct:create-analysisRequest-to-senaite]").replace().toD("mock:createAnalysisRequestToSenaite");
@@ -84,6 +88,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.reset();
     	processPatientNamesRoute.reset();
     	processContacttNamesRoute.reset();
+        processPatientId.reset();
     	creatClientToSenaiteRoute.reset();
     	creatContactToSenaiteRoute.reset();
     	createAnalysisRequestToSenaite.reset();
@@ -217,12 +222,23 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	processContacttNamesRoute.expectedPropertyReceived("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
     	processContacttNamesRoute.setResultWaitTime(resultWaitTimeMillis);
     	
+        processPatientId.expectedPropertyReceived("patient-reference", "Patient/0298aa1b-7fa1-4244-93e7-c5138df63bb3");
+        processPatientId.whenAnyExchangeReceived(new Processor () {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("patient-id", "some-unique-patient-id");
+            }
+            
+        });
+        processPatientId.setResultWaitTime(resultWaitTimeMillis);
+
     	creatClientToSenaiteRoute.expectedPropertyReceived("service-analysis-template", "ab3b5775-7080-4cb1-8be5-54e367940145");
     	creatClientToSenaiteRoute.expectedPropertyReceived("lab-order-start-date", "2021-11-29T13:13:48+00:00");
     	creatClientToSenaiteRoute.expectedPropertyReceived("patient-reference", "Patient/0298aa1b-7fa1-4244-93e7-c5138df63bb3");
     	creatClientToSenaiteRoute.expectedPropertyReceived("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
+        creatClientToSenaiteRoute.expectedPropertyReceived("patient-id", "some-unique-patient-id");
     	creatClientToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
-    	
+        
     	creatContactToSenaiteRoute.expectedPropertyReceived("service-analysis-template", "ab3b5775-7080-4cb1-8be5-54e367940145");
     	creatContactToSenaiteRoute.expectedPropertyReceived("lab-order-start-date", "2021-11-29T13:13:48+00:00");
     	creatContactToSenaiteRoute.expectedPropertyReceived("patient-reference", "Patient/0298aa1b-7fa1-4244-93e7-c5138df63bb3");

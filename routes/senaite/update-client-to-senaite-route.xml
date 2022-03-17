@@ -3,7 +3,7 @@
     <route id="create-client-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:create-client-to-senaite"/>
         
-        <log message="Processing creation of order: " />
+        <log message="Updating client record for: " />
 
          <to uri="direct:authenticate-to-senaite"/>
                                 
@@ -27,30 +27,10 @@
                 <setProperty name="client-storage-path">
                     <jsonpath>$.items[0].path</jsonpath>
                 </setProperty>
-            </when>
-            <otherwise>
                 <setBody>
-                    <simple>{"portal_type":"Client","title":"${exchangeProperty.patient-name-unique}","ClientID":"${exchangeProperty.patient-id}","parent_path":"/senaite/clients"}</simple>
+                    <simple>{"title":"${exchangeProperty.patient-name-unique}","uid":"${exchangeProperty.client-uid}"}</simple>
                 </setBody>
-                
-                <setHeader name="CamelHttpMethod">
-                    <constant>POST</constant>
-                </setHeader>
-                
-                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/create"/>
-                <unmarshal>
-                    <json library="Jackson"/>
-                </unmarshal>
-                
-                <setProperty name="client-uid">
-                    <jsonpath>$.items[0].uid</jsonpath>
-                </setProperty>
-                
-                <setProperty name="client-storage-path">
-                    <jsonpath>$.items[0].path</jsonpath>
-                </setProperty>
-            </otherwise>
+            </when>
         </choice>
-        
     </route>
 </routes>

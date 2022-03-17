@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Import;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
-public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {  
+public class ProcessPatientIdRouteITest extends BaseWatcherRouteTest {  
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -31,8 +31,8 @@ public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "process-patientNames-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "process-patientNames".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "process-patientId-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "process-patientId".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -50,14 +50,12 @@ public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("patient-reference", "Patient/86f0b43e-12a2-4e98-9937-6c85d8f05d65");
     	
     	// replay
-    	producerTemplate.send("direct:process-patientNames", exchange);
+    	producerTemplate.send("direct:process-patientId", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
     	patientEndpoint.assertIsSatisfied();
-    	assertEquals("HCD-3000005", exchange.getProperty("patient-preferred-id"));
-    	assertEquals("Smith", exchange.getProperty("patient-family-name"));
-    	assertEquals("John Smith (HCD-3000005)", exchange.getProperty("patient-name-unique"));
+    	assertEquals("86f0b43e-12a2-4e98-9937-6c85d8f05d65", exchange.getProperty("patient-id"));
     	
     }
     
@@ -65,7 +63,7 @@ public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {
     	patientEndpoint.whenAnyExchangeReceived(new Processor () {
 			@Override
 			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody("{\"resourceType\":\"Patient\",\"id\":\"86f0b43e-12a2-4e98-9937-6c85d8f05d65\",\"text\":{\"status\":\"generated\",\"div\":\"<div/>\"},\"identifier\":[{\"id\":\"e9a12a95-cd97-42e9-82e8-0fba009a1441\",\"use\":\"official\",\"type\":{\"text\":\"Numéro Dossier\"},\"value\":\"HCD-3000005\"}],\"active\":true,\"name\":[{\"id\":\"a7a01f53-27f5-4ab1-ad7d-741b7daa848d\",\"family\":\"Smith\",\"given\":[\"John\"]}],\"gender\":\"male\",\"birthDate\":\"1998-11-11\",\"deceasedBoolean\":false}");
+				exchange.getIn().setBody("{\"resourceType\":\"Patient\",\"id\":\"86f0b43e-12a2-4e98-9937-6c85d8f05d65\",\"text\":{\"status\":\"generated\",\"div\":\"<div/>\"},\"identifier\":[{\"id\":\"e9a12a95-cd97-42e9-82e8-0fba009a1441\",\"use\":\"official\",\"type\":{\"text\":\"Numéro Dossier\"},\"value\":\"HCD-3000012\"}],\"active\":true,\"name\":[{\"id\":\"a7a01f53-27f5-4ab1-ad7d-741b7daa848d\",\"family\":\"Smith\",\"given\":[\"John\"]}],\"gender\":\"male\",\"birthDate\":\"1998-11-11\",\"deceasedBoolean\":false}");
 			}
     		
     	});
