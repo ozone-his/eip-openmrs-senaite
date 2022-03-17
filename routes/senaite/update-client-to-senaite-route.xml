@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-client-to-senaite" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:create-client-to-senaite"/>
+    <route id="update-client-to-senaite" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:update-client-to-senaite"/>
         
         <log message="Updating client record for: " />
 
@@ -18,18 +18,31 @@
         
         <choice>
             <when>
-                <jsonpath>$.[?(@.count==1)]</jsonpath>
+                <jsonpath>$.[?(@.count == 1)]</jsonpath>
                 
                 <setProperty name="client-uid">
                     <jsonpath>$.items[0].uid</jsonpath>
                 </setProperty>
-                
-                <setProperty name="client-storage-path">
-                    <jsonpath>$.items[0].path</jsonpath>
-                </setProperty>
                 <setBody>
                     <simple>{"title":"${exchangeProperty.patient-name-unique}","uid":"${exchangeProperty.client-uid}"}</simple>
                 </setBody>
+
+                <setHeader name="CamelHttpMethod">
+                    <constant>POST</constant>
+                </setHeader>
+                
+                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/update"/>
+            </when>
+            <when>
+                <jsonpath>$.[?(@.count > 1)]</jsonpath>
+                
+                <log message="Could not update patient record identified by uuid = '${exchangeProperty.patient-id}' due to multiple existing records with same identifier in SENAITE" />
+                <!-- Maybe throw an error -->
+            </when>
+            <when>
+                <jsonpath>$.[?(@.count == 0)]</jsonpath>
+                
+                <log message="Could not update patient record identified by uuid = '${exchangeProperty.patient-id}' due to no existing record with same identifier in SENAITE" />
             </when>
         </choice>
     </route>

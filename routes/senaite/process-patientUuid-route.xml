@@ -6,24 +6,19 @@
         <choice>
             <when>
                 <simple>${exchangeProperty.event.tableName} == 'patient_identifier'</simple>
-                <setProperty name="resourceName">
-                    <simple>patient</simple>
-                </setProperty>
                 <setProperty name="lookUpColumn">
                     <simple>patient_id</simple>
                 </setProperty>
             </when>
-            <otherwise>
-                <setProperty name="resourceName">
-                    <simple>person</simple>
-                </setProperty>
+            <when>
+                <simple>${exchangeProperty.event.tableName} == 'person_name'</simple>
                 <setProperty name="lookUpColumn">
                     <simple>person_id</simple>
                 </setProperty>
-            </otherwise>
+            </when>
         </choice>
 
-        <toD uri="sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=openmrsDataSource" />
+        <toD cacheSize="-1" uri="sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=openmrsDataSource" />
 
         <!-- TODO Check if no row was found -->
 
