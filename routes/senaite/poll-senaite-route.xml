@@ -86,6 +86,10 @@
                             <setProperty name="patient-reference">
                                 <jsonpath resultType="String">$.subject.reference</jsonpath>
                             </setProperty>
+
+                            <setProperty name="patient-uuid">
+                                <simple>${exchangeProperty.patient-reference.substring(8)}</simple>
+                            </setProperty>
                             
                             <!--processing patient's identification number (to be used as senaite's client id)-->
                             <to uri="direct:process-patientId"/>
