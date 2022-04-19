@@ -112,10 +112,20 @@
             <setProperty name="service-request-test-concept-uuid">
                 <simple>${body.substring(${exchangeProperty.start-index},${exchangeProperty.last-index})}</simple>
             </setProperty>
-
-            <setBody>
-                <simple>{"concept":"${exchangeProperty.service-request-test-concept-uuid}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","groupMembers":[{"concept":"${exchangeProperty.service-request-test-concept-uuid}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","groupMembers":[{"value":"${exchangeProperty.service-request-result}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","concept":"${exchangeProperty.service-request-test-concept-uuid}"}]}]}</simple>
-            </setBody>
+            
+            <choice>
+                <when>
+                    <simple>${properties:is.integration.with.bahmniEmr:false} == true</simple>
+                    <setBody>
+                        <simple>{"concept":"${exchangeProperty.service-request-test-concept-uuid}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","groupMembers":[{"concept":"${exchangeProperty.service-request-test-concept-uuid}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","groupMembers":[{"value":"${exchangeProperty.service-request-result}","order": "${exchangeProperty.service-request-id}","person": "${exchangeProperty.patient-uuid}","obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}","concept":"${exchangeProperty.service-request-test-concept-uuid}"}]}]}</simple>
+                    </setBody>
+                </when>
+                <otherwise>
+                    <setBody>
+                        <simple>{"value": "${exchangeProperty.service-request-result}", "order": "${exchangeProperty.service-request-id}", "person": "${exchangeProperty.patient-uuid}", "obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}", "concept": "${exchangeProperty.service-request-test-concept-uuid}"}</simple>
+                    </setBody>
+                </otherwise>
+            </choice>
 
         </split>
 
