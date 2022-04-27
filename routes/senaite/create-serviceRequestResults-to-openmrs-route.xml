@@ -102,11 +102,11 @@
             <convertBodyTo type="java.lang.String"/>
 
             <setProperty name="start-index">
-                <simple>${body.indexOf("(")}++</simple>
+                <simple>${body.lastIndexOf("(")}++</simple>
             </setProperty>
 
             <setProperty name="last-index">
-                <simple>${body.indexOf(")")}</simple>
+                <simple>${body.lastIndexOf(")")}</simple>
             </setProperty>
 
             <setProperty name="service-request-test-concept-uuid">
