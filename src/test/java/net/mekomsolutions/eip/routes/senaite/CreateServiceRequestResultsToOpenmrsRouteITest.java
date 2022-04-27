@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.support.TestPropertySourceUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,11 +80,13 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     	fetchAnalysisRequestSenaiteEndpoint.reset();
     	searchObservationOpenmrsFhirEndpoint.reset();
     	createObservationOpenmrsEndpoint.reset();
+    	TestPropertySourceUtils.addInlinedPropertiesToEnvironment(env, "is.integration.with.bahmniEmr=false");
     }
 
     @Test
-    public void shouldCreateServiceRequestResultsInOpenmrs() throws Exception {
+    public void shouldCreateServiceRequestResultsInBahmni() throws Exception {
     	// setup
+    	TestPropertySourceUtils.addInlinedPropertiesToEnvironment(env, "is.integration.with.bahmniEmr=true");
     	Exchange exchange = new DefaultExchange(camelContext);
     	exchange.setProperty("patient-uuid", "0298aa1b-7fa1-4244-93e7-c5138df63bb3");
     	exchange.setProperty("service-request-location-uuid", "833d0c66-e29a-4d31-ac13-ca9050d1bfa9");
@@ -96,6 +99,42 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     	ObjectMapper mapper = new ObjectMapper();
     	Map<String, String>[] testsMapArray = mapper.readValue(tests, typeRef);
     	exchange.setProperty("service-request-tests", testsMapArray);
+    	
+    	createObservationOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+    	createObservationOpenmrsEndpoint.expectedBodiesReceived("{\"encounter\": \"40901ffc-954f-4fa9-abc3-5edc02438708\",\"concept\":\"17e7685c-6301-4690-b676-3731974456c5\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"concept\":\"17e7685c-6301-4690-b676-3731974456c5\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"value\":\"3\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"concept\":\"17e7685c-6301-4690-b676-3731974456c5\"}]}]},{\"concept\":\"66099fcb-e165-4730-a608-e2f79f789b8a\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"concept\":\"66099fcb-e165-4730-a608-e2f79f789b8a\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"value\":\"1\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"concept\":\"66099fcb-e165-4730-a608-e2f79f789b8a\"}]}]},{\"concept\":\"dc6783bb-6af8-47a5-8938-e49f70191c24\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"concept\":\"dc6783bb-6af8-47a5-8938-e49f70191c24\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"value\":\"2\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"concept\":\"dc6783bb-6af8-47a5-8938-e49f70191c24\"}]}]}");
+    	
+    	// replay
+    	producerTemplate.send("direct:create-serviceRequestResults-to-openmrs", exchange);
+    	
+    	// verify
+    	authenticateToSenaiteRoute.assertExchangeReceived(0);
+    	authenticateToSenaiteRoute.assertExchangeReceived(0);
+    	searchEncounterOpenmrsEndpoint.assertIsSatisfied();
+    	createEncounterOpenmrsEndpoint.assertIsSatisfied();
+    	fetchAnalysisRequestSenaiteEndpoint.assertIsSatisfied();
+    	searchObservationOpenmrsFhirEndpoint.assertIsSatisfied();
+    	createObservationOpenmrsEndpoint.assertIsSatisfied();
+    }
+    
+    @Test
+    public void shouldCreateServiceRequestResultsInOpenmrs() throws Exception {
+    	// setup
+    	TestPropertySourceUtils.addInlinedPropertiesToEnvironment(env, "is.integration.with.bahmniEmr=false");
+    	Exchange exchange = new DefaultExchange(camelContext);
+    	exchange.setProperty("patient-uuid", "0298aa1b-7fa1-4244-93e7-c5138df63bb3");
+    	exchange.setProperty("service-request-location-uuid", "833d0c66-e29a-4d31-ac13-ca9050d1bfa9");
+    	exchange.setProperty("service-request-encounter-datetime", "2021-12-16T06:50:42+00:00");
+    	exchange.setProperty("service-request-visit-uuid", "6caa036d-f442-4c0f-85e8-bf284f687ff8");
+    	exchange.setProperty("service-request-requester", "d042597b-1d09-11ec-9616-0242ac1a000a");
+    	
+    	String tests = "[{\"url\":\"http://localhost:8081/senaite/clients/client-2/BLD-0003/TSH\",\"uid\":\"cbbded1109514906a4afe33be29e7df3\",\"api_url\":\"http://localhost:8081/senaite/@@API/senaite/v1/analysis/cbbded1109514906a4afe33be29e7df3\"},{\"url\":\"http://localhost:8081/senaite/clients/client-2/BLD-0003/T3\",\"uid\":\"adc7f66d99b449e095d1f4771fe88c2a\",\"api_url\":\"http://localhost:8081/senaite/@@API/senaite/v1/analysis/adc7f66d99b449e095d1f4771fe88c2a\"},{\"url\":\"http://localhost:8081/senaite/clients/client-2/BLD-0003/T4\",\"uid\":\"22a78ae92e214c0fbf821b6d682a231e\",\"api_url\":\"http://localhost:8081/senaite/@@API/senaite/v1/analysis/22a78ae92e214c0fbf821b6d682a231e\"}]";
+    	TypeReference<HashMap<String, String>[]> typeRef = new TypeReference<HashMap<String, String>[]>() {};
+    	ObjectMapper mapper = new ObjectMapper();
+    	Map<String, String>[] testsMapArray = mapper.readValue(tests, typeRef);
+    	exchange.setProperty("service-request-tests", testsMapArray);
+    	
+    	createObservationOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+    	createObservationOpenmrsEndpoint.expectedBodiesReceived("{\"encounter\": \"0901ffc-954f-4fa9-abc3-5edc02438708\",\"value\": \"3\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"17e7685c-6301-4690-b676-3731974456c5\"},{\"value\": \"1\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"66099fcb-e165-4730-a608-e2f79f789b8a\"},{\"value\": \"2\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"dc6783bb-6af8-47a5-8938-e49f70191c24\"}");
     	
     	// replay
     	producerTemplate.send("direct:create-serviceRequestResults-to-openmrs", exchange);
@@ -159,8 +198,5 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     	});
     	searchObservationOpenmrsFhirEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
     	searchObservationOpenmrsFhirEndpoint.expectedPropertyReceived("patient-uuid", "0298aa1b-7fa1-4244-93e7-c5138df63bb3");
-    	
-    	createObservationOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-    	createObservationOpenmrsEndpoint.expectedBodiesReceived("{\"encounter\": \"40901ffc-954f-4fa9-abc3-5edc02438708\",\"concept\":\"17e7685c-6301-4690-b676-3731974456c5\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"concept\":\"17e7685c-6301-4690-b676-3731974456c5\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"value\":\"3\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"concept\":\"17e7685c-6301-4690-b676-3731974456c5\"}]}]},{\"concept\":\"66099fcb-e165-4730-a608-e2f79f789b8a\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"concept\":\"66099fcb-e165-4730-a608-e2f79f789b8a\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"value\":\"1\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"concept\":\"66099fcb-e165-4730-a608-e2f79f789b8a\"}]}]},{\"concept\":\"dc6783bb-6af8-47a5-8938-e49f70191c24\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"concept\":\"dc6783bb-6af8-47a5-8938-e49f70191c24\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"groupMembers\":[{\"value\":\"2\",\"order\": \"\",\"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\",\"obsDatetime\": \"2021-12-16T06:50:42+00:00\",\"concept\":\"dc6783bb-6af8-47a5-8938-e49f70191c24\"}]}]}");
     }
 }
