@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Import;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
-public class ProcessPatientUuidRouteITest extends BaseWatcherRouteTest {  
+public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {  
     
     @EndpointInject(value = "mock:selectSqlEndpoint")
     private MockEndpoint selectSqlEndpoint;
@@ -32,8 +32,8 @@ public class ProcessPatientUuidRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "process-patientUuid-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "process-patientUuid".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "retrieve-patientUuid-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-patientUuid".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -68,7 +68,7 @@ public class ProcessPatientUuidRouteITest extends BaseWatcherRouteTest {
     	selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "patient_id");
     	
     	// replay
-    	producerTemplate.send("direct:process-patientUuid", exchange);
+    	producerTemplate.send("direct:retrieve-patientUuid", exchange);
     	
     	// verify
     	selectSqlEndpoint.assertIsSatisfied();
@@ -88,7 +88,7 @@ public class ProcessPatientUuidRouteITest extends BaseWatcherRouteTest {
     	selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "person_id");
     	
     	// replay
-    	producerTemplate.send("direct:process-patientUuid", exchange);
+    	producerTemplate.send("direct:retrieve-patientUuid", exchange);
     	
     	// verify
     	selectSqlEndpoint.assertIsSatisfied();

@@ -24,7 +24,7 @@ import org.springframework.test.context.TestExecutionListeners.MergeMode;
 @MockEndpoints
 @Import({ TestConfiguration.class})
 @TestExecutionListeners(listeners = {}, mergeMode = MergeMode.REPLACE_DEFAULTS)
-public class ProcessContactNamesRouteITest extends BaseWatcherRouteTest {  
+public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {  
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -34,8 +34,8 @@ public class ProcessContactNamesRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "process-contactNames-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "process-contactNames".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "retrieve-contactNames-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-contactNames".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -55,7 +55,7 @@ public class ProcessContactNamesRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
     	
     	// replay
-    	producerTemplate.send("direct:process-contactNames", exchange);
+    	producerTemplate.send("direct:retrieve-contactNames", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

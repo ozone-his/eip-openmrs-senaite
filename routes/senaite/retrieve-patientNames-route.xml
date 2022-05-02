@@ -1,9 +1,9 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="process-patientNames" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:process-patientNames"/>
+    <route id="retrieve-patientNames" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:retrieve-patientNames"/>
         
-        <log message="Processing patient names for order: " />
+        <log message="Retrieve patient names for order: " />
         
         <to uri="direct:authenticate-to-openmrs"/>
                                 

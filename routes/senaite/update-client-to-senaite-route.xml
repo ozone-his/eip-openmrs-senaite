@@ -3,7 +3,7 @@
     <route id="update-client-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:update-client-to-senaite"/>
         
-        <log message="Updating client record for: " />
+        <log message="Updating client with new patient details (name and UUID)" />
 
          <to uri="direct:authenticate-to-senaite"/>
                                 

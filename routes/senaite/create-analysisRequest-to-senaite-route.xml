@@ -3,7 +3,7 @@
     <route id="create-analysisRequest-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:create-analysisRequest-to-senaite"/>
         
-        <log message="Processing creation of order: " />
+        <log message="Creating AnalysisRequest for order in SENAITE " />
 
         <to uri="direct:authenticate-to-senaite"/>
 
@@ -61,7 +61,7 @@
                     <simple>{"Contact": "${exchangeProperty.client-contact-uid}","SampleType": "${exchangeProperty.sample-type-uid}","DateSampled": "${exchangeProperty.lab-order-start-date}","Template": "${exchangeProperty.sample-template-uid}","Profiles": "${exchangeProperty.sample-analyses-profile-uid}","Analyses": [${exchangeProperty.sample-analyses-uids}],"ClientSampleID": "${exchangeProperty.lab-order-uuid}"}</simple>
                 </setBody>
                 
-                <!--post sample to senaite-->
+                <!--post sample to SENAITE-->
                 <setHeader name="CamelHttpMethod">
                     <constant>POST</constant>
                 </setHeader>
@@ -71,7 +71,7 @@
                 
             </when>
             <otherwise>
-                <!-- Do nothing since it's created already -->
+                <!-- Do nothing since AnalysisRequests was created already -->
             </otherwise>
         </choice>
     </route>

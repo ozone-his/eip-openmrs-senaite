@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Import;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
-public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {  
+public class RetrievePatientNamesRouteITest extends BaseWatcherRouteTest {  
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -31,8 +31,8 @@ public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "process-patientNames-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "process-patientNames".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "retrieve-patientNames-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-patientNames".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -50,7 +50,7 @@ public class ProcessPatientNamesRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("patient-reference", "Patient/86f0b43e-12a2-4e98-9937-6c85d8f05d65");
     	
     	// replay
-    	producerTemplate.send("direct:process-patientNames", exchange);
+    	producerTemplate.send("direct:retrieve-patientNames", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

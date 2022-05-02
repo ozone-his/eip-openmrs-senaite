@@ -2,7 +2,7 @@
     xmlns="http://camel.apache.org/schema/spring">
     <route id="cancel-order-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:cancel-order-to-senaite"/>
-        <log message="Processing cancellation of lab order:  '${body}'" />
+        <log message="Cancelling lab order:  '${body}'" />
         
         <setProperty name="order-to-cancel">
             <simple>${body}</simple>
@@ -18,7 +18,7 @@
             <constant>GET</constant>
         </setHeader>
         
-        <!-- Fetching cancelled lab order if it exists -->
+        <!-- Fetching cancelled lab order if it exists from SENAITE-->
         <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true&amp;review_state=cancelled"/>
         <unmarshal>
             <json library="Jackson"/>

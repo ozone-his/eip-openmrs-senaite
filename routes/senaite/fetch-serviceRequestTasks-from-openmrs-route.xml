@@ -6,7 +6,7 @@
         
         <log message="Fetching Tasks associated with ServiceRequests " />
 
-        <!-- Fetch requested & accepted Tasks -->
+        <!-- Fetch FHIR requested & accepted Tasks from OpenMRS -->
         <to uri="direct:authenticate-to-openmrs"/>
 
         <setHeader name="CamelHttpMethod">

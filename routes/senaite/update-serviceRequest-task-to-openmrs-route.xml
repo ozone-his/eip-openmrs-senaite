@@ -4,7 +4,7 @@
     <route id="update-serviceRequest-task-to-openmrs">
         <from uri="direct:update-serviceRequest-task-to-openmrs"/>
 
-        <log message="Processing FHIR Task update for order: " />
+        <log message="Updating FHIR Task for order. " />
         
         <to uri="direct:authenticate-to-openmrs"/>
 

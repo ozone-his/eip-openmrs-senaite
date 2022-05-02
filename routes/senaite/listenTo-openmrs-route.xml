@@ -40,7 +40,7 @@
                     <when>
                         <simple>${exchangeProperty.event.tableName} == 'orders' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
                         
-                        <!--retrieving service request from openmrs fhir-->
+                        <!-- Retrieving service request from openmrs FHIR -->
                         <to uri="direct:authenticate-to-openmrs"/>
                         
                         <setHeader name="CamelHttpMethod">
@@ -74,7 +74,7 @@
                     <when>
                         <simple>${exchangeProperty.event.tableName} == 'test_order' &amp;&amp; ${exchangeProperty.event.operation} == 'c'</simple>
                         
-                        <!--retrieving service request from openmrs fhir-->
+                        <!--retrieving FHIR ServiceRequest from OpenMRS -->
                         <to uri="direct:authenticate-to-openmrs"/>
                         
                         <setHeader name="CamelHttpMethod">
@@ -103,7 +103,7 @@
                         </setProperty>
                         
                         <choice>
-                            <!-- If discontinuation order, then cancel their previous analysis request on senaite -->
+                            <!-- If discontinuation order, then cancel their previous analysis request on SENAITE -->
                             <when>
                                 <jsonpath>$.[?((@.status == 'revoked' || @.status == 'unknown') &amp;&amp; @.replaces)]</jsonpath>
                                 
@@ -123,7 +123,7 @@
                             <when>
                                 <jsonpath>$.[?(@.status == 'active')]</jsonpath>
                                 <choice>
-                                    <!-- If revision/renewed order, first cancel their previous one on senaite -->
+                                    <!-- If revision/renewed order, first cancel their previous one on SENAITE -->
                                     <when>
                                         <jsonpath>$.[?(@.basedOn)]</jsonpath>
                                         
@@ -140,14 +140,14 @@
                                     </when>
                                 </choice>
                                 
-                                <!--retrieving real patient names using openmrs fhir-->
-                                <to uri="direct:process-patientNames"/>
+                                <!--retrieving real patient names using OpenMRS FHIR-->
+                                <to uri="direct:retrieve-patientNames"/>
                                 
-                                <!--retrieving requester's names using fhir (to be used as senaite's client contact's)-->
-                                <to uri="direct:process-contactNames"/>
+                                <!--retrieving requester's names using FHIR (to be used as SENAITE's client contact's)-->
+                                <to uri="direct:retrieve-contactNames"/>
                                 
-                                <!--processing patient's identification number (to be used as senaite's client id)-->
-                                <to uri="direct:process-patientId"/>
+                                <!--retrieving patient's identification number (to be used as SENAITE's client id)-->
+                                <to uri="direct:retrieve-patientId"/>
 
                                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
                                 <to uri="direct:create-client-to-senaite"/>
@@ -169,17 +169,17 @@
             <when>
                 <simple>${body.tableName} == 'person_name' || ${body.tableName} == 'patient_identifier' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
 
-                <to uri="direct:process-patientUuid"/>
+                <to uri="direct:retrieve-patientUuid"/>
 
                 <setProperty name="patient-reference">
                     <simple>Patient/${exchangeProperty.patient-uuid}</simple>
                 </setProperty>
 
-                <!--retrieving real patient names using openmrs fhir-->
-                <to uri="direct:process-patientNames"/>
+                <!--retrieving real patient names using OpenMRS FHIR-->
+                <to uri="direct:retrieve-patientNames"/>
 
-                <!--processing patient's identification number (to be used as senaite's client id)-->
-                <to uri="direct:process-patientId"/>
+                <!--processing patient's identification number (to be used as SENAITE's client id)-->
+                <to uri="direct:retrieve-patientId"/>
 
                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
                 <to uri="direct:update-client-to-senaite"/>
