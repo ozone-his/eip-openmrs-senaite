@@ -3,7 +3,7 @@
     <route id="retrieve-contactNames" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:retrieve-contactNames"/>
         
-        <log message="Retrieve contact names for order: " />
+        <log message="Retrieving contact names for order." />
         
         <to uri="direct:authenticate-to-openmrs"/>
                         

@@ -3,7 +3,7 @@
     <route id="retrieve-patientNames" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:retrieve-patientNames"/>
         
-        <log message="Retrieve patient names for order: " />
+        <log message="Retrieving patient names for patient." />
         
         <to uri="direct:authenticate-to-openmrs"/>
                                 

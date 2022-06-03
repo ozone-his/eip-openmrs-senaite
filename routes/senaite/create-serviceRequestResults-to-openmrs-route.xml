@@ -4,7 +4,7 @@
     <route id="create-serviceRequestResults-to-openmrs">
         <from uri="direct:create-serviceRequestResults-to-openmrs"/>
         
-        <log message="Processing ServiceRequest results for order: " />
+        <log message="Creating ServiceRequest results for order." />
 
         <to uri="direct:authenticate-to-openmrs"/>
                                     
@@ -175,7 +175,7 @@
             <when>
                 <jsonpath>$.[?(@.total > 0)]</jsonpath>
                 <!-- Do not recreate results -->
-                <log message="Results already exist for order:" />
+                <log message="Results already exist for order." />
             </when>
             <otherwise>
                 <!-- Creating results Observations -->

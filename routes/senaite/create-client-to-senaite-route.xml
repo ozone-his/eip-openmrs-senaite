@@ -3,7 +3,7 @@
     <route id="create-client-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:create-client-to-senaite"/>
         
-        <log message="Processing creation of order: " />
+        <log message="Creating client for order. " />
 
          <to uri="direct:authenticate-to-senaite"/>
                                 
