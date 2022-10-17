@@ -19,7 +19,7 @@
         </setHeader>
         
         <!-- Fetching cancelled lab order if it exists from SENAITE-->
-        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true&amp;review_state=cancelled"/>
+        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&amp;catalog=senaite_catalog_sample&amp;complete=true&amp;review_state=cancelled"/>
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>
@@ -30,7 +30,7 @@
                 <jsonpath>$.[?(@.count==0)]</jsonpath>
                 
                 <!-- Proceed to cancel lab order -->
-                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true"/>
+                <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&amp;catalog=senaite_catalog_sample&amp;complete=true"/>
                 <unmarshal>
                     <json library="Jackson"/>
                 </unmarshal>

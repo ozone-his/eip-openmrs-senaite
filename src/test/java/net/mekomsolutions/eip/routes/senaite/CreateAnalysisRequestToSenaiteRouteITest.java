@@ -42,8 +42,8 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     	    @Override
     	    public void configure() throws Exception {
     	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.lab-order-uuid}&getClientID=${exchangeProperty.patient-id}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().toD("mock:searchAnalysisRequestSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&Description=${exchangeProperty.service-analysis-template}&catalog=bika_setup_catalog&portal_type=ARTemplate]").replace().toD("mock:searchAnalysisRequestTemplateSenaiteEndpoint");
+    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.lab-order-uuid}&getClientID=${exchangeProperty.patient-id}&catalog=senaite_catalog_sample&complete=true]").replace().toD("mock:searchAnalysisRequestSenaiteEndpoint");
+    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&Description=${exchangeProperty.service-analysis-template}&catalog=senaite_catalog_setup&portal_type=ARTemplate]").replace().toD("mock:searchAnalysisRequestTemplateSenaiteEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}]").replace().toD("mock:createAnalysisRequestSenaiteEndpoint");
     	    }
     	});

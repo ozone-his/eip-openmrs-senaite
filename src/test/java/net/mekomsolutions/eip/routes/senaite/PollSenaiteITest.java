@@ -74,7 +74,7 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 				weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
 				weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
 				weaveByToString("To[direct:retrieve-patientId]").replace().toD("mock:retrievePatientId");
-				weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-id}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
+				weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-id}&catalog=senaite_catalog_sample&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
 				weaveByToString("To[direct:create-serviceRequestResults-to-openmrs]").replace().to("mock:createServiceRequestResultsToOpenmrsRoute");
 				weaveByToString("To[direct:update-serviceRequest-task-to-openmrs]").replace().to("mock:updateServiceRequestTaskRoute");
 			}
