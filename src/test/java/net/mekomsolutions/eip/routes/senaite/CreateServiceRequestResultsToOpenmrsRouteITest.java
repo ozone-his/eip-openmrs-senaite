@@ -134,7 +134,7 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     	exchange.setProperty("service-request-tests", testsMapArray);
     	
     	createObservationOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
-    	createObservationOpenmrsEndpoint.expectedBodiesReceived("{\"encounter\": \"0901ffc-954f-4fa9-abc3-5edc02438708\",\"value\": \"3\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"17e7685c-6301-4690-b676-3731974456c5\"},{\"value\": \"1\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"66099fcb-e165-4730-a608-e2f79f789b8a\"},{\"value\": \"2\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"dc6783bb-6af8-47a5-8938-e49f70191c24\"}");
+    	createObservationOpenmrsEndpoint.expectedBodiesReceived("{\"encounter\": \"40901ffc-954f-4fa9-abc3-5edc02438708\",\"value\": \"3\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"17e7685c-6301-4690-b676-3731974456c5\"},{\"value\": \"1\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"66099fcb-e165-4730-a608-e2f79f789b8a\"},{\"value\": \"2\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"dc6783bb-6af8-47a5-8938-e49f70191c24\"}");
     	
     	// replay
     	producerTemplate.send("direct:create-serviceRequestResults-to-openmrs", exchange);

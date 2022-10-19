@@ -1,9 +1,9 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="process-patientNames" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:process-patientNames"/>
+    <route id="retrieve-patientNames" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:retrieve-patientNames"/>
         
-        <log message="Processing patient names for order: " />
+        <log message="Retrieving patient names for patient." />
         
         <to uri="direct:authenticate-to-openmrs"/>
                                 
@@ -16,8 +16,8 @@
             <json library="Jackson"/>
         </unmarshal>
         
-        <setProperty name="patient-id">
-            <jsonpath>$.id</jsonpath>
+        <setProperty name="patient-preferred-id">
+            <jsonpath>$.identifier[0].value</jsonpath>
         </setProperty>
         
         <setProperty name="patient-family-name">
@@ -29,7 +29,7 @@
         </setProperty>
         
         <setProperty name="patient-name-unique">
-            <simple>${exchangeProperty.patient-given-name} ${exchangeProperty.patient-family-name} (${exchangeProperty.patient-id})</simple>
+            <simple>${exchangeProperty.patient-given-name} ${exchangeProperty.patient-family-name} (${exchangeProperty.patient-preferred-id})</simple>
         </setProperty>
         
     </route>

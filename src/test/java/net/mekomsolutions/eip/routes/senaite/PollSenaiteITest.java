@@ -42,6 +42,9 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 	
 	@EndpointInject(value = "mock:authenticateToSenaiteRoute")
 	private MockEndpoint authenticateToSenaiteRoute;
+
+	@EndpointInject(value = "mock:retrievePatientId")
+    private MockEndpoint retrievePatientId;
 	
 	@EndpointInject(value = "mock:analysisRequestSearchEndpoint")
 	private MockEndpoint analysisRequestSearchEndpoint;
@@ -70,7 +73,8 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 				weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}]").replace().toD("mock:encounterEndpoint");
 				weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
 				weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
-				weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-uuid}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
+				weaveByToString("To[direct:retrieve-patientId]").replace().toD("mock:retrievePatientId");
+				weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-id}&catalog=senaite_catalog_sample&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
 				weaveByToString("To[direct:create-serviceRequestResults-to-openmrs]").replace().to("mock:createServiceRequestResultsToOpenmrsRoute");
 				weaveByToString("To[direct:update-serviceRequest-task-to-openmrs]").replace().to("mock:updateServiceRequestTaskRoute");
 			}
@@ -88,6 +92,7 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 		encounterEndpoint.reset();
 		authenticateToOpenmrsRoute.reset();
 		authenticateToSenaiteRoute.reset();
+		retrievePatientId.reset();
 		createServiceRequestResultsToOpenmrsRoute.reset();
 		updateServiceRequestTaskRoute.reset();
 	}
@@ -142,6 +147,16 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 		});
 		encounterEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
 		encounterEndpoint.setResultWaitTime(resultWaitTimeMillis);
+
+		retrievePatientId.expectedPropertyReceived("patient-reference", "Patient/0298aa1b-7fa1-4244-93e7-c5138df63bb3");
+        retrievePatientId.whenAnyExchangeReceived(new Processor () {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.setProperty("patient-id", "some-unique-patient-id");
+            }
+            
+        });
+        retrievePatientId.setResultWaitTime(resultWaitTimeMillis);
 		
 		analysisRequestSearchEndpoint.whenAnyExchangeReceived(new Processor() {
 			@Override
@@ -152,6 +167,7 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 
 		});
 		analysisRequestSearchEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
+		analysisRequestSearchEndpoint.expectedPropertyReceived("patient-id", "some-unique-patient-id");
 		analysisRequestSearchEndpoint.setResultWaitTime(resultWaitTimeMillis);
 		
 		createServiceRequestResultsToOpenmrsRoute.setAssertPeriod(resultWaitTimeMillis);

@@ -3,7 +3,7 @@
     <route id="create-client-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:create-client-to-senaite"/>
         
-        <log message="Processing creation of order: " />
+        <log message="Creating client for order. " />
 
          <to uri="direct:authenticate-to-senaite"/>
                                 
@@ -11,7 +11,7 @@
             <constant>GET</constant>
         </setHeader>
         
-        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getName=${exchangeProperty.patient-name-unique}"/>
+        <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&amp;getClientID=${exchangeProperty.patient-id}"/>
         <unmarshal>
             <json library="Jackson"/>
         </unmarshal>

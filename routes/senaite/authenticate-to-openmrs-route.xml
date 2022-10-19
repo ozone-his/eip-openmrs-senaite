@@ -2,7 +2,7 @@
     xmlns="http://camel.apache.org/schema/spring">
     <route id="authenticate-to-openmrs" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:authenticate-to-openmrs"/>
-        <log message="Authenticating application to openmrs" />
+        <log message="Authenticating application to OpenMRS" />
         
         <setProperty name="body">
             <simple>${body}</simple>
@@ -26,7 +26,18 @@
         </setHeader>
 
         <!-- If SSO is enabled then override basic authentication in favor of Oauth -->
+        <setBody>
+            <simple></simple>
+        </setBody>
         <process ref="oauthProcessor" />
+        <choice>
+            <when>
+                <simple>${body} != null &amp;&amp; ${body} != ""</simple>
+                <setHeader name="Authorization">
+                    <simple>${body}</simple>
+                </setHeader>
+            </when>
+        </choice>
 
         <setBody>
             <simple>${exchangeProperty.body}</simple>

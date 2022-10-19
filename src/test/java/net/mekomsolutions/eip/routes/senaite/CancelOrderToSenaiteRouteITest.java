@@ -50,8 +50,8 @@ public class CancelOrderToSenaiteRouteITest extends BaseWatcherRouteTest {
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&catalog=bika_catalog_analysisrequest_listing&complete=true&review_state=cancelled]").replace().toD("mock:fetchcanceledOrderFromSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&catalog=bika_catalog_analysisrequest_listing&complete=true]").replace().toD("mock:fetchActiveOrderFromSenaiteEndpoint");
+    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&catalog=senaite_catalog_sample&complete=true&review_state=cancelled]").replace().toD("mock:fetchcanceledOrderFromSenaiteEndpoint");
+    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.order-to-cancel}&catalog=senaite_catalog_sample&complete=true]").replace().toD("mock:fetchActiveOrderFromSenaiteEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/update?throwExceptionOnFailure=false]").replace().toD("mock:updateSenaiteWithoutThrowingEndpoint");
     	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/update]").replace().toD("mock:updateSenaiteEndpoint");
     	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");

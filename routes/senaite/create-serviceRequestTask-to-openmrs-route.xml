@@ -3,7 +3,7 @@
     <route id="create-serviceRequestTask-to-openmrs" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:create-serviceRequestTask-to-openmrs"/>
         
-        <log message="Processing FHIR Task creation for order: " />
+        <log message="Creating FHIR Task for order. " />
         
         <to uri="direct:authenticate-to-openmrs"/>
                                 

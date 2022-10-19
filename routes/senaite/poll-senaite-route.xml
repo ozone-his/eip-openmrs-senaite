@@ -83,12 +83,16 @@
                                 <simple>${exchangeProperty.service-request-requester.substring(13)}</simple>
                             </setProperty>
 
-                            <setProperty name="patient-uuid">
+                            <setProperty name="patient-reference">
                                 <jsonpath resultType="String">$.subject.reference</jsonpath>
                             </setProperty>
+
                             <setProperty name="patient-uuid">
-                                <simple>${exchangeProperty.patient-uuid.substring(8)}</simple>
+                                <simple>${exchangeProperty.patient-reference.substring(8)}</simple>
                             </setProperty>
+                            
+                            <!--processing patient's identification number (to be used as SENAITE's client id)-->
+                            <to uri="direct:retrieve-patientId"/>
 
                             <!---retrieving associated location and visit-->
 
@@ -109,7 +113,7 @@
                                 <jsonpath>$.encounterDatetime</jsonpath>
                             </setProperty> 
 
-                            <!---retrieving equivalent analysis-request from senaite -->
+                            <!---retrieving equivalent analysis-request from SENAITE -->
 
                             <to uri="direct:authenticate-to-senaite"/>
 
@@ -120,7 +124,7 @@
                                 <constant>application/json</constant>
                             </setHeader>
 
-                            <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&amp;getClientID=${exchangeProperty.patient-uuid}&amp;catalog=bika_catalog_analysisrequest_listing&amp;complete=true"/>
+                            <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&amp;getClientID=${exchangeProperty.patient-id}&amp;catalog=senaite_catalog_sample&amp;complete=true"/>
                             <unmarshal>
                                 <json library="Jackson"/>
                             </unmarshal>

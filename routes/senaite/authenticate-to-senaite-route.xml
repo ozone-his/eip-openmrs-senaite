@@ -2,7 +2,7 @@
     xmlns="http://camel.apache.org/schema/spring">
     <route id="authenticate-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:authenticate-to-senaite"/>
-        <log message="Authenticating application to senaite" />
+        <log message="Authenticating application to SENAITE" />
 
         <setProperty name="body">
             <simple>${body}</simple>
