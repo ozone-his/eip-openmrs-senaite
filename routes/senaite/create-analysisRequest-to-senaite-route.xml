@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-analysisRequest-to-senaite" errorHandlerRef="watcherErrorHandler">
+    <route id="create-analysisRequest-to-senaite">
         <from uri="direct:create-analysisRequest-to-senaite"/>
         
         <log message="Creating AnalysisRequest for order in SENAITE " />

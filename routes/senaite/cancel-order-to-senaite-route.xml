@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="cancel-order-to-senaite" errorHandlerRef="watcherErrorHandler">
+    <route id="cancel-order-to-senaite">
         <from uri="direct:cancel-order-to-senaite"/>
         <log message="Cancelling lab order:  '${body}'" />
         

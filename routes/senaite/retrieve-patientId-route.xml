@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="retrieve-patientId" errorHandlerRef="watcherErrorHandler">
+    <route id="retrieve-patientId">
         <from uri="direct:retrieve-patientId"/>
         
         <log message="Retrieve patient id" />
