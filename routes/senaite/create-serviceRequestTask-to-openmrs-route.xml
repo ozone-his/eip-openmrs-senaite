@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-serviceRequestTask-to-openmrs" errorHandlerRef="watcherErrorHandler">
+    <route id="create-serviceRequestTask-to-openmrs">
         <from uri="direct:create-serviceRequestTask-to-openmrs"/>
         
         <log message="Creating FHIR Task for order. " />

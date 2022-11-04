@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="update-client-to-senaite" errorHandlerRef="watcherErrorHandler">
+    <route id="update-client-to-senaite">
         <from uri="direct:update-client-to-senaite"/>
         
         <log message="Updating client with new patient details (name and UUID)" />

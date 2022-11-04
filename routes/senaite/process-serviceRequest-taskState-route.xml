@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="process-serviceRequest-taskState" errorHandlerRef="watcherErrorHandler">
+    <route id="process-serviceRequest-taskState">
         <from uri="direct:process-serviceRequest-taskState"/>
         
         <log message="Processing FHIR Task state for order." />

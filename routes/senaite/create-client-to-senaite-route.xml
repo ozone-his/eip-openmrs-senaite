@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-client-to-senaite" errorHandlerRef="watcherErrorHandler">
+    <route id="create-client-to-senaite">
         <from uri="direct:create-client-to-senaite"/>
         
         <log message="Creating client for order. " />

@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="retrieve-contactNames" errorHandlerRef="watcherErrorHandler">
+    <route id="retrieve-contactNames">
         <from uri="direct:retrieve-contactNames"/>
         
         <log message="Retrieving contact names for order." />
