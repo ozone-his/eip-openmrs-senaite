@@ -29,7 +29,6 @@
                 </setBody>
                 
                 <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task"/>
-                <log message="FHIR Task posted results             :          ${body}"/>
             </when>
         </choice>         
     </route>
