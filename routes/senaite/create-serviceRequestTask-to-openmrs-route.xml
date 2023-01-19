@@ -6,16 +6,30 @@
         <log message="Creating FHIR Task for order. " />
         
         <to uri="direct:authenticate-to-openmrs"/>
-                                
+                        
         <setHeader name="CamelHttpMethod">
-            <constant>POST</constant>
+            <constant>GET</constant>
         </setHeader>
         
-        <setBody>
-            <simple>{"resourceType": "Task", "status": "requested", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
-        </setBody>
-        
-        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task"/>
-        <log message="FHIR Task posted results             :          ${body}"/>
+        <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task?based-on:ServiceRequest=${exchangeProperty.lab-order-uuid}&amp;throwExceptionOnFailure=false"/>
+        <unmarshal>
+            <json library="Jackson"/>
+        </unmarshal>
+                    
+        <choice>
+            <!-- Only create FHIR Task if no associated Task exists -->
+            <when>
+                <jsonpath>$.[?(@.total == 0 )]</jsonpath>
+                <setHeader name="CamelHttpMethod">
+                    <constant>POST</constant>
+                </setHeader>
+                
+                <setBody>
+                    <simple>{"resourceType": "Task", "status": "requested", "intent": "order", "basedOn": [{"reference":"${exchangeProperty.lab-order-uuid}", "type": "ServiceRequest"}]}</simple>
+                </setBody>
+                
+                <toD cacheSize="-1" uri="{{fhirR4.baseUrl}}/Task"/>
+            </when>
+        </choice>         
     </route>
 </routes>
