@@ -141,13 +141,13 @@
                                 </choice>
                                 
                                 <!--retrieving real patient names using OpenMRS FHIR-->
-                                <to uri="direct:retrieve-patientNames"/>
+                                <to uri="direct:retrieve-patient-names-from-openmrs"/>
                                 
                                 <!--retrieving requester's names using FHIR (to be used as SENAITE's client contact's)-->
-                                <to uri="direct:retrieve-contactNames"/>
+                                <to uri="direct:retrieve-orderer-names-from-openmrs"/>
                                 
                                 <!--retrieving patient's identification number (to be used as SENAITE's client id)-->
-                                <to uri="direct:retrieve-patientId"/>
+                                <to uri="direct:retrieve-patient-id-from-openmrs"/>
 
                                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
                                 <to uri="direct:create-client-to-senaite"/>
@@ -156,10 +156,10 @@
                                 <to uri="direct:create-contact-to-senaite"/>
                                 
                                 <!-- create analysis request on senaite -->
-                                <to uri="direct:create-analysisRequest-to-senaite"/>
+                                <to uri="direct:create-analysisrequest-to-senaite"/>
                                 
                                 <!--creating FHIR Task to track progress of the ServiceRequest(Analysis Requests registered) starting with 'accepted' status-->
-                                <to uri="direct:create-serviceRequestTask-to-openmrs"/>
+                                <to uri="direct:create-servicerequest-task-to-openmrs"/>
                                 
                             </when>
                         </choice>
@@ -169,17 +169,17 @@
             <when>
                 <simple>${body.tableName} == 'person_name' || ${body.tableName} == 'patient_identifier' &amp;&amp; ${exchangeProperty.event.operation} == 'u'</simple>
 
-                <to uri="direct:retrieve-patientUuid"/>
+                <to uri="direct:retrieve-patient-uuid-from-openmrs"/>
 
                 <setProperty name="patient-reference">
                     <simple>Patient/${exchangeProperty.patient-uuid}</simple>
                 </setProperty>
 
                 <!--retrieving real patient names using OpenMRS FHIR-->
-                <to uri="direct:retrieve-patientNames"/>
+                <to uri="direct:retrieve-patient-names-from-openmrs"/>
 
                 <!--processing patient's identification number (to be used as SENAITE's client id)-->
-                <to uri="direct:retrieve-patientId"/>
+                <to uri="direct:retrieve-patient-id-from-openmrs"/>
 
                 <!--create client(from ServiceRequest.subject) on SENAITE and save client UID property-->
                 <to uri="direct:update-client-to-senaite"/>

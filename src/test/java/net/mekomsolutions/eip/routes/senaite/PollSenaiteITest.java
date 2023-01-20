@@ -61,22 +61,22 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 
 	@Before
 	public void setup() throws Exception {
-		loadXmlRoutesInDirectory("senaite", "poll-senaite-route.xml", "process-serviceRequest-taskState-route.xml");
+		loadXmlRoutesInDirectory("senaite", "poll-senaite-route.xml", "process-servicerequest-task-state-route.xml");
 		RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream()
 				.filter(routeDef -> "poll-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
 		RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				weaveByToString("To[direct:fetch-serviceRequestTasks-from-openmrs]").replace().toD("mock:fetchServiceRequestTasksRoute");
+				weaveByToString("To[direct:fetch-servicerequest-tasks-from-openmrs]").replace().toD("mock:fetchServiceRequestTasksRoute");
 				weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false]").replace().toD("mock:serviceRequestEndpoint");
 				weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}]").replace().toD("mock:taskEndpoint");
 				weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}]").replace().toD("mock:encounterEndpoint");
 				weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
 				weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
-				weaveByToString("To[direct:retrieve-patientId]").replace().toD("mock:retrievePatientId");
+				weaveByToString("To[direct:retrieve-patient-id-from-openmrs]").replace().toD("mock:retrievePatientId");
 				weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-id}&catalog=senaite_catalog_sample&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
-				weaveByToString("To[direct:create-serviceRequestResults-to-openmrs]").replace().to("mock:createServiceRequestResultsToOpenmrsRoute");
-				weaveByToString("To[direct:update-serviceRequest-task-to-openmrs]").replace().to("mock:updateServiceRequestTaskRoute");
+				weaveByToString("To[direct:create-servicerequest-results-to-openmrs]").replace().to("mock:createServiceRequestResultsToOpenmrsRoute");
+				weaveByToString("To[direct:update-servicerequest-task-to-openmrs]").replace().to("mock:updateServiceRequestTaskRoute");
 			}
 		});
 

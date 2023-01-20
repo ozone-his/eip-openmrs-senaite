@@ -67,13 +67,13 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	    	weaveByToString("To[direct:cancel-order-to-senaite]").replace().toD("mock:cancelOrderToSenaiteRoute");
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
     	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
-    	    	weaveByToString("To[direct:retrieve-patientNames]").replace().toD("mock:retrievePatientNamesRoute");
-    	    	weaveByToString("To[direct:retrieve-contactNames]").replace().toD("mock:retrievePontacttNamesRoutee");
-                weaveByToString("To[direct:retrieve-patientId]").replace().toD("mock:retrievePatientId");
+    	    	weaveByToString("To[direct:retrieve-patient-names-from-openmrs]").replace().toD("mock:retrievePatientNamesRoute");
+    	    	weaveByToString("To[direct:retrieve-orderer-names-from-openmrs]").replace().toD("mock:retrievePontacttNamesRoutee");
+                weaveByToString("To[direct:retrieve-patient-id-from-openmrs]").replace().toD("mock:retrievePatientId");
     	    	weaveByToString("To[direct:create-client-to-senaite]").replace().toD("mock:createClientToSenaiteRoute");
     	    	weaveByToString("To[direct:create-contact-to-senaite]").replace().toD("mock:createContactToSenaiteRoute");
-    	    	weaveByToString("To[direct:create-analysisRequest-to-senaite]").replace().toD("mock:createAnalysisRequestToSenaite");
-    	    	weaveByToString("To[direct:create-serviceRequestTask-to-openmrs]").replace().toD("mock:createServiceRequestTasktoOpenmrs");
+    	    	weaveByToString("To[direct:create-analysisrequest-to-senaite]").replace().toD("mock:createAnalysisRequestToSenaite");
+    	    	weaveByToString("To[direct:create-servicerequest-task-to-openmrs]").replace().toD("mock:createServiceRequestTasktoOpenmrs");
     	    }
     	});
     	

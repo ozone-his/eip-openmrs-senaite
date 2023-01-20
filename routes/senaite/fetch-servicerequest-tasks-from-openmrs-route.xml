@@ -1,8 +1,8 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
     <!-- No need to add error handling for this route because it is called by the parent inboud-main route which does not need to go through retries given an error occured -->
-    <route id="fetch-serviceRequestTasks-from-openmrs">
-        <from uri="direct:fetch-serviceRequestTasks-from-openmrs"/>
+    <route id="fetch-servicerequest-tasks-from-openmrs">
+        <from uri="direct:fetch-servicerequest-tasks-from-openmrs"/>
         
         <log message="Fetching Tasks associated with ServiceRequests " />
 

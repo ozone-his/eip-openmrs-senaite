@@ -36,8 +36,8 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "create-analysisRequest-to-senaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-analysisRequest-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "create-analysisrequest-to-senaite-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-analysisrequest-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -69,7 +69,7 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     	exchange.setProperty("service-analysis-template", "ab3b5775-7080-4cb1-8be5-54e367940145");
     	
     	// replay
-    	producerTemplate.send("direct:create-analysisRequest-to-senaite", exchange);
+    	producerTemplate.send("direct:create-analysisrequest-to-senaite", exchange);
     	
     	// verify
     	authenticateToSenaiteRoute.assertExchangeReceived(0);
