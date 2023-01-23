@@ -1,6 +1,6 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
-    <route id="write-bahmniOrder-as-openmrsOrder" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:write-bahmniOrder-as-openmrsOrder"/>
+    <route id="write-bahmniorder-as-openmrsorder" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:write-bahmniorder-as-openmrsorder"/>
         <log message="Processing Test Order from Order : ${body}" />
 
         <choice>

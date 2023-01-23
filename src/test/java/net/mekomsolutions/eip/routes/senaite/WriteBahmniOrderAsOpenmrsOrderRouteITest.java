@@ -39,8 +39,8 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "write-bahmniOrder-as-openmrsOrder-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "write-bahmniOrder-as-openmrsOrder".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "write-bahmniorder-as-openmrsorder-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "write-bahmniorder-as-openmrsorder".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -83,7 +83,7 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     	event.setPrimaryKeyId("1");
     	
     	// replay
-    	producerTemplate.sendBody("direct:write-bahmniOrder-as-openmrsOrder", event);
+    	producerTemplate.sendBody("direct:write-bahmniorder-as-openmrsorder", event);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

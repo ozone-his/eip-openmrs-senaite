@@ -16,7 +16,7 @@ public class ProcessServiceRequestTaskStateRouteITest extends BaseWatcherRouteTe
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "process-serviceRequest-taskState-route.xml");
+    	loadXmlRoutesInDirectory("senaite", "process-servicerequest-task-state-route.xml");
     }
 
     @Test
@@ -28,7 +28,7 @@ public class ProcessServiceRequestTaskStateRouteITest extends BaseWatcherRouteTe
     	exchange.getIn().setBody(body);
     	
     	// replay
-    	producerTemplate.send("direct:process-serviceRequest-taskState", exchange);
+    	producerTemplate.send("direct:process-servicerequest-task-state", exchange);
     	
     	// verify
     	assertEquals("requested", exchange.getProperty("service-request-transitioned-status"));
@@ -43,7 +43,7 @@ public class ProcessServiceRequestTaskStateRouteITest extends BaseWatcherRouteTe
     	exchange.getIn().setBody(body);
     	
     	// replay
-    	producerTemplate.send("direct:process-serviceRequest-taskState", exchange);
+    	producerTemplate.send("direct:process-servicerequest-task-state", exchange);
     	
     	// verify
     	assertEquals("accepted", exchange.getProperty("service-request-transitioned-status"));
@@ -58,7 +58,7 @@ public class ProcessServiceRequestTaskStateRouteITest extends BaseWatcherRouteTe
     	exchange.getIn().setBody(body);
     	
     	// replay
-    	producerTemplate.send("direct:process-serviceRequest-taskState", exchange);
+    	producerTemplate.send("direct:process-servicerequest-task-state", exchange);
     	
     	// verify
     	assertEquals("completed", exchange.getProperty("service-request-transitioned-status"));
@@ -73,7 +73,7 @@ public class ProcessServiceRequestTaskStateRouteITest extends BaseWatcherRouteTe
     	exchange.getIn().setBody(body);
     	
     	// replay
-    	producerTemplate.send("direct:process-serviceRequest-taskState", exchange);
+    	producerTemplate.send("direct:process-servicerequest-task-state", exchange);
     	
     	// verify
     	assertEquals("rejected", exchange.getProperty("service-request-transitioned-status"));

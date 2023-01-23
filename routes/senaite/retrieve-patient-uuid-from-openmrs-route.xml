@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="retrieve-patientUuid">
-        <from uri="direct:retrieve-patientUuid"/>
+    <route id="retrieve-patient-uuid-from-openmrs">
+        <from uri="direct:retrieve-patient-uuid-from-openmrs"/>
         
         <choice>
             <when>

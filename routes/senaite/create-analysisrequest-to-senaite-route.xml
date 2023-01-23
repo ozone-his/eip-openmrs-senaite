@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-analysisRequest-to-senaite">
-        <from uri="direct:create-analysisRequest-to-senaite"/>
+    <route id="create-analysisrequest-to-senaite">
+        <from uri="direct:create-analysisrequest-to-senaite"/>
         
         <log message="Creating AnalysisRequest for order in SENAITE " />
 

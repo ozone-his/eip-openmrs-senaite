@@ -32,8 +32,8 @@ public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "retrieve-patientUuid-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-patientUuid".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "retrieve-patient-uuid-from-openmrs-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-patient-uuid-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -68,7 +68,7 @@ public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {
     	selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "patient_id");
     	
     	// replay
-    	producerTemplate.send("direct:retrieve-patientUuid", exchange);
+    	producerTemplate.send("direct:retrieve-patient-uuid-from-openmrs", exchange);
     	
     	// verify
     	selectSqlEndpoint.assertIsSatisfied();
@@ -88,7 +88,7 @@ public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {
     	selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "person_id");
     	
     	// replay
-    	producerTemplate.send("direct:retrieve-patientUuid", exchange);
+    	producerTemplate.send("direct:retrieve-patient-uuid-from-openmrs", exchange);
     	
     	// verify
     	selectSqlEndpoint.assertIsSatisfied();

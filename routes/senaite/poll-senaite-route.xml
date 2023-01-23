@@ -7,7 +7,7 @@
 
         <!-- Fetch requested & accepted  orders to transition each to either accepted, rejected or completed-->
         
-        <to uri="direct:fetch-serviceRequestTasks-from-openmrs"/>
+        <to uri="direct:fetch-servicerequest-tasks-from-openmrs"/>
 
         <unmarshal>
             <json library="Jackson"/>
@@ -92,7 +92,7 @@
                             </setProperty>
                             
                             <!--processing patient's identification number (to be used as SENAITE's client id)-->
-                            <to uri="direct:retrieve-patientId"/>
+                            <to uri="direct:retrieve-patient-id-from-openmrs"/>
 
                             <!---retrieving associated location and visit-->
 
@@ -136,7 +136,7 @@
                                 </when>
                                 <otherwise>
                                     <!-- Process order status -->
-                                    <to uri="direct:process-serviceRequest-taskState"/>
+                                    <to uri="direct:process-servicerequest-task-state"/>
 
                                     <setProperty name="service-request-tests">
                                         <jsonpath>$.items[0].Analyses</jsonpath>
@@ -151,7 +151,7 @@
                                         <when>
                                             <simple>${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} == 'completed'</simple>
 
-                                            <to uri="direct:create-serviceRequestResults-to-openmrs"/>
+                                            <to uri="direct:create-servicerequest-results-to-openmrs"/>
                                         </when>
                                     </choice>
 
@@ -160,7 +160,7 @@
                                         <when>
                                             <simple>${exchangeProperty.service-request-current-status} != null &amp;&amp; ${exchangeProperty.service-request-transitioned-status} != null &amp;&amp; ${exchangeProperty.service-request-current-status} != ${exchangeProperty.service-request-transitioned-status}</simple>
 
-                                            <to uri="direct:update-serviceRequest-task-to-openmrs"/>
+                                            <to uri="direct:update-servicerequest-task-to-openmrs"/>
                                         </when>
                                     </choice>
                                 </otherwise>

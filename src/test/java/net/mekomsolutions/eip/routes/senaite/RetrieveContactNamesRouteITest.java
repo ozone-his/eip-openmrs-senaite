@@ -34,8 +34,8 @@ public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "retrieve-contactNames-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-contactNames".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "retrieve-orderer-names-from-openmrs-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-orderer-names-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -55,7 +55,7 @@ public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
     	
     	// replay
-    	producerTemplate.send("direct:retrieve-contactNames", exchange);
+    	producerTemplate.send("direct:retrieve-orderer-names-from-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

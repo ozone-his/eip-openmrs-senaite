@@ -32,8 +32,8 @@ public class FetchServiceRequestTasksFromOpenmrsRouteITest extends BaseWatcherRo
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "fetch-serviceRequestTasks-from-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "fetch-serviceRequestTasks-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "fetch-servicerequest-tasks-from-openmrs-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "fetch-servicerequest-tasks-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -58,7 +58,7 @@ public class FetchServiceRequestTasksFromOpenmrsRouteITest extends BaseWatcherRo
     	Exchange exchange = new DefaultExchange(camelContext);
     	
     	// replay
-    	producerTemplate.send("direct:fetch-serviceRequestTasks-from-openmrs", exchange);
+    	producerTemplate.send("direct:fetch-servicerequest-tasks-from-openmrs", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
