@@ -59,8 +59,8 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     
     @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "listen-to-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "listen-to-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
+    	loadXmlRoutesInDirectory("senaite", "openmrs-to-senaite-event-listener-route.xml");
+    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "openmrs-to-senaite-event-listener".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
     	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
@@ -110,7 +110,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:listen-to-openmrs", exchange);
+    	producerTemplate.send("direct:openmrs-to-senaite-event-listener", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
@@ -139,7 +139,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:listen-to-openmrs", exchange);
+    	producerTemplate.send("direct:openmrs-to-senaite-event-listener", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
@@ -162,7 +162,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:listen-to-openmrs", exchange);
+    	producerTemplate.send("direct:openmrs-to-senaite-event-listener", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);
@@ -185,7 +185,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	cancelOrderToSenaiteRoute.setResultWaitTime(resultWaitTimeMillis);
     	
     	// replay
-    	producerTemplate.send("direct:listen-to-openmrs", exchange);
+    	producerTemplate.send("direct:openmrs-to-senaite-event-listener", exchange);
     	
     	// verify
     	authenticateToOpenmrs.assertExchangeReceived(0);

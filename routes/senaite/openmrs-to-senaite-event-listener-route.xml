@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="listen-to-openmrs" errorHandlerRef="watcherErrorHandler">
-        <from uri="direct:listen-to-openmrs"/>
+    <route id="openmrs-to-senaite-event-listener" errorHandlerRef="watcherErrorHandler">
+        <from uri="direct:openmrs-to-senaite-event-listener"/>
         <log message="Processing db event: ${body}" />
         <choice>
             <when>
