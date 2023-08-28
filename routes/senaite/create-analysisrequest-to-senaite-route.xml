@@ -1,6 +1,6 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
-    <route id="create-analysisrequest-to-senaite">
+    <route id="create-analysisrequest-to-senaite" errorHandlerRef="watcherErrorHandler">
         <from uri="direct:create-analysisrequest-to-senaite"/>
         
         <log message="Creating AnalysisRequest for order in SENAITE " />
@@ -67,8 +67,6 @@
                 </setHeader>
                 
                 <toD cacheSize="-1" uri="{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}"/>
-                <log message="Senaite Analysis/Sample posted results             :          ${body}"/>
-                
             </when>
             <otherwise>
                 <!-- Do nothing since AnalysisRequests was created already -->

@@ -1,7 +1,7 @@
 <routes
     xmlns="http://camel.apache.org/schema/spring">
     <route id="retrieve-orderer-names-from-openmrs">
-        <from uri="direct:retrieve-orderer-names-from-openmrs"/>
+        <from uri="direct:retrieve-orderer-names-from-openmrs" errorHandlerRef="watcherErrorHandler"/>
         
         <log message="Retrieving contact names for order." />
         
