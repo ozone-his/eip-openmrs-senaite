@@ -1,4 +1,4 @@
-package net.mekomsolutions.eip.routes.senaite;
+package com.ozonehis.eip.routes.senaite;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,11 +13,11 @@ import org.springframework.context.annotation.Import;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
-public class AuthenticateToSenaiteRouteITest extends BaseWatcherRouteTest {  
-
-	@Before
+public class AuthenticateToOpenmrsRouteITest extends BaseWatcherRouteTest {
+    
+    @Before
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "authenticate-to-senaite-route.xml");
+    	loadXmlRoutesInDirectory("senaite", "authenticate-to-openmrs-route.xml");
     }
 
 	@Test
@@ -34,11 +34,10 @@ public class AuthenticateToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.getIn().setBody(event);
     	
     	// replay
-    	producerTemplate.send("direct:authenticate-to-senaite", exchange);
+    	producerTemplate.send("direct:authenticate-to-openmrs", exchange);
     	
     	// verify
-    	assertEquals("Basic YWRtaW46YWRtaW4=", exchange.getIn().getHeader("Authorization"));
+    	assertEquals("Basic c3VwZXJtYW46QWRtaW4xMjM=", exchange.getIn().getHeader("Authorization"));
     	assertEquals(event, exchange.getIn().getBody());
     }
-
 }

@@ -1,4 +1,4 @@
-package net.mekomsolutions.eip.routes.senaite;
+package com.ozonehis.eip.routes.senaite;
 
 import java.util.stream.Collectors;
 
@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;

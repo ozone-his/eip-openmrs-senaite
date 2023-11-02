@@ -1,6 +1,5 @@
-package net.mekomsolutions.eip.routes.senaite;
+package com.ozonehis.eip.routes.senaite;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +16,7 @@ import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.spring.MockEndpoints;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;

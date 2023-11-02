@@ -1,4 +1,4 @@
-package net.mekomsolutions.eip.routes.senaite;
+package com.ozonehis.eip.routes.senaite;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
