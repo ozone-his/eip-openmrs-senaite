@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan({
-    "org.openmrs.eip", "net.mekomsolutions.eip.utils"
+    "org.openmrs.eip", "com.ozonehis.eip.utils"
 })
 public class TestConfiguration {
 	

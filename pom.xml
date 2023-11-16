@@ -30,14 +30,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.ozonehis.eip</groupId>
-            <artifactId>eip-client-commons</artifactId>
+            <groupId>com.ozonehis</groupId>
+            <artifactId>eip-commons</artifactId>
             <version>${eipClientVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.ozonehis.eip</groupId>
-            <artifactId>eip-client-test</artifactId>
+            <groupId>com.ozonehis</groupId>
+            <artifactId>eip-commons-test</artifactId>
             <type>pom</type>
             <version>${eipClientVersion}</version>
             <scope>test</scope>

@@ -53,7 +53,7 @@
                 </marshal>
                 
                 <setProperty name="sample-analyses-uids">
-                    <method beanType="net.mekomsolutions.eip.utils.JsonUtils" method="convertToValuesArrayForKey(${body}, service_uid)" />
+                    <method beanType="com.ozonehis.eip.utils.JsonUtils" method="convertToValuesArrayForKey(${body}, service_uid)" />
                 </setProperty>
                 
                 <!--fill sample payload-->
