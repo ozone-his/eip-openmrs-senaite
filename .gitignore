@@ -11,6 +11,8 @@
 .sts4-cache
 *.txt
 
+### IntelliJ IDEA ###
+.idea/
 
 # Created by https://www.gitignore.io/api/git,java,maven,eclipse,windows
 

@@ -29,7 +29,7 @@
                 </marshal>
 
                 <setProperty name="results-encounter-uuid">
-                    <method beanType="net.mekomsolutions.eip.utils.JsonUtils" method="getPropertyValueWhereKeyMatchesValue(${body}, uuid, encounterDatetime, ${exchangeProperty.service-request-encounter-datetime})" />
+                    <method beanType="com.ozonehis.eip.utils.JsonUtils" method="getPropertyValueWhereKeyMatchesValue(${body}, uuid, encounterDatetime, ${exchangeProperty.service-request-encounter-datetime})" />
                 </setProperty>
             </when>
         </choice>

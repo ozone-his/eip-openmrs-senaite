@@ -1,4 +1,4 @@
-package net.mekomsolutions.eip.routes.senaite;
+package com.ozonehis.eip.routes.senaite;
 
 import static org.junit.Assert.assertNotNull;
 
