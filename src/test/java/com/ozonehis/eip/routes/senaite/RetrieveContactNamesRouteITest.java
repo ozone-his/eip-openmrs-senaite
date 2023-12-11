@@ -1,25 +1,20 @@
 package com.ozonehis.eip.routes.senaite;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
@@ -32,15 +27,15 @@ public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {
     @EndpointInject(value = "mock:requesterEndpoint")
     private MockEndpoint requesterEndpoint;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "retrieve-orderer-names-from-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-orderer-names-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "retrieve-orderer-names-from-openmrs-route.xml");
+		
+    	advise("retrieve-orderer-names-from-openmrs", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/${exchangeProperty.requester-reference}]").replace().toD("mock:requesterEndpoint");
+    	    	weaveByToString(".*/\\$\\{exchangeProperty.requester-reference\\}]").replace().toD("mock:requesterEndpoint");
     	    }
     	});
     	
@@ -77,5 +72,4 @@ public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {
     	requesterEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
     	requesterEndpoint.expectedPropertyReceived("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
     }
-
 }

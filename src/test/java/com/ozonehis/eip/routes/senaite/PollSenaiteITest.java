@@ -1,19 +1,14 @@
 package com.ozonehis.eip.routes.senaite;
 
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
@@ -58,22 +53,21 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 
 	private int resultWaitTimeMillis = 100;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
-		loadXmlRoutesInDirectory("senaite", "poll-senaite-route.xml", "process-servicerequest-task-state-route.xml");
-		RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream()
-				.filter(routeDef -> "poll-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-		RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+		loadXmlRoutesInDirectory("camel", "poll-senaite-route.xml", "process-servicerequest-task-state-route.xml");
+		
+		advise("poll-senaite", new AdviceWithRouteBuilder() {
 			@Override
-			public void configure() throws Exception {
+			public void configure() {
 				weaveByToString("To[direct:fetch-servicerequest-tasks-from-openmrs]").replace().toD("mock:fetchServiceRequestTasksRoute");
-				weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.service-request-id}?throwExceptionOnFailure=false]").replace().toD("mock:serviceRequestEndpoint");
-				weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}]").replace().toD("mock:taskEndpoint");
-				weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/encounter/${exchangeProperty.service-request-encounter-reference}]").replace().toD("mock:encounterEndpoint");
+				weaveByToString(".*/ServiceRequest/\\$\\{exchangeProperty.service-request-id\\}\\?throwExceptionOnFailure=false]").replace().toD("mock:serviceRequestEndpoint");
+				weaveByToString(".*/Task/\\$\\{exchangeProperty.task-id\\}]").replace().toD("mock:taskEndpoint");
+				weaveByToString(".*/ws/rest/v1/encounter/\\$\\{exchangeProperty.service-request-encounter-reference\\}]").replace().toD("mock:encounterEndpoint");
 				weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
 				weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
 				weaveByToString("To[direct:retrieve-patient-id-from-openmrs]").replace().toD("mock:retrievePatientId");
-				weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.service-request-id}&getClientID=${exchangeProperty.patient-id}&catalog=senaite_catalog_sample&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
+				weaveByToString(".*@@API/senaite/v1/search\\?getClientSampleID=\\$\\{exchangeProperty.service-request-id\\}\\&getClientID=\\$\\{exchangeProperty.patient-id\\}\\&catalog=senaite_catalog_sample&complete=true]").replace().to("mock:analysisRequestSearchEndpoint");
 				weaveByToString("To[direct:create-servicerequest-results-to-openmrs]").replace().to("mock:createServiceRequestResultsToOpenmrsRoute");
 				weaveByToString("To[direct:update-servicerequest-task-to-openmrs]").replace().to("mock:updateServiceRequestTaskRoute");
 			}
@@ -83,7 +77,7 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 
 	}
 
-	@After
+	@AfterEach
 	public void reset() throws Exception {
 		fetchServiceRequestTasksRoute.reset();
 		serviceRequestEndpoint.reset();
@@ -172,5 +166,4 @@ public class PollSenaiteITest extends BaseWatcherRouteTest {
 		createServiceRequestResultsToOpenmrsRoute.setAssertPeriod(resultWaitTimeMillis);
 		updateServiceRequestTaskRoute.setAssertPeriod(resultWaitTimeMillis);
 	}
-
 }

@@ -1,27 +1,27 @@
 package com.ozonehis.eip.routes.senaite;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
 public class AuthenticateToSenaiteRouteITest extends BaseWatcherRouteTest {  
 
-	@Before
+	@BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "authenticate-to-senaite-route.xml");
+    	loadXmlRoutesInDirectory("camel", "authenticate-to-senaite-route.xml");
     }
 
 	@Test
-    public void shouldSetAuthorizationHeaderWithBasicAuthenticationTokenAndPreserveBodyPassedIt() throws Exception {
+    public void shouldSetAuthorizationHeaderWithBasicAuthenticationTokenAndPreserveBodyPassedIt() {
     	// setup
     	Exchange exchange = new DefaultExchange(camelContext);
 		

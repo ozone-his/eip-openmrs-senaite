@@ -1,18 +1,13 @@
 package com.ozonehis.eip.routes.senaite;
 
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,27 +32,22 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     @Value("${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "write-bahmniorder-as-openmrsorder-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "write-bahmniorder-as-openmrsorder".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "write-bahmniorder-as-openmrsorder-route.xml");
+		
+    	advise("write-bahmniorder-as-openmrsorder", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{openmrs.baseUrl}}/ws/rest/v1/order/${exchangeProperty.lab-order-uuid}]").replace().toD("mock:labOrderEndpoint");;
+    	    	weaveByToString(".*/ws/rest/v1/order/\\$\\{exchangeProperty.lab-order-uuid\\}]").replace().toD("mock:labOrderEndpoint");;
     	    	weaveByToString("DynamicTo[sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource]").replace().toD("mock:insertSqlEndpoint");
     	    	weaveByToString("DynamicTo[sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=openmrsDataSource]").replace().toD("mock:selectSqlEndpoint");
     	    }
     	});
     	
-    	labOrderEndpoint.whenAnyExchangeReceived(new Processor () {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody("{\"orderType\": {\"uuid\": \"" + bahmniTestOrderTypeUuid + "\"}}");
-			}
-    		
-    	});
+    	labOrderEndpoint.whenAnyExchangeReceived(
+			    exchange -> exchange.getIn().setBody("{\"orderType\": {\"uuid\": \"" + bahmniTestOrderTypeUuid + "\"}}"));
     	labOrderEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
     	labOrderEndpoint.expectedPropertyReceived("lab-order-uuid", "order-uuid");
     	
@@ -90,7 +80,5 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     	labOrderEndpoint.assertIsSatisfied();
     	insertSqlEndpoint.assertIsSatisfied();
     	selectSqlEndpoint.assertIsSatisfied();
-    	
     }
-
 }

@@ -1,20 +1,14 @@
 package com.ozonehis.eip.routes.senaite;
 
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,27 +24,21 @@ public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {
     @Value("${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "retrieve-patient-uuid-from-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-patient-uuid-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "retrieve-patient-uuid-from-openmrs-route.xml");
+		
+    	advise("retrieve-patient-uuid-from-openmrs", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("DynamicTo[sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=openmrsDataSource]").replace().toD("mock:selectSqlEndpoint");
     	    }
     	});
     	
-    	selectSqlEndpoint.whenAnyExchangeReceived(new Processor () {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody("[{\"uuid\": \"some-patient-uuid\"}]");
-			}
-    		
-    	});
+    	selectSqlEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody("[{\"uuid\": \"some-patient-uuid\"}]"));
     }
     
-    @After
+    @AfterEach
     public void reset() throws Exception {
     	selectSqlEndpoint.reset();
     }
@@ -72,7 +60,6 @@ public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {
     	
     	// verify
     	selectSqlEndpoint.assertIsSatisfied();
-    	
     }
     
     @Test
@@ -92,7 +79,5 @@ public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {
     	
     	// verify
     	selectSqlEndpoint.assertIsSatisfied();
-    	
     }
-
 }

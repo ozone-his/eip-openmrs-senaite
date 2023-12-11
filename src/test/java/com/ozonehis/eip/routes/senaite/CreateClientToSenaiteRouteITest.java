@@ -1,24 +1,19 @@
 package com.ozonehis.eip.routes.senaite;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
@@ -33,16 +28,16 @@ public class CreateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     @EndpointInject(value = "mock:createSenaiteEndpoint")
     private MockEndpoint createSenaiteEndpoint;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "create-client-to-senaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-client-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "create-client-to-senaite-route.xml");
+		
+    	advise("create-client-to-senaite", new AdviceWithRouteBuilder() {
     	    @Override
     	    public void configure() throws Exception {
     	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&getClientID=${exchangeProperty.patient-id}]").replace().toD("mock:searchClientSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/create]").replace().toD("mock:createSenaiteEndpoint");
+    	    	weaveByToString(".*senaite/v1/search\\?portal_type=Client&getClientID=\\$\\{exchangeProperty.patient-id\\}]").replace().toD("mock:searchClientSenaiteEndpoint");
+    	    	weaveByToString(".*senaite/v1/create]").replace().toD("mock:createSenaiteEndpoint");
     	    }
     	});
     	
@@ -50,7 +45,7 @@ public class CreateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     	
     }
     
-    @After
+    @AfterEach
     public void reset() throws Exception {
     	authenticateToSenaiteRoute.reset();
     	searchClientSenaiteEndpoint.reset();

@@ -1,0 +1,13 @@
+version: '3'
+services:
+  ozone-eip-client:
+    container_name: eip-client
+    image: eip-client:latest
+    ports:
+      - "8085:8080"
+    env_file:
+      - .env
+    environment:
+      - EIP_PROFILE=prod
+    volumes:
+      - ./target/eip-openmrs-senaite.jar:/eip-client/routes/eip-openmrs-senaite.jar

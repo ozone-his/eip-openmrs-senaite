@@ -1,23 +1,18 @@
 package com.ozonehis.eip.routes.senaite;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
@@ -29,17 +24,18 @@ public class RetrievePatientIdRouteITest extends BaseWatcherRouteTest {
     @EndpointInject(value = "mock:patientEndpoint")
     private MockEndpoint patientEndpoint;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "retrieve-patient-id-from-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "retrieve-patient-id-from-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
-    	    @Override
-    	    public void configure() throws Exception {
-    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/${exchangeProperty.patient-reference}]").replace().toD("mock:patientEndpoint");
-    	    }
-    	});
+    	loadXmlRoutesInDirectory("camel", "retrieve-patient-id-from-openmrs-route.xml");
+		
+    	
+	    advise("retrieve-patient-id-from-openmrs", new AdviceWithRouteBuilder() {
+		    @Override
+		    public void configure() {
+		    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+		    	weaveByToString(".*/\\$\\{exchangeProperty.patient-reference\\}]").replace().toD("mock:patientEndpoint");
+		    }
+		});
     	setupExpectations();
     }
     

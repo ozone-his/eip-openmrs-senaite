@@ -1,20 +1,15 @@
 package com.ozonehis.eip.routes.senaite;
 
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
@@ -57,16 +52,15 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     
     private int resultWaitTimeMillis = 100; 
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "openmrs-to-senaite-event-listener-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "openmrs-to-senaite-event-listener".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "openmrs-to-senaite-event-listener-route.xml");
+		
+    	advise("openmrs-to-senaite-event-listener", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("To[direct:cancel-order-to-senaite]").replace().toD("mock:cancelOrderToSenaiteRoute");
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/ServiceRequest/${exchangeProperty.lab-order-uuid}?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
     	    	weaveByToString("To[direct:retrieve-patient-names-from-openmrs]").replace().toD("mock:retrievePatientNamesRoute");
     	    	weaveByToString("To[direct:retrieve-orderer-names-from-openmrs]").replace().toD("mock:retrievePontacttNamesRoutee");
                 weaveByToString("To[direct:retrieve-patient-id-from-openmrs]").replace().toD("mock:retrievePatientId");
@@ -74,6 +68,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	    	weaveByToString("To[direct:create-contact-to-senaite]").replace().toD("mock:createContactToSenaiteRoute");
     	    	weaveByToString("To[direct:create-analysisrequest-to-senaite]").replace().toD("mock:createAnalysisRequestToSenaite");
     	    	weaveByToString("To[direct:create-servicerequest-task-to-openmrs]").replace().toD("mock:createServiceRequestTasktoOpenmrs");
+    	    	weaveByToString(".*/ServiceRequest/\\$\\{exchangeProperty.lab-order-uuid\\}\\?throwExceptionOnFailure=false]").replace().toD("mock:openmrsFhirServiceRequestEndpoint");
     	    }
     	});
     	
@@ -82,7 +77,7 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	exchange = new DefaultExchange(camelContext);
     }
     
-    @After
+    @AfterEach
     public void reset() {
     	openmrsFhirServiceRequestEndpoint.reset();
     	cancelOrderToSenaiteRoute.reset();

@@ -1,26 +1,21 @@
 package com.ozonehis.eip.routes.senaite;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.context.annotation.Import;
 
 import ch.qos.logback.classic.Level;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
 @Import({ TestConfiguration.class})
@@ -35,16 +30,16 @@ public class UpdateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     @EndpointInject(value = "mock:updateSenaiteEndpoint")
     private MockEndpoint updateSenaiteEndpoint;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "update-client-to-senaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "update-client-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "update-client-to-senaite-route.xml");
+		
+    	advise("update-client-to-senaite", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?portal_type=Client&getClientID=${exchangeProperty.patient-id}]").replace().toD("mock:searchClientSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/update]").replace().toD("mock:updateSenaiteEndpoint");
+    	    	weaveByToString(".*/@@API/senaite/v1/search\\?portal_type=Client\\&getClientID=\\$\\{exchangeProperty.patient-id\\}]").replace().toD("mock:searchClientSenaiteEndpoint");
+    	    	weaveByToString(".*/@@API/senaite/v1/update]").replace().toD("mock:updateSenaiteEndpoint");
     	    }
     	});
     	
@@ -52,7 +47,7 @@ public class UpdateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     	
     }
     
-    @After
+    @AfterEach
     public void reset() throws Exception {
     	authenticateToSenaiteRoute.reset();
     	searchClientSenaiteEndpoint.reset();
@@ -133,5 +128,4 @@ public class UpdateClientToSenaiteRouteITest extends BaseWatcherRouteTest {
     	updateSenaiteEndpoint.expectedBodiesReceived("{\"title\":\"John Smitha Edited (HCD-3000006)\",\"uid\":\"06a29e6454464466876b718466176457\"}");
     	updateSenaiteEndpoint.expectedPropertyReceived("client-uid", "06a29e6454464466876b718466176457");
     }
-
 }
