@@ -2,20 +2,16 @@ package com.ozonehis.eip.routes.senaite;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTest {  
+public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseCamelRoutesTest {
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -53,13 +49,7 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseWatcherRouteTe
     	
     	insertSqlEndpoint.expectedPropertyReceived("lab-order-id", "1");
     	
-    	selectSqlEndpoint.whenAnyExchangeReceived(new Processor () {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody("{\"total\": 0}");
-			}
-    		
-    	});
+    	selectSqlEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody("{\"total\": 0}"));
     	selectSqlEndpoint.expectedPropertyReceived("lab-order-id", "1");
     }
 

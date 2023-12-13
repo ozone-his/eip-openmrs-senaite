@@ -10,12 +10,9 @@ import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class CancelOrderToSenaiteRouteITest extends BaseWatcherRouteTest {  
+public class CancelOrderToSenaiteRouteITest extends BaseCamelRoutesTest {
 
     @EndpointInject(value = "mock:fetchcanceledOrderFromSenaiteEndpoint")
     private MockEndpoint fetchcanceledOrderFromSenaiteEndpoint;

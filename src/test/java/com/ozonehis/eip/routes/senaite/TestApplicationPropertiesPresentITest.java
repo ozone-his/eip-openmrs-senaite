@@ -1,14 +1,11 @@
 package com.ozonehis.eip.routes.senaite;
 
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Import({ TestConfiguration.class})
-public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest {  
+public class TestApplicationPropertiesPresentITest extends BaseCamelRoutesTest {
     
     @Value("${${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;

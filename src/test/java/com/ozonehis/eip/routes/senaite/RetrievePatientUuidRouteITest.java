@@ -10,13 +10,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class RetrievePatientUuidRouteITest extends BaseWatcherRouteTest {  
+public class RetrievePatientUuidRouteITest extends BaseCamelRoutesTest {
     
     @EndpointInject(value = "mock:selectSqlEndpoint")
     private MockEndpoint selectSqlEndpoint;

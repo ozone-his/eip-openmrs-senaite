@@ -15,16 +15,13 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherRouteTest {  
+public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseCamelRoutesTest {
     
     @EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -123,17 +120,9 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     public void shouldCreateServiceRequestResultsInOpenmrs() throws Exception {
     	// setup
     	TestPropertySourceUtils.addInlinedPropertiesToEnvironment(env, "is.integration.with.bahmniEmr=false");
-    	Exchange exchange = new DefaultExchange(camelContext);
-    	exchange.setProperty("patient-uuid", "0298aa1b-7fa1-4244-93e7-c5138df63bb3");
-    	exchange.setProperty("service-request-location-uuid", "833d0c66-e29a-4d31-ac13-ca9050d1bfa9");
-    	exchange.setProperty("service-request-encounter-datetime", "2021-12-16T06:50:42+00:00");
-    	exchange.setProperty("service-request-visit-uuid", "6caa036d-f442-4c0f-85e8-bf284f687ff8");
-    	exchange.setProperty("service-request-requester", "d042597b-1d09-11ec-9616-0242ac1a000a");
+		Exchange exchange = initializeExchangeWithProperties();
 		
-		Map<String, String>[] testsMapArray = getMapArray();
-		exchange.setProperty("service-request-tests", testsMapArray);
-    	
-    	createObservationOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+		createObservationOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
     	createObservationOpenmrsEndpoint.expectedBodiesReceived("{\"encounter\": \"40901ffc-954f-4fa9-abc3-5edc02438708\",\"value\": \"3\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"17e7685c-6301-4690-b676-3731974456c5\"},{\"value\": \"1\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"66099fcb-e165-4730-a608-e2f79f789b8a\"},{\"value\": \"2\", \"order\": \"\", \"person\": \"0298aa1b-7fa1-4244-93e7-c5138df63bb3\", \"obsDatetime\": \"2021-12-16T06:50:42+00:00\", \"concept\": \"dc6783bb-6af8-47a5-8938-e49f70191c24\"}");
     	
     	// replay
@@ -147,8 +136,21 @@ public class CreateServiceRequestResultsToOpenmrsRouteITest extends BaseWatcherR
     	fetchAnalysisRequestSenaiteEndpoint.assertIsSatisfied();
     	searchObservationOpenmrsFhirEndpoint.assertIsSatisfied();
     }
-    
-    private void setupExpectations() {
+	
+	private Exchange initializeExchangeWithProperties() throws JsonProcessingException {
+		Exchange exchange = new DefaultExchange(camelContext);
+		exchange.setProperty("patient-uuid", "0298aa1b-7fa1-4244-93e7-c5138df63bb3");
+		exchange.setProperty("service-request-location-uuid", "833d0c66-e29a-4d31-ac13-ca9050d1bfa9");
+		exchange.setProperty("service-request-encounter-datetime", "2021-12-16T06:50:42+00:00");
+		exchange.setProperty("service-request-visit-uuid", "6caa036d-f442-4c0f-85e8-bf284f687ff8");
+		exchange.setProperty("service-request-requester", "d042597b-1d09-11ec-9616-0242ac1a000a");
+		
+		Map<String, String>[] testsMapArray = getMapArray();
+		exchange.setProperty("service-request-tests", testsMapArray);
+		return exchange;
+	}
+	
+	private void setupExpectations() {
     	searchEncounterOpenmrsEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody("{\"results\": []}"));
     	searchEncounterOpenmrsEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
     	searchEncounterOpenmrsEndpoint.expectedPropertyReceived("patient-uuid", "0298aa1b-7fa1-4244-93e7-c5138df63bb3");

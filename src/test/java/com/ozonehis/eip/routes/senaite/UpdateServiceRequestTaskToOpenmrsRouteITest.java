@@ -9,12 +9,9 @@ import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRouteTest {  
+public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseCamelRoutesTest {
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;

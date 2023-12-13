@@ -5,14 +5,11 @@ import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class ProcessServiceRequestTaskStateRouteITest extends BaseWatcherRouteTest {   
+public class ProcessServiceRequestTaskStateRouteITest extends BaseCamelRoutesTest {
     
     @BeforeEach
     public void setup() throws Exception {

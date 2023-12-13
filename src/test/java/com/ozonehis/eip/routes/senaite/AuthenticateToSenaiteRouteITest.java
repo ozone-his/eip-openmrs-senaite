@@ -6,14 +6,11 @@ import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class AuthenticateToSenaiteRouteITest extends BaseWatcherRouteTest {  
+public class AuthenticateToSenaiteRouteITest extends BaseCamelRoutesTest {
 
 	@BeforeEach
     public void setup() throws Exception {

@@ -11,12 +11,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class ListenToOpenmrsITest extends BaseWatcherRouteTest {  
+public class ListenToOpenmrsITest extends BaseCamelRoutesTest {
 
     @EndpointInject(value = "mock:cancelOrderToSenaiteRoute")
     private MockEndpoint cancelOrderToSenaiteRoute;
@@ -252,5 +249,4 @@ public class ListenToOpenmrsITest extends BaseWatcherRouteTest {
     	createServiceRequestTasktoOpenmrs.expectedPropertyReceived("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
     	createServiceRequestTasktoOpenmrs.setResultWaitTime(resultWaitTimeMillis);
     }
-
 }

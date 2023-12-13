@@ -2,24 +2,20 @@ package com.ozonehis.eip.routes.senaite;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
 @TestExecutionListeners(listeners = {}, mergeMode = MergeMode.REPLACE_DEFAULTS)
-public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {  
+public class RetrieveContactNamesRouteITest extends BaseCamelRoutesTest {
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -62,13 +58,8 @@ public class RetrieveContactNamesRouteITest extends BaseWatcherRouteTest {
     }
     
     private void setupExpectations() {    	
-    	requesterEndpoint.whenAnyExchangeReceived(new Processor () {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody("{\"resourceType\":\"Practitioner\",\"id\":\"d042d719-1d09-11ec-9616-0242ac1a000a\",\"text\":{\"status\":\"generated\",\"div\":\"<div/>\"},\"identifier\":[{\"system\":\"http://fhir.openmrs.org/ext/provider/identifier\",\"value\":\"superman\"}],\"active\":true,\"name\":[{\"id\":\"d041e155-1d09-11ec-9616-0242ac1a000a\",\"family\":\"Man\",\"given\":[\"Super\"]}],\"gender\":\"male\"}");
-			}
-    		
-    	});
+    	requesterEndpoint.whenAnyExchangeReceived(
+			    exchange -> exchange.getIn().setBody("{\"resourceType\":\"Practitioner\",\"id\":\"d042d719-1d09-11ec-9616-0242ac1a000a\",\"text\":{\"status\":\"generated\",\"div\":\"<div/>\"},\"identifier\":[{\"system\":\"http://fhir.openmrs.org/ext/provider/identifier\",\"value\":\"superman\"}],\"active\":true,\"name\":[{\"id\":\"d041e155-1d09-11ec-9616-0242ac1a000a\",\"family\":\"Man\",\"given\":[\"Super\"]}],\"gender\":\"male\"}"));
     	requesterEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "GET");
     	requesterEndpoint.expectedPropertyReceived("requester-reference", "Practitioner/d042d719-1d09-11ec-9616-0242ac1a000a");
     }

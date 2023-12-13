@@ -2,21 +2,17 @@ package com.ozonehis.eip.routes.senaite;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class CreateContactToSenaiteRouteITest extends BaseWatcherRouteTest {  
+public class CreateContactToSenaiteRouteITest extends BaseCamelRoutesTest {
 
 	@EndpointInject(value = "mock:authenticateToSenaiteRoute")
     private MockEndpoint authenticateToSenaiteRoute;
@@ -51,14 +47,8 @@ public class CreateContactToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("client-storage-path", "/senaite/clients/client-1");
     	exchange.setProperty("requester-given-name", "Super");
     	exchange.setProperty("requester-family-name", "Man");
-    	searchClientContactSenaiteEndpoint.whenAnyExchangeReceived(new Processor() {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody(
-						"{\"count\":0,\"pagesize\":10000,\"items\":[],\"page\":1,\"_runtime\":0.0013840190016845703,\"next\":null,\"pages\":1,\"previous\":null}");
-			}
-
-		});
+    	searchClientContactSenaiteEndpoint.whenAnyExchangeReceived(exchange1 -> exchange1.getIn().setBody(
+			    "{\"count\":0,\"pagesize\":10000,\"items\":[],\"page\":1,\"_runtime\":0.0013840190016845703,\"next\":null,\"pages\":1,\"previous\":null}"));
     	
     	// replay
     	producerTemplate.send("direct:create-contact-to-senaite", exchange);
@@ -80,14 +70,8 @@ public class CreateContactToSenaiteRouteITest extends BaseWatcherRouteTest {
     	exchange.setProperty("client-storage-path", "/senaite/clients/client-1");
     	exchange.setProperty("requester-given-name", "Super");
     	exchange.setProperty("requester-family-name", "Man");
-    	searchClientContactSenaiteEndpoint.whenAnyExchangeReceived(new Processor() {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody(
-						"{\"count\":0,\"pagesize\":10000,\"items\":[{\"uid\":\"14a20a6851754ccb882deb89b835b5a1\",\"creation_date\":\"2021-11-11T13:11:24+00:00\",\"id\":\"contact-1\",\"parent_id\":\"client-1\",\"api_url\":\"http://127.0.0.1:8088/senaite/@@API/senaite/v1/contact/194a8608cdd6404a8b81365cee7fd877\",\"author\":\"admin\",\"portal_type\":\"Contact\",\"expires\":\"2499-12-31T00:00:00+00:00\",\"language\":\"en\",\"path\":\"/senaite/clients/client-1/contact-1\",\"title\":\"Super Man\",\"modification_date\":\"2021-11-11T13:11:25+00:00\",\"parent_path\":\"/senaite/clients/client-1\",\"effective\":\"1000-01-01T00:00:00+00:00\",\"created\":\"2021-11-11T13:11:24+00:00\",\"url\":\"http://127.0.0.1:8088/clients/client-1/contact-1\"}],\"page\":1,\"_runtime\":0.0013840190016845703,\"next\":null,\"pages\":1,\"previous\":null}");
-			}
-
-		});
+    	searchClientContactSenaiteEndpoint.whenAnyExchangeReceived(exchange1 -> exchange1.getIn().setBody(
+			    "{\"count\":0,\"pagesize\":10000,\"items\":[{\"uid\":\"14a20a6851754ccb882deb89b835b5a1\",\"creation_date\":\"2021-11-11T13:11:24+00:00\",\"id\":\"contact-1\",\"parent_id\":\"client-1\",\"api_url\":\"http://127.0.0.1:8088/senaite/@@API/senaite/v1/contact/194a8608cdd6404a8b81365cee7fd877\",\"author\":\"admin\",\"portal_type\":\"Contact\",\"expires\":\"2499-12-31T00:00:00+00:00\",\"language\":\"en\",\"path\":\"/senaite/clients/client-1/contact-1\",\"title\":\"Super Man\",\"modification_date\":\"2021-11-11T13:11:25+00:00\",\"parent_path\":\"/senaite/clients/client-1\",\"effective\":\"1000-01-01T00:00:00+00:00\",\"created\":\"2021-11-11T13:11:24+00:00\",\"url\":\"http://127.0.0.1:8088/clients/client-1/contact-1\"}],\"page\":1,\"_runtime\":0.0013840190016845703,\"next\":null,\"pages\":1,\"previous\":null}"));
     	
     	// replay
     	producerTemplate.send("direct:create-contact-to-senaite", exchange);
@@ -106,18 +90,11 @@ public class CreateContactToSenaiteRouteITest extends BaseWatcherRouteTest {
     private void setupExpectations() {
     	createSenaiteEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
     	createSenaiteEndpoint.expectedBodiesReceived("{\"portal_type\": \"Contact\",\"parent_path\": \"/senaite/clients/client-1\",\"Firstname\": \"Super\",\"Surname\": \"Man\"}");
-    	createSenaiteEndpoint.whenAnyExchangeReceived(new Processor() {
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				exchange.getIn().setBody(
-						"{\"count\":1,\"items\":[{\"uid\":\"14a20a6851754ccb882deb89b835b5a1\",\"creation_date\":\"2021-11-11T13:11:24+00:00\",\"id\":\"contact-1\",\"parent_id\":\"client-1\",\"api_url\":\"http://127.0.0.1:8088/senaite/@@API/senaite/v1/contact/194a8608cdd6404a8b81365cee7fd877\",\"author\":\"admin\",\"Firstname\":\"Super\",\"portal_type\":\"Contact\",\"expires\":\"2499-12-31T00:00:00+00:00\",\"language\":\"en\",\"path\":\"/senaite/clients/client-1/contact-1\",\"Fullname\":\"Super Man\",\"modification_date\":\"2021-11-11T13:11:25+00:00\",\"Surname\":\"Man\",\"parent_path\":\"/senaite/clients/client-1\",\"effective\":\"1000-01-01T00:00:00+00:00\",\"created\":\"2021-11-11T13:11:24+00:00\",\"url\":\"http://127.0.0.1:8088/clients/client-1/contact-1\",\"title\":\"Super Man\",\"EmailAddress\":null,\"creators\":[\"admin\"],\"HomePhone\":null}],\"url\":\"http://127.0.0.1:8088/senaite/@@API/senaite/v1/create\",\"_runtime\":0.2933061122894287}");
-			}
-
-		});
+    	createSenaiteEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody(
+			    "{\"count\":1,\"items\":[{\"uid\":\"14a20a6851754ccb882deb89b835b5a1\",\"creation_date\":\"2021-11-11T13:11:24+00:00\",\"id\":\"contact-1\",\"parent_id\":\"client-1\",\"api_url\":\"http://127.0.0.1:8088/senaite/@@API/senaite/v1/contact/194a8608cdd6404a8b81365cee7fd877\",\"author\":\"admin\",\"Firstname\":\"Super\",\"portal_type\":\"Contact\",\"expires\":\"2499-12-31T00:00:00+00:00\",\"language\":\"en\",\"path\":\"/senaite/clients/client-1/contact-1\",\"Fullname\":\"Super Man\",\"modification_date\":\"2021-11-11T13:11:25+00:00\",\"Surname\":\"Man\",\"parent_path\":\"/senaite/clients/client-1\",\"effective\":\"1000-01-01T00:00:00+00:00\",\"created\":\"2021-11-11T13:11:24+00:00\",\"url\":\"http://127.0.0.1:8088/clients/client-1/contact-1\",\"title\":\"Super Man\",\"EmailAddress\":null,\"creators\":[\"admin\"],\"HomePhone\":null}],\"url\":\"http://127.0.0.1:8088/senaite/@@API/senaite/v1/create\",\"_runtime\":0.2933061122894287}"));
     	
     	createSenaiteEndpoint.expectedPropertyReceived("client-storage-path", "/senaite/clients/client-1");
     	createSenaiteEndpoint.expectedPropertyReceived("requester-given-name", "Super");
     	createSenaiteEndpoint.expectedPropertyReceived("requester-family-name", "Man");
     }
-
 }
