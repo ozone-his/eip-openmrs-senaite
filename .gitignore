@@ -166,7 +166,7 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Environment files ###
-.env
+dev/.env
 .env.test
 
 ### Debezium ###
