@@ -11,7 +11,9 @@ on:
 jobs:
   validate:
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-build-test.yml@main
-    secrets: inherit
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
   spotless:
     needs: validate
@@ -22,18 +24,24 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: spotless
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-publish.yml@main
-    secrets: inherit
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
   # this job publishes releases on every tag
   release:
     if: ${{ github.event_name == 'release' }}
     needs: spotless
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-publish.yml@main
-    secrets: inherit
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
   # this job notifies OCD3 of a new pre-release(snapshots)
   notify-ocd3:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: pre-release
     uses: mekomsolutions/shared-github-workflow/.github/workflows/ocd3-notify.yml@main
-    secrets: inherit
+    secrets:
+      OCD3_USERNAME: ${{ secrets.OCD3_USERNAME }}
+      OCD3_PASSWORD: ${{ secrets.OCD3_PASSWORD }}
