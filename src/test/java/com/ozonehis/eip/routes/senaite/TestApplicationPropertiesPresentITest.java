@@ -1,102 +1,102 @@
 package com.ozonehis.eip.routes.senaite;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 public class TestApplicationPropertiesPresentITest extends BaseCamelRoutesTest {
-    
+
     @Value("${${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
-    
-    @Value("${openmrs.username}") 
+
+    @Value("${openmrs.username}")
     private String openmrsUsername;
-    
-    @Value("${openmrs.password}") 
+
+    @Value("${openmrs.password}")
     private String openmrsPassword;
-    
-    @Value("${openmrs.baseUrl}") 
+
+    @Value("${openmrs.baseUrl}")
     private String openmrsBaseUrl;
-    
-    @Value("${openmrs.db.host}") 
+
+    @Value("${openmrs.db.host}")
     private String openmrsDbHost;
-    
-    @Value("${openmrs.db.port}") 
+
+    @Value("${openmrs.db.port}")
     private String openmrsDbPort;
-    
-    @Value("${openmrs.db.name}") 
+
+    @Value("${openmrs.db.name}")
     private String openmrsDbName;
-    
-    @Value("${results.encounterType.uuid}") 
+
+    @Value("${results.encounterType.uuid}")
     private String resultsEncounterTypeUuid;
-    
-    @Value("${bahmni.test.orderType.uuid}") 
+
+    @Value("${bahmni.test.orderType.uuid}")
     private String bahmniOestOrderTypeUuid;
-    
-    @Value("${spring.openmrs-datasource.driverClassName}") 
+
+    @Value("${spring.openmrs-datasource.driverClassName}")
     private String springOpenmrsDatasourceDriverClassName;
-    
-    @Value("${spring.openmrs-datasource.jdbcUrl}") 
+
+    @Value("${spring.openmrs-datasource.jdbcUrl}")
     private String springOpenmrsDatasourceJdbcUrl;
-    
-    @Value("${spring.openmrs-datasource.username}") 
+
+    @Value("${spring.openmrs-datasource.username}")
     private String springOpenmrsDatasourceUsername;
-    
-    @Value("${spring.openmrs-datasource.password}") 
+
+    @Value("${spring.openmrs-datasource.password}")
     private String springOpenmrsDatasourcePassword;
-    
-    @Value("${debezium.db.serverId}") 
+
+    @Value("${debezium.db.serverId}")
     private String debeziumDbServerId;
-    
-    @Value("${debezium.db.serverName}") 
+
+    @Value("${debezium.db.serverName}")
     private String debeziumDbServerName;
-    
-    @Value("${debezium.db.user}") 
+
+    @Value("${debezium.db.user}")
     private String debeziumDbUser;
-    
-    @Value("${debezium.db.password}") 
+
+    @Value("${debezium.db.password}")
     private String debeziumDbPassword;
-    
-    @Value("${debezium.offsetFilename}") 
+
+    @Value("${debezium.offsetFilename}")
     private String debeziumOffsetFilename;
-    
-    @Value("${debezium.historyFilename}") 
+
+    @Value("${debezium.historyFilename}")
     private String debeziumHistoryFilename;
-    
-    @Value("${senaite.baseUrl}") 
+
+    @Value("${senaite.baseUrl}")
     private String senaiteBaseUrl;
-    
-    @Value("${senaite.username}") 
+
+    @Value("${senaite.username}")
     private String senaiteUsername;
-    
-    @Value("${senaite.password}") 
+
+    @Value("${senaite.password}")
     private String senaitePassword;
-    
+
     @Test
     public void shouldLoadApplicationProperties() {
-    	// verify
-    	assertNotNull(bahmniTestOrderTypeUuid);
-    	assertNotNull(openmrsUsername);
-    	assertNotNull(openmrsPassword);
-    	assertNotNull(openmrsBaseUrl);
-    	assertNotNull(openmrsDbHost);
-    	assertNotNull(openmrsDbPort);
-    	assertNotNull(openmrsDbName);
-    	assertNotNull(resultsEncounterTypeUuid);
-    	assertNotNull(bahmniOestOrderTypeUuid);
-    	assertNotNull(springOpenmrsDatasourceDriverClassName);
-    	assertNotNull(springOpenmrsDatasourceJdbcUrl);
-    	assertNotNull(springOpenmrsDatasourceUsername);
-    	assertNotNull(springOpenmrsDatasourcePassword);
-    	assertNotNull(debeziumDbServerId);
-    	assertNotNull(debeziumDbServerName);
-    	assertNotNull(debeziumDbUser);
-    	assertNotNull(debeziumDbPassword);
-    	assertNotNull(debeziumOffsetFilename);
-    	assertNotNull(debeziumHistoryFilename);
-    	assertNotNull(senaiteBaseUrl);
-    	assertNotNull(senaiteUsername);
-    	assertNotNull(senaitePassword);
+        // verify
+        assertNotNull(bahmniTestOrderTypeUuid);
+        assertNotNull(openmrsUsername);
+        assertNotNull(openmrsPassword);
+        assertNotNull(openmrsBaseUrl);
+        assertNotNull(openmrsDbHost);
+        assertNotNull(openmrsDbPort);
+        assertNotNull(openmrsDbName);
+        assertNotNull(resultsEncounterTypeUuid);
+        assertNotNull(bahmniOestOrderTypeUuid);
+        assertNotNull(springOpenmrsDatasourceDriverClassName);
+        assertNotNull(springOpenmrsDatasourceJdbcUrl);
+        assertNotNull(springOpenmrsDatasourceUsername);
+        assertNotNull(springOpenmrsDatasourcePassword);
+        assertNotNull(debeziumDbServerId);
+        assertNotNull(debeziumDbServerName);
+        assertNotNull(debeziumDbUser);
+        assertNotNull(debeziumDbPassword);
+        assertNotNull(debeziumOffsetFilename);
+        assertNotNull(debeziumHistoryFilename);
+        assertNotNull(senaiteBaseUrl);
+        assertNotNull(senaiteUsername);
+        assertNotNull(senaitePassword);
     }
 }

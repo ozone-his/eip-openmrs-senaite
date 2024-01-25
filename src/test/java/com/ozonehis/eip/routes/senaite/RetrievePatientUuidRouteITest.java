@@ -14,67 +14,71 @@ import org.springframework.beans.factory.annotation.Value;
 
 @MockEndpoints
 public class RetrievePatientUuidRouteITest extends BaseCamelRoutesTest {
-    
+
     @EndpointInject(value = "mock:selectSqlEndpoint")
     private MockEndpoint selectSqlEndpoint;
-    
+
     @Value("${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
-    
+
     @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("camel", "retrieve-patient-uuid-from-openmrs-route.xml");
-		
-    	advise("retrieve-patient-uuid-from-openmrs", new AdviceWithRouteBuilder() {
-    	    @Override
-    	    public void configure() {
-    	    	weaveByToString("DynamicTo[sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=openmrsDataSource]").replace().toD("mock:selectSqlEndpoint");
-    	    }
-    	});
-    	
-    	selectSqlEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody("[{\"uuid\": \"some-patient-uuid\"}]"));
+        loadXmlRoutesInDirectory("camel", "retrieve-patient-uuid-from-openmrs-route.xml");
+
+        advise("retrieve-patient-uuid-from-openmrs", new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveByToString(
+                                "DynamicTo[sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=openmrsDataSource]")
+                        .replace()
+                        .toD("mock:selectSqlEndpoint");
+            }
+        });
+
+        selectSqlEndpoint.whenAnyExchangeReceived(
+                exchange -> exchange.getIn().setBody("[{\"uuid\": \"some-patient-uuid\"}]"));
     }
-    
+
     @AfterEach
     public void reset() throws Exception {
-    	selectSqlEndpoint.reset();
+        selectSqlEndpoint.reset();
     }
 
     @Test
     public void shouldProcessPatientUuidFromPatientIdentifierChangeEvent() throws Exception {
-    	// setup
-    	Event event = new Event();
-    	event.setTableName("patient_identifier");
-    	event.setIdentifier("some-uuid");
-    	event.setOperation("u");
-    	event.setPrimaryKeyId("1");
-    	Exchange exchange = new DefaultExchange(camelContext);
-    	exchange.setProperty("event", event);
-    	selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "patient_id");
-    	
-    	// replay
-    	producerTemplate.send("direct:retrieve-patient-uuid-from-openmrs", exchange);
-    	
-    	// verify
-    	selectSqlEndpoint.assertIsSatisfied();
+        // setup
+        Event event = new Event();
+        event.setTableName("patient_identifier");
+        event.setIdentifier("some-uuid");
+        event.setOperation("u");
+        event.setPrimaryKeyId("1");
+        Exchange exchange = new DefaultExchange(camelContext);
+        exchange.setProperty("event", event);
+        selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "patient_id");
+
+        // replay
+        producerTemplate.send("direct:retrieve-patient-uuid-from-openmrs", exchange);
+
+        // verify
+        selectSqlEndpoint.assertIsSatisfied();
     }
-    
+
     @Test
     public void shouldProcessPatientUuidFromPatientNameChangeEvent() throws Exception {
-    	// setup
-    	Event event = new Event();
-    	event.setTableName("person_name");
-    	event.setIdentifier("some-uuid");
-    	event.setOperation("u");
-    	event.setPrimaryKeyId("1");
-    	Exchange exchange = new DefaultExchange(camelContext);
-    	exchange.setProperty("event", event);
-    	selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "person_id");
-    	
-    	// replay
-    	producerTemplate.send("direct:retrieve-patient-uuid-from-openmrs", exchange);
-    	
-    	// verify
-    	selectSqlEndpoint.assertIsSatisfied();
+        // setup
+        Event event = new Event();
+        event.setTableName("person_name");
+        event.setIdentifier("some-uuid");
+        event.setOperation("u");
+        event.setPrimaryKeyId("1");
+        Exchange exchange = new DefaultExchange(camelContext);
+        exchange.setProperty("event", event);
+        selectSqlEndpoint.expectedPropertyReceived("lookUpColumn", "person_id");
+
+        // replay
+        producerTemplate.send("direct:retrieve-patient-uuid-from-openmrs", exchange);
+
+        // verify
+        selectSqlEndpoint.assertIsSatisfied();
     }
 }

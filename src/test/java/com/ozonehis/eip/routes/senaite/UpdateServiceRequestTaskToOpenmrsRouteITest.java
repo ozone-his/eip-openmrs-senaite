@@ -13,51 +13,52 @@ import org.junit.jupiter.api.Test;
 @MockEndpoints
 public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseCamelRoutesTest {
 
-	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
+    @EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
-    
+
     @EndpointInject(value = "mock:updateTaskEndpoint")
-    private MockEndpoint updateTaskEndpoint; 
-    
+    private MockEndpoint updateTaskEndpoint;
+
     @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("camel", "update-servicerequest-task-to-openmrs-route.xml");
-		
-    	advise("update-servicerequest-task-to-openmrs", new AdviceWithRouteBuilder() {
-    	    @Override
-    	    public void configure() {
-    	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString(".*/Task/\\$\\{exchangeProperty.task-id\\}]").replace().toD("mock:updateTaskEndpoint");
-    	    }
-    	});
-    	
-    	setupExpectations();
-    	
+        loadXmlRoutesInDirectory("camel", "update-servicerequest-task-to-openmrs-route.xml");
+
+        advise("update-servicerequest-task-to-openmrs", new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
+                weaveByToString(".*/Task/\\$\\{exchangeProperty.task-id\\}]")
+                        .replace()
+                        .toD("mock:updateTaskEndpoint");
+            }
+        });
+
+        setupExpectations();
     }
-    
+
     @AfterEach
     public void reset() throws Exception {
-    	updateTaskEndpoint.reset();
+        updateTaskEndpoint.reset();
     }
 
     @Test
     public void shouldUpdateTaskState() throws Exception {
-    	// setup
-    	Exchange exchange = new DefaultExchange(camelContext);
-    	exchange.setProperty("task-id", "77ee5f8b-c9ec-4d1f-b3a3-fdae006f1032");
-    	exchange.setProperty("service-request-transitioned-status", "accepted");
-    	
-    	// replay
-    	producerTemplate.send("direct:update-servicerequest-task-to-openmrs", exchange);
-    	
-    	// verify
-    	authenticateToOpenmrs.assertExchangeReceived(0);
-    	updateTaskEndpoint.assertIsSatisfied();
-    }
-    
-    private void setupExpectations() {
-    	updateTaskEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "PUT");
-    	updateTaskEndpoint.expectedBodiesReceived("{\"resourceType\": \"Task\", \"id\": \"77ee5f8b-c9ec-4d1f-b3a3-fdae006f1032\", \"status\": \"accepted\", \"intent\": \"order\"}");
+        // setup
+        Exchange exchange = new DefaultExchange(camelContext);
+        exchange.setProperty("task-id", "77ee5f8b-c9ec-4d1f-b3a3-fdae006f1032");
+        exchange.setProperty("service-request-transitioned-status", "accepted");
+
+        // replay
+        producerTemplate.send("direct:update-servicerequest-task-to-openmrs", exchange);
+
+        // verify
+        authenticateToOpenmrs.assertExchangeReceived(0);
+        updateTaskEndpoint.assertIsSatisfied();
     }
 
+    private void setupExpectations() {
+        updateTaskEndpoint.expectedHeaderReceived(Exchange.HTTP_METHOD, "PUT");
+        updateTaskEndpoint.expectedBodiesReceived(
+                "{\"resourceType\": \"Task\", \"id\": \"77ee5f8b-c9ec-4d1f-b3a3-fdae006f1032\", \"status\": \"accepted\", \"intent\": \"order\"}");
+    }
 }

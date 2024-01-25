@@ -6,6 +6,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 @ActiveProfiles("test")
-@Import({ TestConfiguration.class })
-@TestPropertySource(properties = { "camel.springboot.routes-collector-enabled=false" })
+@Import({TestConfiguration.class})
+@TestPropertySource(properties = {"camel.springboot.routes-collector-enabled=false"})
 public class BaseCamelRoutesTest extends BaseWatcherRouteTest {}

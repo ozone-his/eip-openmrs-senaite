@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class OpenmrsWatcherInitRoute extends RouteBuilder {
-	
-	@Override
-	public void configure() throws Exception {
-		from("scheduler:openmrs-watcher?initialDelay=500&repeatCount=1")
-				.routeId("openmrs-watcher-init-route")
-				.to("openmrs-watcher:init");
-	}
+
+    @Override
+    public void configure() throws Exception {
+        from("scheduler:openmrs-watcher?initialDelay=500&repeatCount=1")
+                .routeId("openmrs-watcher-init-route")
+                .to("openmrs-watcher:init");
+    }
 }
