@@ -1,25 +1,17 @@
 package com.ozonehis.eip.routes.senaite;
 
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRouteTest {  
+public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseCamelRoutesTest {
 
 	@EndpointInject(value = "mock:authenticateToOpenmrsRoute")
     private MockEndpoint authenticateToOpenmrs;
@@ -27,15 +19,15 @@ public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRout
     @EndpointInject(value = "mock:updateTaskEndpoint")
     private MockEndpoint updateTaskEndpoint; 
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "update-servicerequest-task-to-openmrs-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "update-servicerequest-task-to-openmrs".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "update-servicerequest-task-to-openmrs-route.xml");
+		
+    	advise("update-servicerequest-task-to-openmrs", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("To[direct:authenticate-to-openmrs]").replace().toD("mock:authenticateToOpenmrsRoute");
-    	    	weaveByToString("DynamicTo[{{fhirR4.baseUrl}}/Task/${exchangeProperty.task-id}]").replace().toD("mock:updateTaskEndpoint");
+    	    	weaveByToString(".*/Task/\\$\\{exchangeProperty.task-id\\}]").replace().toD("mock:updateTaskEndpoint");
     	    }
     	});
     	
@@ -43,7 +35,7 @@ public class UpdateServiceRequestTaskToOpenmrsRouteITest extends BaseWatcherRout
     	
     }
     
-    @After
+    @AfterEach
     public void reset() throws Exception {
     	updateTaskEndpoint.reset();
     }

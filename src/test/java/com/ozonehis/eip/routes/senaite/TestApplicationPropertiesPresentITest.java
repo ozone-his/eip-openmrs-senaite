@@ -1,14 +1,11 @@
 package com.ozonehis.eip.routes.senaite;
 
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 
-@Import({ TestConfiguration.class})
-public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest {  
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestApplicationPropertiesPresentITest extends BaseCamelRoutesTest {
     
     @Value("${${bahmni.test.orderType.uuid}")
     private String bahmniTestOrderTypeUuid;
@@ -77,11 +74,7 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     private String senaitePassword;
     
     @Test
-    public void shouldLoadApplicationProperties() throws Exception {
-    	// setup
-    	
-    	// replay
-    	
+    public void shouldLoadApplicationProperties() {
     	// verify
     	assertNotNull(bahmniTestOrderTypeUuid);
     	assertNotNull(openmrsUsername);
@@ -105,7 +98,5 @@ public class TestApplicationPropertiesPresentITest extends BaseWatcherRouteTest 
     	assertNotNull(senaiteBaseUrl);
     	assertNotNull(senaiteUsername);
     	assertNotNull(senaitePassword);
-    	
     }
-
 }

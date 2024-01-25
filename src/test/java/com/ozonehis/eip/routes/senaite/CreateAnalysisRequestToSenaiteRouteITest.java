@@ -1,26 +1,18 @@
 package com.ozonehis.eip.routes.senaite;
 
-import java.util.stream.Collectors;
-
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.ModelCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.support.DefaultExchange;
-import org.apache.camel.test.spring.MockEndpoints;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.eip.mysql.watcher.route.BaseWatcherRouteTest;
-import org.springframework.context.annotation.Import;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @MockEndpoints
-@Import({ TestConfiguration.class})
-public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTest {  
+public class CreateAnalysisRequestToSenaiteRouteITest extends BaseCamelRoutesTest {
 
     @EndpointInject(value = "mock:authenticateToSenaiteRoute")
     private MockEndpoint authenticateToSenaiteRoute;
@@ -34,17 +26,17 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     @EndpointInject(value = "mock:createAnalysisRequestSenaiteEndpoint")
     private MockEndpoint createAnalysisRequestSenaiteEndpoint;
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-    	loadXmlRoutesInDirectory("senaite", "create-analysisrequest-to-senaite-route.xml");
-    	RouteDefinition routeDefinition = camelContext.adapt(ModelCamelContext.class).getRouteDefinitions().stream().filter(routeDef -> "create-analysisrequest-to-senaite".equals(routeDef.getRouteId())).collect(Collectors.toList()).get(0);
-    	RouteReifier.adviceWith(routeDefinition, camelContext, new AdviceWithRouteBuilder() {
+    	loadXmlRoutesInDirectory("camel", "create-analysisrequest-to-senaite-route.xml");
+    
+    	advise("create-analysisrequest-to-senaite", new AdviceWithRouteBuilder() {
     	    @Override
-    	    public void configure() throws Exception {
+    	    public void configure() {
     	    	weaveByToString("To[direct:authenticate-to-senaite]").replace().toD("mock:authenticateToSenaiteRoute");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?getClientSampleID=${exchangeProperty.lab-order-uuid}&getClientID=${exchangeProperty.patient-id}&catalog=senaite_catalog_sample&complete=true]").replace().toD("mock:searchAnalysisRequestSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&Description=${exchangeProperty.service-analysis-template}&catalog=senaite_catalog_setup&portal_type=ARTemplate]").replace().toD("mock:searchAnalysisRequestTemplateSenaiteEndpoint");
-    	    	weaveByToString("DynamicTo[{{senaite.baseUrl}}/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}]").replace().toD("mock:createAnalysisRequestSenaiteEndpoint");
+    	    	weaveByToString(".*/@@API/senaite/v1/search\\?getClientSampleID=\\$\\{exchangeProperty.lab-order-uuid\\}\\&getClientID=\\$\\{exchangeProperty.patient-id\\}\\&catalog=senaite_catalog_sample\\&complete=true]").replace().toD("mock:searchAnalysisRequestSenaiteEndpoint");
+    	    	weaveByToString(".*/@@API/senaite/v1/search\\?complete=true\\&Description=\\$\\{exchangeProperty.service-analysis-template\\}\\&catalog=senaite_catalog_setup\\&portal_type=ARTemplate]").replace().toD("mock:searchAnalysisRequestTemplateSenaiteEndpoint");
+    	    	weaveByToString(".*/@@API/senaite/v1/AnalysisRequest/create/\\$\\{exchangeProperty.client-uid\\}]").replace().toD("mock:createAnalysisRequestSenaiteEndpoint");
     	    }
     	});
     	
@@ -52,7 +44,7 @@ public class CreateAnalysisRequestToSenaiteRouteITest extends BaseWatcherRouteTe
     	
     }
     
-    @After
+    @AfterEach
     public void reset() throws Exception {
     	authenticateToSenaiteRoute.reset();
     	searchAnalysisRequestSenaiteEndpoint.reset();

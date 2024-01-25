@@ -1,4 +1,4 @@
-<img src="readme/crudem-hsc-logo.png" alt="hsc-logo" width="400"/>
+<img src="docs/crudem-hsc-logo.png" alt="hsc-logo" width="400"/>
 
 ------
 
@@ -46,16 +46,16 @@ Below are sequence diagrams showing a quick overview of what the routes do.
 
 #### 1) Placing lab orders
 
-<img src="readme/placingLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
+<img src="docs/placingLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
 
 #### 2) Deleting, Voiding and Canceling/Discontinuing lab orders
 
-<img src="readme/discontinueDeleteVoidLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
+<img src="docs/discontinueDeleteVoidLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
 
 #### 3) Renewing, Revising lab orders
 
-<img src="readme/renewingRevisingLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
+<img src="docs/renewingRevisingLabOrderWorkflow.png" alt="hsc-logo" width="700"/>
 
 #### 4) Updating and Fulfilling lab orders
 
-<img src="readme/updatingLabOrderStatusAndCapturingResults.png" alt="hsc-logo" width="700"/>
+<img src="docs/updatingLabOrderStatusAndCapturingResults.png" alt="hsc-logo" width="700"/>
