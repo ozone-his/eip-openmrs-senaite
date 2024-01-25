@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  validate:
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven/build-test.yml@main
+    secrets: inherit
+
+  spotless:
+    needs: validate
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven/spotless-check.yml@main
+
+  # this job publishes snapshots on every push to main
+  pre-release:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: validate
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven/publish.yml@main
+    secrets: inherit
+
+  # this job publishes releases on every tag
+  release:
+    if: ${{ github.event_name == 'release' }}
+    needs: validate
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven/publish.yml@main
+    secrets: inherit
+
+  # this job notifies OCD3 of a new pre-release(snapshots)
+  notify-ocd3:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: pre-release
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/ocd3/notify.yml@main
+    secrets: inherit
