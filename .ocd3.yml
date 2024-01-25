@@ -1,6 +1,6 @@
 version: 1
 build:
   # Unable to run tests because of no Docker agent available in OCD3 yet. https://mekomsolutions.atlassian.net/browse/INFRA-318
-  bash_commands: "mvn clean install -DskipTests"
+  bash_commands: "echo 'Build is handled by GitHub Actions. Skipping...' && exit 0"
 deploy:
-  bash_commands: "mvn clean deploy -DskipTests -DaltDeploymentRepository=mks-nexus::default::https://nexus.mekomsolutions.net/repository/maven-snapshots"
+  bash_commands: "echo 'Publishing is handled by GitHub Actions. Skipping...' && exit 0"

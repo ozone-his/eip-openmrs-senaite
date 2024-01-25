@@ -19,6 +19,19 @@
     </developer>
   </developers>
 
+  <distributionManagement>
+    <repository>
+      <id>mks-nexus-public-releases</id>
+      <name>Mekom Solutions Nexus repo for releases</name>
+      <url>https://nexus.mekomsolutions.net/repository/maven-releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>mks-nexus-public-snapshots</id>
+      <name>Mekom Solutions Nexus repo for snapshots</name>
+      <url>https://nexus.mekomsolutions.net/repository/maven-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
