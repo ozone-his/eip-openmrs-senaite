@@ -29,7 +29,7 @@ public class RetrievePatientUuidRouteITest extends BaseCamelRoutesTest {
             @Override
             public void configure() {
                 weaveByToString(
-                                "DynamicTo[sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=openmrsDataSource]")
+                                "DynamicTo[sql:SELECT uuid FROM person WHERE person_id = (SELECT t.${exchangeProperty.lookUpColumn} FROM ${exchangeProperty.event.tableName} t WHERE t.uuid = '${exchangeProperty.event.identifier}')?dataSource=#openmrsDataSource]")
                         .replace()
                         .toD("mock:selectSqlEndpoint");
             }

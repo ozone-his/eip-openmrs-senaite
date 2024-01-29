@@ -14,7 +14,7 @@
                     <simple>${body.primaryKeyId}</simple>
                 </setProperty>
 
-                <toD cacheSize="-1" uri="sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=openmrsDataSource" />
+                <toD cacheSize="-1" uri="sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=#openmrsDataSource" />
 
                 <choice>
                     <when>
@@ -35,7 +35,7 @@
                         <choice>
                             <when>
                                 <jsonpath>$.[?(@.orderType.uuid == '{{bahmni.test.orderType.uuid}}')]</jsonpath>
-                                <toD cacheSize="-1" uri="sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource" />
+                                <toD cacheSize="-1" uri="sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=#openmrsDataSource" />
                             </when>
                         </choice>
                     </when>

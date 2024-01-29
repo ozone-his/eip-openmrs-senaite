@@ -41,11 +41,11 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseCamelRoutesTes
                         .toD("mock:labOrderEndpoint");
                 ;
                 weaveByToString(
-                                "DynamicTo[sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource]")
+                                "DynamicTo[sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=#openmrsDataSource]")
                         .replace()
                         .toD("mock:insertSqlEndpoint");
                 weaveByToString(
-                                "DynamicTo[sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=openmrsDataSource]")
+                                "DynamicTo[sql:SELECT COUNT(*) total FROM test_order WHERE order_id=${exchangeProperty.lab-order-id}?dataSource=#openmrsDataSource]")
                         .replace()
                         .toD("mock:selectSqlEndpoint");
             }
