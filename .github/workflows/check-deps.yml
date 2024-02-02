@@ -1,0 +1,13 @@
+name: Check for dependency changes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/60 * * * *'
+
+jobs:
+  check-deps:
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-check-deps-build-publish.yml@main
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
