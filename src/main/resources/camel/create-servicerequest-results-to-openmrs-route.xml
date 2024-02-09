@@ -64,7 +64,7 @@
 
         <!---Create result obs or results array of obs -->
 
-        <split streaming="false" strategyRef="splitBodyConcatAggregationStrategy">
+        <split streaming="false" aggregationStrategy="splitBodyConcatAggregationStrategy">
             <simple>${body}</simple>
 
             <marshal>

@@ -31,8 +31,6 @@ public class CancelOrderToSenaiteRouteITest extends BaseCamelRoutesTest {
 
     private Exchange exchange;
 
-    private int resultWaitTimeMillis = 100;
-
     @BeforeEach
     public void setup() throws Exception {
         loadXmlRoutesInDirectory("camel", "cancel-order-to-senaite-route.xml");
