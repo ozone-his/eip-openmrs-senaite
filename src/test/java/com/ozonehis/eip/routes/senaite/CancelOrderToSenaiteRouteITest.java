@@ -30,6 +30,8 @@ public class CancelOrderToSenaiteRouteITest extends BaseCamelRoutesTest {
     private MockEndpoint authenticateToSenaiteRoute;
 
     private Exchange exchange;
+    
+    private int resultWaitTimeMillis = 100;
 
     @BeforeEach
     public void setup() throws Exception {

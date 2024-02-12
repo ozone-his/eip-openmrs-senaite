@@ -1,5 +1,7 @@
 package com.ozonehis.eip.routes.senaite;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -9,12 +11,8 @@ import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockEndpoints
-@TestPropertySource(properties = {"camel.springboot.routes-collector-enabled=false"})
 public class CreateClientToSenaiteRouteITest extends BaseCamelRoutesTest {
 
     @EndpointInject(value = "mock:authenticateToSenaiteRoute")
