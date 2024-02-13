@@ -8,15 +8,14 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
 
 @MockEndpoints
-@TestExecutionListeners(
-        listeners = {},
-        mergeMode = MergeMode.REPLACE_DEFAULTS)
+@TestExecutionListeners(mergeMode = MergeMode.REPLACE_DEFAULTS)
 public class RetrieveContactNamesRouteITest extends BaseCamelRoutesTest {
 
     @EndpointInject(value = "mock:authenticateToOpenmrsRoute")
@@ -40,6 +39,12 @@ public class RetrieveContactNamesRouteITest extends BaseCamelRoutesTest {
         });
 
         setupExpectations();
+    }
+
+    @AfterEach
+    public void reset() throws Exception {
+        authenticateToOpenmrs.reset();
+        requesterEndpoint.reset();
     }
 
     @Test

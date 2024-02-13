@@ -8,6 +8,7 @@ import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,13 @@ public class CreateContactToSenaiteRouteITest extends BaseCamelRoutesTest {
         });
 
         setupExpectations();
+    }
+
+    @AfterEach
+    public void reset() throws Exception {
+        authenticateToSenaiteRoute.reset();
+        createSenaiteEndpoint.reset();
+        searchClientContactSenaiteEndpoint.reset();
     }
 
     @Test

@@ -5,6 +5,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openmrs.eip.mysql.watcher.Event;
@@ -60,6 +61,14 @@ public class WriteBahmniOrderAsOpenmrsOrderRouteITest extends BaseCamelRoutesTes
 
         selectSqlEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody("{\"total\": 0}"));
         selectSqlEndpoint.expectedPropertyReceived("lab-order-id", "1");
+    }
+
+    @AfterEach
+    public void reset() throws Exception {
+        authenticateToOpenmrs.reset();
+        labOrderEndpoint.reset();
+        insertSqlEndpoint.reset();
+        selectSqlEndpoint.reset();
     }
 
     @Test
