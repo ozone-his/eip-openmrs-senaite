@@ -41,6 +41,9 @@
     <spotless.version>2.30.0</spotless.version>
     <palantirJavaFormat.version>1.1.0</palantirJavaFormat.version>
     <openmrs.watcher.version>4.0.0-SNAPSHOT</openmrs.watcher.version>
+
+    <!-- Classifier for the dependency report artifact -->
+    <dependencyReportClassifier>dependencies</dependencyReportClassifier>
   </properties>
 
   <dependencyManagement>
@@ -142,6 +145,39 @@
       <url>https://nexus.mekomsolutions.net/repository/maven-public-snapshots</url>
     </repository>
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>openmrs-repo</id>
+      <name>OpenMRS Nexus Repository</name>
+      <url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>openmrs-snapshots</id>
+      <name>OpenMRS Public Repository</name>
+      <url>https://mavenrepo.openmrs.org/snapshots</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>mks-nexus-public</id>
+      <url>https://nexus.mekomsolutions.net/repository/maven-public/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>mks-nexus-snapshots</id>
+      <url>https://nexus.mekomsolutions.net/repository/maven-snapshots/</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <finalName>eip-openmrs-senaite-${project.version}</finalName>
@@ -267,6 +303,46 @@
               <goal>check</goal>
             </goals>
             <phase>install</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>net.mekomsolutions.maven.plugin</groupId>
+        <artifactId>dependency-tracker-maven-plugin</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>Compile dependency report</id>
+            <goals>
+              <goal>track</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Attach the dependency report to the build -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>Attach the dependency report</id>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-dependencies.txt</file>
+                  <type>txt</type>
+                  <classifier>${dependencyReportClassifier}</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
           </execution>
         </executions>
       </plugin>
