@@ -1,5 +1,7 @@
 package com.ozonehis.eip.openmrs.senaite.mapper;
 
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
+
 /**
  * An Interface for mapping from FHIR Resources to SENAITE resource
  *
