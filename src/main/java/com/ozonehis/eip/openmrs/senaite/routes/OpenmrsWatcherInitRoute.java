@@ -1,4 +1,4 @@
-package com.ozonehis.eip.openmrssenaite.routes;
+package com.ozonehis.eip.openmrs.senaite.routes;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
