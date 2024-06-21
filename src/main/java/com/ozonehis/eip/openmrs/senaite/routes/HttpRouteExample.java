@@ -1,6 +1,5 @@
 package com.ozonehis.eip.openmrs.senaite.routes;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.model.Client;
 import org.apache.camel.CamelContext;
@@ -9,11 +8,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.camel.model.dataformat.JsonLibrary;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HttpRouteExample {
     public static void main(String[] args) throws Exception {
@@ -63,5 +57,4 @@ public class HttpRouteExample {
         Thread.sleep(300000); // Keep the context running for 5 minutes
         context.stop();
     }
-
 }

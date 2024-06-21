@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Client implements SenaiteResource {
 
-//    <simple>{"portal_type":"Client","title":"${exchangeProperty.patient-name-unique}",
-//    "ClientID":"${exchangeProperty.patient-id}","parent_path":"/senaite/clients"}</simple>
+    //    <simple>{"portal_type":"Client","title":"${exchangeProperty.patient-name-unique}",
+    //    "ClientID":"${exchangeProperty.patient-id}","parent_path":"/senaite/clients"}</simple>
 
     @JsonProperty("portal_type")
     private String portalType; // Client

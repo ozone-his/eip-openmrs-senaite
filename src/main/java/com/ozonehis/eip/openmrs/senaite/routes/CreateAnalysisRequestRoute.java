@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateClientRoute extends RouteBuilder {
+public class CreateAnalysisRequestRoute extends RouteBuilder {
 
     @Autowired
     private SenaiteClient senaiteClient;
@@ -16,14 +16,14 @@ public class CreateClientRoute extends RouteBuilder {
     @Override
     public void configure() {
         // spotless:off
-        from("direct:senaite-create-client-route")
-                .log(LoggingLevel.INFO, "Creating Client in SENAITE...")
-                .routeId("senaite-create-client-route")
+        from("direct:senaite-create-analysis-request-route")
+                .log(LoggingLevel.INFO, "Creating AnalysisRequest in SENAITE...")
+                .routeId("senaite-create-analysis-request-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .to(senaiteClient.getSenaiteBaseUrl() + SenaiteClient.CREATE_ENDPOINT)
-                .log("Response create-client-route: ${body}")
+                .log("Response create-analysis-request: ${body}")
                 .end();
         // spotless:on
     }

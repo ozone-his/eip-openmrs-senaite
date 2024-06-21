@@ -19,10 +19,13 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysisRequest implements SenaiteResource {
 
-//   <simple>{"Contact": "${exchangeProperty.client-contact-uid}","SampleType": "${exchangeProperty.sample-type-uid}",
-//   "DateSampled": "${exchangeProperty.lab-order-start-date}","Template": "${exchangeProperty.sample-template-uid}",
-//   "Profiles": "${exchangeProperty.sample-analyses-profile-uid}","Analyses": [${exchangeProperty.sample-analyses-uids}],
-//   "ClientSampleID": "${exchangeProperty.lab-order-uuid}"}</simple>
+    //   <simple>{"Contact": "${exchangeProperty.client-contact-uid}","SampleType":
+    // "${exchangeProperty.sample-type-uid}",
+    //   "DateSampled": "${exchangeProperty.lab-order-start-date}","Template":
+    // "${exchangeProperty.sample-template-uid}",
+    //   "Profiles": "${exchangeProperty.sample-analyses-profile-uid}","Analyses":
+    // [${exchangeProperty.sample-analyses-uids}],
+    //   "ClientSampleID": "${exchangeProperty.lab-order-uuid}"}</simple>
 
     @JsonProperty("Contact")
     private String contact; // client-contact-uid
@@ -44,6 +47,4 @@ public class AnalysisRequest implements SenaiteResource {
 
     @JsonProperty("ClientSampleID")
     private String clientSampleID; // lab-order-uuid
-
-
 }

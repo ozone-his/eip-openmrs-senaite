@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Contact implements SenaiteResource {
 
-//  <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}"
-//  ,"Firstname": "${exchangeProperty.requester-given-name}","Surname": "${exchangeProperty.requester-family-name}"}</simple>
+    //  <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}"
+    //  ,"Firstname": "${exchangeProperty.requester-given-name}","Surname":
+    // "${exchangeProperty.requester-family-name}"}</simple>
 
     @JsonProperty("portal_type")
     private String portalType; // Contact
@@ -33,6 +34,4 @@ public class Contact implements SenaiteResource {
 
     @JsonProperty("Surname")
     private String surname; // requester-family-name
-
-
 }
