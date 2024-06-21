@@ -13,6 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,4 +37,7 @@ public class Contact implements SenaiteResource {
 
     @JsonProperty("Surname")
     private String surname; // requester-family-name
+
+    @JsonProperty("items")
+    private ArrayList<Map<String, Object>> items; // items[0].uid
 }

@@ -13,6 +13,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Map;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,4 +37,7 @@ public class Client implements SenaiteResource {
 
     @JsonProperty("parent_path")
     private String parentPath; // /senaite/clients
+
+    @JsonProperty("items")
+    private ArrayList<Map<String, Object>> items; // items[0].uid AND items[0].path
 }
