@@ -9,11 +9,10 @@ package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
 import com.ozonehis.eip.openmrs.senaite.mapper.ToSenaiteMapping;
 import com.ozonehis.eip.openmrs.senaite.model.Client;
+import java.util.Optional;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Setter
 @Component
