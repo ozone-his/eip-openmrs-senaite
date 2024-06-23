@@ -23,7 +23,7 @@ public class ContactMapper {
         Contact contact = new Contact();
         contact.setPortalType("Contact");
         if (!client.getItems().isEmpty()) {
-            contact.setParentPath((String) client.getItems().get(0).get("path"));
+            contact.setParentPath(client.getItems().get(0).getPath());
         }
 
         String[] nameSplit = client.getTitle().split(" ");

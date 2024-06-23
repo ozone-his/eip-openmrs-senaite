@@ -10,7 +10,6 @@ package com.ozonehis.eip.openmrs.senaite.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,5 +36,5 @@ public class Client implements SenaiteResource {
     private String parentPath; // /senaite/clients
 
     @JsonProperty("items")
-    private ArrayList<Map<String, Object>> items; // items[0].uid AND items[0].path
+    private ArrayList<Item> items; // items[0].uid AND items[0].path
 }
