@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,7 +35,7 @@ public class AnalysisRequest implements SenaiteResource {
     private String sampleType; // sample-type-uid
 
     @JsonProperty("DateSampled")
-    private String dateSampled; // lab-order-start-date
+    private Date dateSampled; // lab-order-start-date
 
     @JsonProperty("Template")
     private String template; // sample-template-uid

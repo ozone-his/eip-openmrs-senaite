@@ -11,13 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Analyses {
+    @JsonProperty("service_uid")
+    private String serviceUid;
 
-    @JsonProperty("url")
-    private String url;
-
-    @JsonProperty("uid")
-    private String uid;
-
-    @JsonProperty("api_url")
-    private String apiUrl;
+    @JsonProperty("partition")
+    private String partition;
 }

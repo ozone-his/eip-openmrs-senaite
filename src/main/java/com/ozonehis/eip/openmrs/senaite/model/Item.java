@@ -2,6 +2,7 @@ package com.ozonehis.eip.openmrs.senaite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class Item {
     private AnalysisProfile analysisProfile;
 
     @JsonProperty("Analyses")
-    private Analyses analyses;
+    private List<Analyses> analyses;
 
     @JsonProperty("SampleType")
     private SampleType sampleType;

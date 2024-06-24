@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysisProfile {
+    @JsonProperty("url")
+    private String url;
 
-    @JsonProperty("service_uid")
-    private String serviceUid;
+    @JsonProperty("uid")
+    private String uid;
 
-    @JsonProperty("partition")
-    private String partition;
+    @JsonProperty("api_url")
+    private String apiUrl;
 }

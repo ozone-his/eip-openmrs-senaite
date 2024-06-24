@@ -13,6 +13,8 @@ public class CreateClientRoute extends RouteBuilder {
     @Autowired
     private SenaiteClient senaiteClient;
 
+    public static final String CREATE_ENDPOINT = "/@@API/senaite/v1/create";
+
     @Override
     public void configure() {
         // spotless:off
@@ -22,7 +24,7 @@ public class CreateClientRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl() + SenaiteClient.CREATE_ENDPOINT)
+                .to(senaiteClient.getSenaiteBaseUrl() + CREATE_ENDPOINT)
                 .log("Response create-client-route: ${body}")
                 .end();
         // spotless:on

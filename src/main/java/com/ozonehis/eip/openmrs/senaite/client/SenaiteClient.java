@@ -19,8 +19,6 @@ public class SenaiteClient {
     @Value("${senaite.baseUrl}")
     private String senaiteBaseUrl;
 
-    public static final String CREATE_ENDPOINT = "/@@API/senaite/v1/create";
-
     public String authHeader() {
         String auth = getSenaiteUsername() + ":" + getSenaitePassword();
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
