@@ -1,4 +1,4 @@
-package com.ozonehis.eip.openmrs.senaite.routes;
+package com.ozonehis.eip.openmrs.senaite.routes.contact;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
