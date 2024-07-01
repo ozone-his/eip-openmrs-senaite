@@ -17,10 +17,10 @@ import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.openmrs.eip.fhir.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -37,6 +37,7 @@ public class ServiceRequestProcessor implements Processor {
             Patient patient = null;
             Encounter encounter = null;
             ServiceRequest serviceRequest = null;
+            Practitioner practitioner = null;
             for (Bundle.BundleEntryComponent entry : entries) {
                 Resource resource = entry.getResource();
                 if (resource instanceof Patient) {
@@ -45,19 +46,22 @@ public class ServiceRequestProcessor implements Processor {
                     encounter = (Encounter) resource;
                 } else if (resource instanceof ServiceRequest) {
                     serviceRequest = (ServiceRequest) resource;
+                } else if (resource instanceof Practitioner) {
+                    practitioner = (Practitioner) resource;
                 }
             }
 
-            if (patient == null || encounter == null || serviceRequest == null) {
+            if (patient == null || encounter == null || serviceRequest == null || practitioner == null) {
                 throw new CamelExecutionException(
-                        "Invalid Bundle. Bundle must contain Patient, Encounter and ServiceRequest", exchange);
+                        "Invalid Bundle. Bundle must contain Patient, Encounter, ServiceRequest and Practitioner",
+                        exchange);
             } else {
                 log.debug("Processing ServiceRequest for Patient with UUID {}", patient.getIdPart());
                 String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
                 if (eventType == null) {
                     throw new IllegalArgumentException("Event type not found in the exchange headers.");
                 }
-                String encounterVisitUuid = encounter.getPartOf().getReference().split("/")[1];
+                String serviceRequestUuid = serviceRequest.getIdPart(); // TODO: check it should be {body.identifier}
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {

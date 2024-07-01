@@ -22,7 +22,8 @@ public class ServiceRequestRouting extends RouteBuilder {
 
     private static final String SERVICE_REQUEST_ID = "service.request.id";
 
-    private static final String SERVICE_REQUEST_INCLUDE_PARAMS = "ServiceRequest:encounter,ServiceRequest:patient";
+    private static final String SERVICE_REQUEST_INCLUDE_PARAMS =
+            "ServiceRequest:encounter,ServiceRequest:patient,ServiceRequest:practitioner";
 
     private static final String SEARCH_PARAMS =
             "id=${exchangeProperty." + SERVICE_REQUEST_ID + "}&resource=${exchangeProperty."
@@ -35,24 +36,24 @@ public class ServiceRequestRouting extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:fhir-servicerequest")
-            .routeId("service-request-to-analysis-request-router")
-            .filter(body().isNotNull())
-            .filter(exchange -> exchange.getMessage().getBody() instanceof ServiceRequest)
-            .process(exchange -> {
+                .routeId("service-request-to-analysis-request-router")
+                .filter(body().isNotNull())
+                .filter(exchange -> exchange.getMessage().getBody() instanceof ServiceRequest)
+                .process(exchange -> {
                     ServiceRequest serviceRequest = exchange.getMessage().getBody(ServiceRequest.class);
                     exchange.setProperty(Constants.FHIR_RESOURCE_TYPE, serviceRequest.fhirType());
                     exchange.setProperty(
                             SERVICE_REQUEST_ID, serviceRequest.getIdElement().getIdPart());
                     exchange.getMessage().setBody(serviceRequest);
                 })
-            .toD("openmrs-fhir://?" + SEARCH_PARAMS)
-            .to("direct:service-request-to-analysis-request-processor")
+                .toD("openmrs-fhir://?" + SEARCH_PARAMS)
+                .to("direct:service-request-to-analysis-request-processor")
                 .end();
 
         from("direct:service-request-to-analysis-request-processor")
-            .routeId("service-request-to-analysis-request-processor")
-            .process(serviceRequestProcessor)
-            .log(LoggingLevel.INFO, "Processing ServiceRequest")
+                .routeId("service-request-to-analysis-request-processor")
+                .process(serviceRequestProcessor)
+                .log(LoggingLevel.INFO, "Processing ServiceRequest")
                 .end();
         // spotless:on
     }
