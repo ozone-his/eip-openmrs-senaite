@@ -7,7 +7,6 @@
   <packaging>jar</packaging>
   <name>EIP OpenMRS SENAITE</name>
   <description>Apache Camel routes that integrates OpenMRS and SENAITE</description>
-
   <organization>
     <name>Ozone HIS</name>
     <url>http://www.ozone-his.com</url>
@@ -41,6 +40,9 @@
     <spotless.version>2.30.0</spotless.version>
     <palantirJavaFormat.version>1.1.0</palantirJavaFormat.version>
     <openmrs.watcher.version>4.1.0-SNAPSHOT</openmrs.watcher.version>
+    <camel.openmrs.fhir.version>4.1.0-SNAPSHOT</camel.openmrs.fhir.version>
+    <fhir-r4.version>7.0.0</fhir-r4.version>
+    <okhttp.version>4.12.0</okhttp.version>
 
     <!-- Classifier for the dependency report artifact -->
     <dependencyReportClassifier>dependencies</dependencyReportClassifier>
@@ -85,6 +87,21 @@
           <artifactId>camel-spring-boot-starter</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.openmrs.eip</groupId>
+      <artifactId>camel-openmrs-fhir</artifactId>
+      <version>${camel.openmrs.fhir.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r4</artifactId>
+      <version>${fhir-r4.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${okhttp.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

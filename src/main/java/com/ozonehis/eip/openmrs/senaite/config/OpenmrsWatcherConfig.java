@@ -1,4 +1,4 @@
-package com.ozonehis.eip.openmrssenaite.config;
+package com.ozonehis.eip.openmrs.senaite.config;
 
 import org.openmrs.eip.app.config.AppConfig;
 import org.springframework.context.annotation.Configuration;
