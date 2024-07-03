@@ -7,6 +7,17 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ContactHandler;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.AnalysisRequestMapper;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
+import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
+import com.ozonehis.eip.openmrs.senaite.model.Client;
+import com.ozonehis.eip.openmrs.senaite.model.Contact;
 import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +32,34 @@ import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.openmrs.eip.fhir.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Setter
 @Component
 public class ServiceRequestProcessor implements Processor {
+
+    @Autowired
+    private ClientMapper clientMapper;
+
+    @Autowired
+    private ContactMapper contactMapper;
+
+    @Autowired
+    private AnalysisRequestMapper analysisRequestMapper;
+
+    @Autowired
+    private ClientHandler clientHandler;
+
+    @Autowired
+    private AnalysisRequestHandler analysisRequestHandler;
+
+    @Autowired
+    private ContactHandler contactHandler;
+
+    @Autowired
+    private AnalysisRequestTemplateHandler analysisRequestTemplateHandler;
 
     @Override
     public void process(Exchange exchange) {
@@ -66,6 +99,29 @@ public class ServiceRequestProcessor implements Processor {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
                         // If revision/renewed order, first cancel their previous one on SENAITE
+                        Client client = clientMapper.toSenaite(patient);
+
+                        Client savedClient = clientHandler.getClient(producerTemplate, "");
+
+                        if (savedClient == null) {
+                            savedClient = clientHandler.sendClient(producerTemplate, client);
+                        }
+                        Contact savedContact = contactHandler.getContact(producerTemplate, "");
+                        if (savedContact == null) {
+                            Contact contact = contactMapper.toSenaite(savedClient);
+                            savedContact = contactHandler.sendContact(producerTemplate, contact);
+                        }
+                        AnalysisRequest savedAnalysisRequest =
+                                analysisRequestHandler.getAnalysisRequest(producerTemplate, "");
+                        if (savedAnalysisRequest == null) {
+                            AnalysisRequestTemplate analysisRequestTemplate =
+                                    analysisRequestTemplateHandler.getAnalysisRequestTemplate(producerTemplate, "");
+                            AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
+                                    savedClient, analysisRequestTemplate, serviceRequest);
+                            savedAnalysisRequest =
+                                    analysisRequestHandler.sendAnalysisRequest(producerTemplate, analysisRequest);
+                        }
+
                     } else {
                         // Executed when MODIFY option is selected in OpenMRS
                     }

@@ -6,10 +6,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +16,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Getter
 @Component
-public class SenaiteClient {
-    @Value("${senaite.username}")
-    private String senaiteUsername;
+public class OpenMRSFhirClient {
+    @Value("${openmrs.username}")
+    private String openmrsUsername;
 
-    @Value("${senaite.password}")
-    private String senaitePassword;
+    @Value("${openmrs.password}")
+    private String openmrsPassword;
 
-    @Value("${senaite.baseUrl}")
-    private String senaiteBaseUrl;
+    @Value("${fhirR4.baseUrl}")
+    private String openmrsFhirBaseUrl;
 
     @Getter
     private final OkHttpClient httpClient;
@@ -43,9 +41,7 @@ public class SenaiteClient {
 
     private final long connectTimeoutMs = 10000;
 
-    private final MediaType mediaType = MediaType.parse("application/json");
-
-    public SenaiteClient() {
+    public OpenMRSFhirClient() {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(maxIdleConnections, keepAliveDurationMs, TimeUnit.MILLISECONDS))
                 .callTimeout(callTimeoutMs, TimeUnit.MILLISECONDS)
@@ -66,37 +62,12 @@ public class SenaiteClient {
     }
 
     public String authHeader() {
-        String auth = getSenaiteUsername() + ":" + getSenaitePassword();
+        String auth = getOpenmrsUsername() + ":" + getOpenmrsPassword();
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
         return "Basic " + new String(encodedAuth);
     }
 
     public Response executeRequest(Request request) throws IOException {
         return httpClient.newCall(request).execute();
-    }
-
-    public Response get(String url) throws IOException {
-        Request request = new Request.Builder().url(senaiteBaseUrl + url).get().build();
-        return executeRequest(request);
-    }
-
-    public Response post(String url, String jsonBody) throws IOException {
-        RequestBody body = RequestBody.create(jsonBody, mediaType);
-        Request request =
-                new Request.Builder().url(senaiteBaseUrl + url).post(body).build();
-        return executeRequest(request);
-    }
-
-    public Response put(String url, String jsonBody) throws IOException {
-        RequestBody body = RequestBody.create(jsonBody, mediaType);
-        Request request =
-                new Request.Builder().url(senaiteBaseUrl + url).put(body).build();
-        return executeRequest(request);
-    }
-
-    public Response delete(String url) throws IOException {
-        Request request =
-                new Request.Builder().url(senaiteBaseUrl + url).delete().build();
-        return executeRequest(request);
     }
 }
