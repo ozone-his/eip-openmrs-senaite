@@ -20,9 +20,7 @@ import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.Client;
 import com.ozonehis.eip.openmrs.senaite.model.Contact;
-
 import java.util.List;
-
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -120,7 +118,8 @@ public class ServiceRequestProcessor implements Processor {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
                             log.info("Saved client {}", savedClient);
                         }
-                        exchange.setProperty("path", savedClient.getItems().get(0).getPath());
+                        exchange.setProperty(
+                                "path", savedClient.getItems().get(0).getPath());
                         Contact savedContact = contactHandler.getContact(producerTemplate, "");
                         log.info("Fetched contact {}", savedContact);
                         if (savedContact == null) {
@@ -129,19 +128,24 @@ public class ServiceRequestProcessor implements Processor {
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
                             log.info("Saved contact {}", savedContact);
                         }
-                        exchange.setProperty("client-id", savedClient.getItems().get(0).getPath());
+                        exchange.setProperty(
+                                "client-id", savedClient.getItems().get(0).getPath());
                         exchange.setProperty("client-sample-id", serviceRequestUuid);
                         AnalysisRequest savedAnalysisRequest =
                                 analysisRequestHandler.getAnalysisRequest(producerTemplate, "");
                         log.info("Fetched analysisRequest {}", savedAnalysisRequest);
                         if (savedAnalysisRequest == null) {
-                            exchange.setProperty("description", serviceRequest.getCode().getCoding().get(0).getCode());
+                            exchange.setProperty(
+                                    "description",
+                                    serviceRequest.getCode().getCoding().get(0).getCode());
                             AnalysisRequestTemplate analysisRequestTemplate =
                                     analysisRequestTemplateHandler.getAnalysisRequestTemplate(producerTemplate, "");
                             log.info("Fetched analysisRequestTemplate {}", analysisRequestTemplate);
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
                                     savedClient, analysisRequestTemplate, serviceRequest);
-                            log.info("Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}", analysisRequest);
+                            log.info(
+                                    "Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}",
+                                    analysisRequest);
                             savedAnalysisRequest =
                                     analysisRequestHandler.sendAnalysisRequest(producerTemplate, analysisRequest);
                             log.info("Saved AnalysisRequest {}", savedAnalysisRequest);

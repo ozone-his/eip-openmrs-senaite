@@ -2,8 +2,12 @@ package com.ozonehis.eip.openmrs.senaite.mapper.fhir;
 
 import com.ozonehis.eip.openmrs.senaite.mapper.ToFhirMapping;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
+import lombok.Setter;
 import org.hl7.fhir.r4.model.Task;
+import org.springframework.stereotype.Component;
 
+@Setter
+@Component
 public class TaskMapper implements ToFhirMapping<Task, AnalysisRequest> {
 
     @Override

@@ -13,20 +13,24 @@ public class GetAnalysisRequestRoute extends RouteBuilder {
     @Autowired
     private SenaiteClient senaiteClient;
 
-    private static final String GET_ANALYSIS_REQUEST_ENDPOINT = "/@@API/senaite/v1/AnalysisRequest?getClientSampleID=%s&getClientID=%s&catalog=senaite_catalog_sample&complete=true";
+    private static final String GET_ANALYSIS_REQUEST_ENDPOINT =
+            "/@@API/senaite/v1/AnalysisRequest?getClientSampleID=%s&getClientID=%s&catalog=senaite_catalog_sample&complete=true";
 
     @Override
     public void configure() {
         // spotless:off
         from("direct:senaite-get-analysis-request-route")
-            .log(LoggingLevel.INFO, "Fetching AnalysisRequest in SENAITE...")
-            .routeId("senaite-get-analysis-request-route")
-            .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
-            .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-            .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-            .to(senaiteClient.getSenaiteBaseUrl()
-                        + String.format(GET_ANALYSIS_REQUEST_ENDPOINT, exchangeProperty("client-sample-id"), exchangeProperty("client-id")))
-            .log("Response get-analysis-request: ${body}")
+                .log(LoggingLevel.INFO, "Fetching AnalysisRequest in SENAITE...")
+                .routeId("senaite-get-analysis-request-route")
+                .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
+                .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
+                .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
+                .to(senaiteClient.getSenaiteBaseUrl()
+                        + String.format(
+                                GET_ANALYSIS_REQUEST_ENDPOINT,
+                                exchangeProperty("client-sample-id"),
+                                exchangeProperty("client-id")))
+                .log("Response get-analysis-request: ${body}")
                 .end();
         // spotless:on
     }

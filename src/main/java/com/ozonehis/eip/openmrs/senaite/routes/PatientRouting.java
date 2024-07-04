@@ -9,6 +9,10 @@ package com.ozonehis.eip.openmrs.senaite.routes;
 
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
+import com.ozonehis.eip.openmrs.senaite.converters.AnalysisRequestConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.ClientConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.ContactConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.TaskConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.PatientProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
@@ -24,8 +28,24 @@ public class PatientRouting extends RouteBuilder {
     @Autowired
     private PatientProcessor patientProcessor;
 
+    @Autowired
+    private ClientConverter clientConverter;
+
+    @Autowired
+    private AnalysisRequestConverter analysisRequestConverter;
+
+    @Autowired
+    private TaskConverter taskConverter;
+
+    @Autowired
+    private ContactConverter contactConverter;
+
     @Override
     public void configure() {
+        getContext().getTypeConverterRegistry().addTypeConverters(clientConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(analysisRequestConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(taskConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(contactConverter);
         // spotless:off
         from("direct:patient-to-client-router")
                 .routeId("patient-to-client-router")

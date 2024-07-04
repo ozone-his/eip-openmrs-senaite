@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -25,6 +26,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Setter
 @Getter
 @Component
@@ -45,19 +47,19 @@ public class PatientProcessor implements Processor {
             if (patient == null) {
                 return;
             }
+            log.info("PatientProcessor: Patient {}", patient);
 
             Map<String, Object> headers = new HashMap<>();
             Client savedClient = clientHandler.getClient(producerTemplate, "");
+            log.info("PatientProcessor: Client {}", savedClient);
+            Client client = clientMapper.toSenaite(patient);
             if (savedClient != null) {
-                Client client = clientMapper.toSenaite(patient);
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");
-                exchange.getMessage().setHeaders(headers);
-                exchange.getMessage().setBody(client);
             } else {
-                headers.put(HEADER_FHIR_EVENT_TYPE, "none");
-                exchange.getMessage().setHeaders(headers);
-                exchange.getMessage().setBody(null);
+                headers.put(HEADER_FHIR_EVENT_TYPE, "c");
             }
+            exchange.getMessage().setHeaders(headers);
+            exchange.getMessage().setBody(client);
 
         } catch (Exception e) {
             throw new CamelExecutionException("Error processing Patient", exchange, e);

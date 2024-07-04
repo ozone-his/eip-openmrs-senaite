@@ -1,7 +1,7 @@
 <routes xmlns="http://camel.apache.org/schema/spring">
     <!-- No error handling for this route because of its polling nature and that it does not listen for DB/Watcher Events-->
     <route id="poll-senaite">
-        <from uri="scheduler:taskUpdate?initialDelay=10000&amp;delay=10000" />
+        <from uri="scheduler:taskUpdate?initialDelay=100000000&amp;delay=100000000" />
         
         <log message="Sheduled FHIR Task status updater " />
 
