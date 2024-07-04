@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Getter
 @Component
-public class SenaiteClient {
-    @Value("${senaite.username}")
-    private String senaiteUsername;
+public class OpenmrsFhirClient {
+    @Value("${openmrs.username}")
+    private String openmrsUsername;
 
-    @Value("${senaite.password}")
-    private String senaitePassword;
+    @Value("${openmrs.password}")
+    private String openmrsPassword;
 
-    @Value("${senaite.baseUrl}")
-    private String senaiteBaseUrl;
+    @Value("${fhirR4.baseUrl}")
+    private String openmrsFhirBaseUrl;
 
     public String authHeader() {
-        String auth = getSenaiteUsername() + ":" + getSenaitePassword();
+        String auth = getOpenmrsUsername() + ":" + getOpenmrsPassword();
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
         return "Basic " + new String(encodedAuth);
     }

@@ -9,6 +9,7 @@ public class TaskMapper implements ToFhirMapping<Task, AnalysisRequest> {
     @Override
     public Task toFhir(AnalysisRequest analysisRequest) {
         Task task = new Task();
+        task.setIntent(Task.TaskIntent.ORDER);
         task.addBasedOn().setReference(analysisRequest.getClientSampleID()).setType("ServiceRequest");
         return null;
     }

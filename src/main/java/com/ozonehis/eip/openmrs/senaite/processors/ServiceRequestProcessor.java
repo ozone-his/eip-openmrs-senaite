@@ -7,10 +7,12 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import com.ozonehis.eip.openmrs.openmrs.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ContactHandler;
+import com.ozonehis.eip.openmrs.senaite.mapper.fhir.TaskMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
@@ -31,6 +33,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
+import org.hl7.fhir.r4.model.Task;
 import org.openmrs.eip.fhir.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,6 +63,12 @@ public class ServiceRequestProcessor implements Processor {
 
     @Autowired
     private AnalysisRequestTemplateHandler analysisRequestTemplateHandler;
+
+    @Autowired
+    private TaskHandler taskHandler;
+
+    @Autowired
+    private TaskMapper taskMapper;
 
     @Override
     public void process(Exchange exchange) {
@@ -120,6 +129,12 @@ public class ServiceRequestProcessor implements Processor {
                                     savedClient, analysisRequestTemplate, serviceRequest);
                             savedAnalysisRequest =
                                     analysisRequestHandler.sendAnalysisRequest(producerTemplate, analysisRequest);
+                        }
+                        Task savedTask = taskHandler.getTask(producerTemplate, "");
+                        if (savedTask == null) {
+                            Task task = taskMapper.toFhir(savedAnalysisRequest);
+                            task.setStatus(Task.TaskStatus.REQUESTED);
+                            savedTask = taskHandler.sendTask(producerTemplate, task);
                         }
 
                     } else {
