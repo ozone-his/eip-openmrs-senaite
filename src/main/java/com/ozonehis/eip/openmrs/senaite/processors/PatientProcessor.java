@@ -51,9 +51,10 @@ public class PatientProcessor implements Processor {
 
             Map<String, Object> headers = new HashMap<>();
             Client savedClient = clientHandler.getClient(producerTemplate, "");
-            log.info("PatientProcessor: Client {}", savedClient);
+            log.info("PatientProcessor: savedClient {}", savedClient);
             Client client = clientMapper.toSenaite(patient);
-            if (savedClient != null) {
+            log.info("PatientProcessor: client {}", client);
+            if (savedClient != null && !savedClient.getClientID().isEmpty()) {
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");
             } else {
                 headers.put(HEADER_FHIR_EVENT_TYPE, "c");

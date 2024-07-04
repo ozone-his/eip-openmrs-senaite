@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Converter;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Converter
+@Component
 public class ContactConverter {
 
     @Converter
