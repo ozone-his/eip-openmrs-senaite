@@ -26,7 +26,7 @@ public class GetClientRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .to(senaiteClient.getSenaiteBaseUrl()
                         + GET_CLIENT_ENDPOINT
-                        + exchangeProperty("clientId")) // TODO: Check if correct url
+                        + exchangeProperty("client-id")) // TODO: Check if correct url
                 .log("Response get-client: ${body}")
                 .end();
         // spotless:on

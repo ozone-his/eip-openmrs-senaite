@@ -20,7 +20,9 @@ import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.Client;
 import com.ozonehis.eip.openmrs.senaite.model.Contact;
+
 import java.util.List;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -107,34 +109,52 @@ public class ServiceRequestProcessor implements Processor {
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
-                        // If revision/renewed order, first cancel their previous one on SENAITE
                         Client client = clientMapper.toSenaite(patient);
+                        log.info("Mapped client from patient {}", client);
 
+                        exchange.setProperty("client-id", client.getClientID());
                         Client savedClient = clientHandler.getClient(producerTemplate, "");
+                        log.info("Fetched client {}", savedClient);
 
                         if (savedClient == null) {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
+                            log.info("Saved client {}", savedClient);
                         }
+                        exchange.setProperty("path", savedClient.getItems().get(0).getPath());
                         Contact savedContact = contactHandler.getContact(producerTemplate, "");
+                        log.info("Fetched contact {}", savedContact);
                         if (savedContact == null) {
                             Contact contact = contactMapper.toSenaite(savedClient);
+                            log.info("Mapped contact from savedClient {}", contact);
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
+                            log.info("Saved contact {}", savedContact);
                         }
+                        exchange.setProperty("client-id", savedClient.getItems().get(0).getPath());
+                        exchange.setProperty("client-sample-id", serviceRequestUuid);
                         AnalysisRequest savedAnalysisRequest =
                                 analysisRequestHandler.getAnalysisRequest(producerTemplate, "");
+                        log.info("Fetched analysisRequest {}", savedAnalysisRequest);
                         if (savedAnalysisRequest == null) {
+                            exchange.setProperty("description", serviceRequest.getCode().getCoding().get(0).getCode());
                             AnalysisRequestTemplate analysisRequestTemplate =
                                     analysisRequestTemplateHandler.getAnalysisRequestTemplate(producerTemplate, "");
+                            log.info("Fetched analysisRequestTemplate {}", analysisRequestTemplate);
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
                                     savedClient, analysisRequestTemplate, serviceRequest);
+                            log.info("Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}", analysisRequest);
                             savedAnalysisRequest =
                                     analysisRequestHandler.sendAnalysisRequest(producerTemplate, analysisRequest);
+                            log.info("Saved AnalysisRequest {}", savedAnalysisRequest);
                         }
+                        exchange.setProperty("service-request-id", serviceRequestUuid);
                         Task savedTask = taskHandler.getTask(producerTemplate, "");
+                        log.info("Fetched task {}", savedTask);
                         if (savedTask == null) {
                             Task task = taskMapper.toFhir(savedAnalysisRequest);
+                            log.info("Mapped task from savedAnalysisRequest {}", task);
                             task.setStatus(Task.TaskStatus.REQUESTED);
                             savedTask = taskHandler.sendTask(producerTemplate, task);
+                            log.info("Saved task {}", savedTask);
                         }
 
                     } else {
