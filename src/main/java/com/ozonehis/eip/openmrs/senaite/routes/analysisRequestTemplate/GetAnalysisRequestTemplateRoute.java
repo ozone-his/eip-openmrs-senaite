@@ -25,10 +25,10 @@ public class GetAnalysisRequestTemplateRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl()
-                        + GET_ANALYSIS_REQUEST_TEMPLATE_ENDPOINT
-                        + header(Constants.HEADER_DESCRIPTION))
-                .log("Response get-analysis-request-template: ${body}")
+                .to(senaiteClient.getSenaiteBaseUrl() + GET_ANALYSIS_REQUEST_TEMPLATE_ENDPOINT + "${header."
+                        + Constants.HEADER_DESCRIPTION + "}")
+                .log("Response get-analysis-request-template: ${body} description ${header."
+                        + Constants.HEADER_DESCRIPTION + "}")
                 .end();
         // spotless:on
     }

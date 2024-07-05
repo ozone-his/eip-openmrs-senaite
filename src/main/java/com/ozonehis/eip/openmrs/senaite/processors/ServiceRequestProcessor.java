@@ -19,8 +19,8 @@ import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
-import com.ozonehis.eip.openmrs.senaite.model.Contact;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
+import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,13 +109,13 @@ public class ServiceRequestProcessor implements Processor {
                         Client client = clientMapper.toSenaite(patient);
                         log.info("Mapped client from patient {}", client);
 
-                        headers.put(
-                                Constants.HEADER_CLIENT_ID,
-                                client.getClientItems().get(0).getGetClientID());
+                        headers.put(Constants.HEADER_CLIENT_ID, client.getClientID());
                         Client savedClient = clientHandler.getClient(producerTemplate, headers);
                         log.info("Fetched client {}", savedClient);
 
-                        if (savedClient == null) {
+                        if (savedClient == null
+                                || savedClient.getUid() == null
+                                || savedClient.getUid().isEmpty()) {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
                             log.info("Saved client {}", savedClient);
                         }
@@ -124,8 +124,10 @@ public class ServiceRequestProcessor implements Processor {
                                 savedClient.getClientItems().get(0).getPath());
                         Contact savedContact = contactHandler.getContact(producerTemplate, headers);
                         log.info("Fetched contact {}", savedContact);
-                        if (savedContact == null) {
-                            Contact contact = contactMapper.toSenaite(savedClient);
+                        if (savedContact == null
+                                || savedContact.getUid() == null
+                                || savedContact.getUid().isEmpty()) {
+                            Contact contact = contactMapper.toSenaite(serviceRequest, savedClient);
                             log.info("Mapped contact from savedClient {}", contact);
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
                             log.info("Saved contact {}", savedContact);
@@ -137,7 +139,9 @@ public class ServiceRequestProcessor implements Processor {
                         AnalysisRequest savedAnalysisRequest =
                                 analysisRequestHandler.getAnalysisRequest(producerTemplate, headers);
                         log.info("Fetched analysisRequest {}", savedAnalysisRequest);
-                        if (savedAnalysisRequest == null) {
+                        if (savedAnalysisRequest == null
+                                || savedAnalysisRequest.getClientSampleID() == null
+                                || savedAnalysisRequest.getClientSampleID().isEmpty()) {
                             headers.put(
                                     Constants.HEADER_DESCRIPTION,
                                     serviceRequest.getCode().getCoding().get(0).getCode());
@@ -157,7 +161,9 @@ public class ServiceRequestProcessor implements Processor {
                         headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestUuid);
                         Task savedTask = taskHandler.getTask(producerTemplate, headers);
                         log.info("Fetched task {}", savedTask);
-                        if (savedTask == null) {
+                        if (savedTask == null
+                                || savedTask.getDescription() == null
+                                || savedTask.getDescription().isEmpty()) {
                             Task task = taskMapper.toFhir(savedAnalysisRequest);
                             log.info("Mapped task from savedAnalysisRequest {}", task);
                             task.setStatus(Task.TaskStatus.REQUESTED);

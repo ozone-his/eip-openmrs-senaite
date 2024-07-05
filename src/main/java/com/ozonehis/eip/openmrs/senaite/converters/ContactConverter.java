@@ -1,7 +1,7 @@
 package com.ozonehis.eip.openmrs.senaite.converters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ozonehis.eip.openmrs.senaite.model.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

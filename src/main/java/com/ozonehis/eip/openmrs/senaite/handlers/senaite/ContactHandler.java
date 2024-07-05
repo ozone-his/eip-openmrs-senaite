@@ -2,7 +2,8 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ozonehis.eip.openmrs.senaite.model.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactResponse;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +30,8 @@ public class ContactHandler {
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
         log.error("getContact response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
-        Contact contact = objectMapper.readValue(response, Contact.class);
-        log.error("getContact {}", response);
-        return contact;
+        ContactResponse contactResponse = objectMapper.readValue(response, ContactResponse.class);
+        log.error("getContact {}", contactResponse);
+        return contactResponse.contactResponseToContact(contactResponse);
     }
 }

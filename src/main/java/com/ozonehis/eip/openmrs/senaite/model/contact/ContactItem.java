@@ -5,11 +5,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.eip.openmrs.senaite.model;
+package com.ozonehis.eip.openmrs.senaite.model.contact;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Contact implements SenaiteResource {
+public class ContactItem implements SenaiteResource {
 
     //  <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}"
     //  ,"Firstname": "${exchangeProperty.requester-given-name}","Surname":
@@ -36,6 +36,9 @@ public class Contact implements SenaiteResource {
     @JsonProperty("Surname")
     private String surname; // requester-family-name
 
-    @JsonProperty("items")
-    private ArrayList<Item> items; // items[0].uid
+    @JsonProperty("uid")
+    private String uid;
+
+    @JsonProperty("path")
+    private String path;
 }
