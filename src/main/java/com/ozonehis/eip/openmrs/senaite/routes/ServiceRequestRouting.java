@@ -26,8 +26,7 @@ public class ServiceRequestRouting extends RouteBuilder {
 
     private static final String SERVICE_REQUEST_ID = "service.request.id";
 
-    private static final String SERVICE_REQUEST_INCLUDE_PARAMS =
-            "ServiceRequest:encounter,ServiceRequest:patient,ServiceRequest:practitioner";
+    private static final String SERVICE_REQUEST_INCLUDE_PARAMS = "ServiceRequest:encounter,ServiceRequest:patient";
 
     private static final String SEARCH_PARAMS =
             "id=${exchangeProperty." + SERVICE_REQUEST_ID + "}&resource=${exchangeProperty."

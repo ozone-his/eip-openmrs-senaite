@@ -3,6 +3,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
+import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
@@ -24,9 +25,10 @@ public class AnalysisRequestHandler {
         return savedAnalysisRequest;
     }
 
-    public AnalysisRequest getAnalysisRequest(ProducerTemplate producerTemplate, String queryParams)
+    public AnalysisRequest getAnalysisRequest(ProducerTemplate producerTemplate, Map<String, Object> headers)
             throws JsonProcessingException {
-        String response = producerTemplate.requestBody("direct:senaite-get-analysis-request-route", null, String.class);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-get-analysis-request-route", null, headers, String.class);
         log.error("getAnalysisRequest response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequest analysisRequest = objectMapper.readValue(response, AnalysisRequest.class);

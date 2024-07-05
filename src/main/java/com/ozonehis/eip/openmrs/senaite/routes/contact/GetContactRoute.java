@@ -24,9 +24,7 @@ public class GetContactRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl()
-                        + GET_CONTACT_ENDPOINT
-                        + exchangeProperty("path")) // TODO: Check if correct url
+                .to(senaiteClient.getSenaiteBaseUrl() + GET_CONTACT_ENDPOINT + header(Constants.HEADER_PATH))
                 .log("Response get-contact: ${body}")
                 .end();
         // spotless:on

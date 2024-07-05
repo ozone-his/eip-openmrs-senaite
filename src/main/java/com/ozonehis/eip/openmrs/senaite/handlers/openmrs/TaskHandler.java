@@ -2,6 +2,7 @@ package com.ozonehis.eip.openmrs.openmrs.handlers.openmrs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
@@ -22,8 +23,9 @@ public class TaskHandler {
         return savedTask;
     }
 
-    public Task getTask(ProducerTemplate producerTemplate, String queryParams) throws JsonProcessingException {
-        String response = producerTemplate.requestBody("direct:openmrs-get-task-route", null, String.class);
+    public Task getTask(ProducerTemplate producerTemplate, Map<String, Object> headers) throws JsonProcessingException {
+        String response =
+                producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, String.class);
         log.error("getTask response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         Task task = objectMapper.readValue(response, Task.class);

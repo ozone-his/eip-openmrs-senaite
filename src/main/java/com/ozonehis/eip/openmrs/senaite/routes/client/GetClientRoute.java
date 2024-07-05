@@ -24,10 +24,11 @@ public class GetClientRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl()
-                        + GET_CLIENT_ENDPOINT
-                        + exchangeProperty("client-id")) // TODO: Check if correct url
-                .log("Response get-client: ${body}")
+                .toD(senaiteClient.getSenaiteBaseUrl() + GET_CLIENT_ENDPOINT + "${header." + Constants.HEADER_CLIENT_ID
+                        + "}")
+                .log(
+                        LoggingLevel.INFO,
+                        "Response get-client: ${body} clientID ${header." + Constants.HEADER_CLIENT_ID + "}")
                 .end();
         // spotless:on
     }

@@ -13,8 +13,7 @@ public class CreateAnalysisRequestRoute extends RouteBuilder {
     @Autowired
     private SenaiteClient senaiteClient;
 
-    private static final String CREATE_ANALYSIS_REQUEST_ENDPOINT =
-            "/@@API/senaite/v1/AnalysisRequest/create/${exchangeProperty.client-uid}";
+    private static final String CREATE_ANALYSIS_REQUEST_ENDPOINT = "/@@API/senaite/v1/AnalysisRequest/create/";
 
     @Override
     public void configure() {
@@ -27,7 +26,7 @@ public class CreateAnalysisRequestRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .to(senaiteClient.getSenaiteBaseUrl()
                         + CREATE_ANALYSIS_REQUEST_ENDPOINT
-                        + exchangeProperty("client-uid")) // TODO: Check if correct url
+                        + header(Constants.HEADER_CLIENT_ID))
                 .log("Response create-analysis-request: ${body}")
                 .end();
         // spotless:on

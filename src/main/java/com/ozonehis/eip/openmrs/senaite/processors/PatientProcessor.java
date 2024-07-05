@@ -9,9 +9,10 @@ package com.ozonehis.eip.openmrs.senaite.processors;
 
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
-import com.ozonehis.eip.openmrs.senaite.model.Client;
+import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -50,17 +51,23 @@ public class PatientProcessor implements Processor {
             log.info("PatientProcessor: Patient {}", patient);
 
             Map<String, Object> headers = new HashMap<>();
-            Client savedClient = clientHandler.getClient(producerTemplate, "");
+            headers.put(Constants.HEADER_CLIENT_ID, patient.getIdPart());
+            log.info("PatientProcessor: header {}", headers.get(Constants.HEADER_CLIENT_ID));
+            Client savedClient = clientHandler.getClient(producerTemplate, headers);
             log.info("PatientProcessor: savedClient {}", savedClient);
             Client client = clientMapper.toSenaite(patient);
             log.info("PatientProcessor: client {}", client);
-            if (savedClient != null && !savedClient.getClientID().isEmpty()) {
+            if (savedClient != null
+                    && savedClient.getClientItems() != null
+                    && !savedClient.getClientItems().isEmpty()) {
+                savedClient.getClientItems().get(0).setTitle(client.getTitle());
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");
+                exchange.getMessage().setBody(savedClient);
             } else {
                 headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+                exchange.getMessage().setBody(client);
             }
             exchange.getMessage().setHeaders(headers);
-            exchange.getMessage().setBody(client);
 
         } catch (Exception e) {
             throw new CamelExecutionException("Error processing Patient", exchange, e);

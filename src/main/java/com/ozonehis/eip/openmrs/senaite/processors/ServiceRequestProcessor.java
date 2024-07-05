@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.ozonehis.eip.openmrs.openmrs.handlers.openmrs.TaskHandler;
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
@@ -18,9 +19,11 @@ import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
-import com.ozonehis.eip.openmrs.senaite.model.Client;
 import com.ozonehis.eip.openmrs.senaite.model.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.client.Client;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -30,11 +33,9 @@ import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Task;
-import org.openmrs.eip.fhir.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -79,7 +80,6 @@ public class ServiceRequestProcessor implements Processor {
             Patient patient = null;
             Encounter encounter = null;
             ServiceRequest serviceRequest = null;
-            Practitioner practitioner = null;
             for (Bundle.BundleEntryComponent entry : entries) {
                 Resource resource = entry.getResource();
                 if (resource instanceof Patient) {
@@ -88,18 +88,16 @@ public class ServiceRequestProcessor implements Processor {
                     encounter = (Encounter) resource;
                 } else if (resource instanceof ServiceRequest) {
                     serviceRequest = (ServiceRequest) resource;
-                } else if (resource instanceof Practitioner) {
-                    practitioner = (Practitioner) resource;
                 }
             }
 
-            if (patient == null || encounter == null || serviceRequest == null || practitioner == null) {
+            if (patient == null || encounter == null || serviceRequest == null) {
                 throw new CamelExecutionException(
-                        "Invalid Bundle. Bundle must contain Patient, Encounter, ServiceRequest and Practitioner",
-                        exchange);
+                        "Invalid Bundle. Bundle must contain Patient, Encounter and ServiceRequest", exchange);
             } else {
                 log.debug("Processing ServiceRequest for Patient with UUID {}", patient.getIdPart());
-                String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
+                String eventType = exchange.getMessage()
+                        .getHeader(org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE, String.class);
                 if (eventType == null) {
                     throw new IllegalArgumentException("Event type not found in the exchange headers.");
                 }
@@ -107,20 +105,24 @@ public class ServiceRequestProcessor implements Processor {
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
+                        Map<String, Object> headers = new HashMap<>();
                         Client client = clientMapper.toSenaite(patient);
                         log.info("Mapped client from patient {}", client);
 
-                        exchange.setProperty("client-id", client.getClientID());
-                        Client savedClient = clientHandler.getClient(producerTemplate, "");
+                        headers.put(
+                                Constants.HEADER_CLIENT_ID,
+                                client.getClientItems().get(0).getGetClientID());
+                        Client savedClient = clientHandler.getClient(producerTemplate, headers);
                         log.info("Fetched client {}", savedClient);
 
                         if (savedClient == null) {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
                             log.info("Saved client {}", savedClient);
                         }
-                        exchange.setProperty(
-                                "path", savedClient.getItems().get(0).getPath());
-                        Contact savedContact = contactHandler.getContact(producerTemplate, "");
+                        headers.put(
+                                Constants.HEADER_PATH,
+                                savedClient.getClientItems().get(0).getPath());
+                        Contact savedContact = contactHandler.getContact(producerTemplate, headers);
                         log.info("Fetched contact {}", savedContact);
                         if (savedContact == null) {
                             Contact contact = contactMapper.toSenaite(savedClient);
@@ -128,18 +130,20 @@ public class ServiceRequestProcessor implements Processor {
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
                             log.info("Saved contact {}", savedContact);
                         }
-                        exchange.setProperty(
-                                "client-id", savedClient.getItems().get(0).getPath());
-                        exchange.setProperty("client-sample-id", serviceRequestUuid);
+                        headers.put(
+                                Constants.HEADER_CLIENT_ID,
+                                savedClient.getClientItems().get(0).getGetClientID());
+                        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, serviceRequestUuid);
                         AnalysisRequest savedAnalysisRequest =
-                                analysisRequestHandler.getAnalysisRequest(producerTemplate, "");
+                                analysisRequestHandler.getAnalysisRequest(producerTemplate, headers);
                         log.info("Fetched analysisRequest {}", savedAnalysisRequest);
                         if (savedAnalysisRequest == null) {
-                            exchange.setProperty(
-                                    "description",
+                            headers.put(
+                                    Constants.HEADER_DESCRIPTION,
                                     serviceRequest.getCode().getCoding().get(0).getCode());
                             AnalysisRequestTemplate analysisRequestTemplate =
-                                    analysisRequestTemplateHandler.getAnalysisRequestTemplate(producerTemplate, "");
+                                    analysisRequestTemplateHandler.getAnalysisRequestTemplate(
+                                            producerTemplate, headers);
                             log.info("Fetched analysisRequestTemplate {}", analysisRequestTemplate);
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
                                     savedClient, analysisRequestTemplate, serviceRequest);
@@ -150,8 +154,8 @@ public class ServiceRequestProcessor implements Processor {
                                     analysisRequestHandler.sendAnalysisRequest(producerTemplate, analysisRequest);
                             log.info("Saved AnalysisRequest {}", savedAnalysisRequest);
                         }
-                        exchange.setProperty("service-request-id", serviceRequestUuid);
-                        Task savedTask = taskHandler.getTask(producerTemplate, "");
+                        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestUuid);
+                        Task savedTask = taskHandler.getTask(producerTemplate, headers);
                         log.info("Fetched task {}", savedTask);
                         if (savedTask == null) {
                             Task task = taskMapper.toFhir(savedAnalysisRequest);

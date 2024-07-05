@@ -28,8 +28,8 @@ public class GetAnalysisRequestRoute extends RouteBuilder {
                 .to(senaiteClient.getSenaiteBaseUrl()
                         + String.format(
                                 GET_ANALYSIS_REQUEST_ENDPOINT,
-                                exchangeProperty("client-sample-id"),
-                                exchangeProperty("client-id")))
+                                header(Constants.HEADER_CLIENT_SAMPLE_ID),
+                                header(Constants.HEADER_CLIENT_ID)))
                 .log("Response get-analysis-request: ${body}")
                 .end();
         // spotless:on

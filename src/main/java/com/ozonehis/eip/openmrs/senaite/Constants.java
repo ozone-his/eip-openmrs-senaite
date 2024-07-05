@@ -14,4 +14,14 @@ public class Constants {
     public static final String APPLICATION_JSON = "application/json";
 
     public static final String FHIR_RESOURCE_TYPE = "fhir.resource.type";
+
+    public static final String HEADER_CLIENT_ID = "senaite.resource.client.id";
+
+    public static final String HEADER_PATH = "senaite.resource.path";
+
+    public static final String HEADER_CLIENT_SAMPLE_ID = "senaite.resource.client.sample.id";
+
+    public static final String HEADER_DESCRIPTION = "senaite.resource.description";
+
+    public static final String HEADER_SERVICE_REQUEST_ID = "senaite.resource.service.request.id";
 }

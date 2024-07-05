@@ -3,6 +3,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.model.Contact;
+import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
@@ -22,8 +23,10 @@ public class ContactHandler {
         return savedContact;
     }
 
-    public Contact getContact(ProducerTemplate producerTemplate, String queryParams) throws JsonProcessingException {
-        String response = producerTemplate.requestBody("direct:senaite-get-contact-route", null, String.class);
+    public Contact getContact(ProducerTemplate producerTemplate, Map<String, Object> headers)
+            throws JsonProcessingException {
+        String response =
+                producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
         log.error("getContact response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         Contact contact = objectMapper.readValue(response, Contact.class);

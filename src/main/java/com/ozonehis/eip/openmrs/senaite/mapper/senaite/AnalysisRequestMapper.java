@@ -10,7 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 import com.ozonehis.eip.openmrs.senaite.model.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
-import com.ozonehis.eip.openmrs.senaite.model.Client;
+import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import java.util.List;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.ServiceRequest;
@@ -28,7 +28,7 @@ public class AnalysisRequestMapper {
         serviceRequest.getCode().getCodingFirstRep().getCode();
 
         AnalysisRequest analysisRequest = new AnalysisRequest();
-        analysisRequest.setContact(client.getItems().get(0).getUid());
+        analysisRequest.setContact(client.getClientItems().get(0).getUid());
         analysisRequest.setSampleType(
                 analysisRequestTemplate.getItems().get(0).getSampleType().getUid());
         analysisRequest.setDateSampled(serviceRequest.getOccurrencePeriod().getStart());
