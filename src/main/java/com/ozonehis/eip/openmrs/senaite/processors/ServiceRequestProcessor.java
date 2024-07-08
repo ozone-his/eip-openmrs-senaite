@@ -160,7 +160,7 @@ public class ServiceRequestProcessor implements Processor {
                                 return;
                             }
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
-                                    savedClient, analysisRequestTemplate, serviceRequest);
+                                    savedClient, savedContact, analysisRequestTemplate, serviceRequest);
                             log.info(
                                     "Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}",
                                     analysisRequest);
