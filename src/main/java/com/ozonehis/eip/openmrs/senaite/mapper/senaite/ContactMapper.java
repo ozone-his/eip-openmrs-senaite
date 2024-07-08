@@ -23,8 +23,8 @@ public class ContactMapper {
         }
         Contact contact = new Contact();
         contact.setPortalType("Contact");
-        if (!client.getClientItems().isEmpty()) {
-            contact.setParentPath(client.getClientItems().get(0).getPath());
+        if (!client.getUid().isEmpty()) {
+            contact.setParentPath(client.getPath());
         }
 
         String[] nameSplit = serviceRequest.getRequester().getDisplay().split(" ");

@@ -1,8 +1,7 @@
-package com.ozonehis.eip.openmrs.senaite.model;
+package com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Item {
+public class AnalysisRequestTemplateItem {
     @JsonProperty("uid")
     private String uid;
 
@@ -22,7 +21,7 @@ public class Item {
     private AnalysisProfile analysisProfile;
 
     @JsonProperty("Analyses")
-    private List<Analyses> analyses;
+    private Analyses[] analyses;
 
     @JsonProperty("SampleType")
     private SampleType sampleType;

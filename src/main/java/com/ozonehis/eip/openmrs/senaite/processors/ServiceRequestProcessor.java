@@ -17,8 +17,8 @@ import com.ozonehis.eip.openmrs.senaite.mapper.fhir.TaskMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
-import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
 import java.util.HashMap;
@@ -119,9 +119,7 @@ public class ServiceRequestProcessor implements Processor {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
                             log.info("Saved client {}", savedClient);
                         }
-                        headers.put(
-                                Constants.HEADER_PATH,
-                                savedClient.getClientItems().get(0).getPath());
+                        headers.put(Constants.HEADER_PATH, savedClient.getPath());
                         Contact savedContact = contactHandler.getContact(producerTemplate, headers);
                         log.info("Fetched contact {}", savedContact);
                         if (savedContact == null
@@ -132,16 +130,14 @@ public class ServiceRequestProcessor implements Processor {
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
                             log.info("Saved contact {}", savedContact);
                         }
-                        headers.put(
-                                Constants.HEADER_CLIENT_ID,
-                                savedClient.getClientItems().get(0).getGetClientID());
+                        headers.put(Constants.HEADER_CLIENT_ID, savedClient.getClientID());
                         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, serviceRequestUuid);
                         AnalysisRequest savedAnalysisRequest =
                                 analysisRequestHandler.getAnalysisRequest(producerTemplate, headers);
                         log.info("Fetched analysisRequest {}", savedAnalysisRequest);
                         if (savedAnalysisRequest == null
-                                || savedAnalysisRequest.getClientSampleID() == null
-                                || savedAnalysisRequest.getClientSampleID().isEmpty()) {
+                                || savedAnalysisRequest.getContact() == null
+                                || savedAnalysisRequest.getContact().isEmpty()) {
                             headers.put(
                                     Constants.HEADER_DESCRIPTION,
                                     serviceRequest.getCode().getCoding().get(0).getCode());
@@ -149,13 +145,28 @@ public class ServiceRequestProcessor implements Processor {
                                     analysisRequestTemplateHandler.getAnalysisRequestTemplate(
                                             producerTemplate, headers);
                             log.info("Fetched analysisRequestTemplate {}", analysisRequestTemplate);
+                            if (analysisRequestTemplate == null
+                                    || analysisRequestTemplate.getAnalysisRequestTemplateItems() == null
+                                    || analysisRequestTemplate
+                                            .getAnalysisRequestTemplateItems()
+                                            .isEmpty()) {
+                                log.error(
+                                        "No ARTemplate found for id {}",
+                                        serviceRequest
+                                                .getCode()
+                                                .getCoding()
+                                                .get(0)
+                                                .getCode());
+                                return;
+                            }
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
                                     savedClient, analysisRequestTemplate, serviceRequest);
                             log.info(
                                     "Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}",
                                     analysisRequest);
-                            savedAnalysisRequest =
-                                    analysisRequestHandler.sendAnalysisRequest(producerTemplate, analysisRequest);
+                            headers.put(Constants.HEADER_CLIENT_UID, savedClient.getUid());
+                            savedAnalysisRequest = analysisRequestHandler.sendAnalysisRequest(
+                                    producerTemplate, analysisRequest, headers);
                             log.info("Saved AnalysisRequest {}", savedAnalysisRequest);
                         }
                         headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestUuid);

@@ -17,21 +17,21 @@ public class ClientHandler {
 
     public Client sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-client-route", client, String.class);
-        log.error("sendClient response {}", response);
+        log.info("sendClient response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
-        Client savedClient = objectMapper.readValue(response, Client.class);
-        log.error("sendClient {}", savedClient);
-        return savedClient;
+        ClientResponse savedClientResponse = objectMapper.readValue(response, ClientResponse.class);
+        log.info("sendClient {}", savedClientResponse);
+        return savedClientResponse.clientResponseToClient(savedClientResponse);
     }
 
     public Client getClient(ProducerTemplate producerTemplate, Map<String, Object> headers)
             throws JsonProcessingException {
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-client-route", null, headers, String.class);
-        log.error("getClient response {}", response);
+        log.info("getClient response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         ClientResponse clientResponse = objectMapper.readValue(response, ClientResponse.class);
-        log.error("getClient {}", clientResponse);
+        log.info("getClient {}", clientResponse);
         return clientResponse.clientResponseToClient(clientResponse);
     }
 }

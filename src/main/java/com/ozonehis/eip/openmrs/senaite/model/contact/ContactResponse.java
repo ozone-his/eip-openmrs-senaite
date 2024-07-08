@@ -36,7 +36,6 @@ public class ContactResponse implements SenaiteResource {
             contact.setPortalType(contactResponse.getContactItems().get(0).getPortalType());
             contact.setParentPath(contactResponse.getContactItems().get(0).getParentPath());
             contact.setUid(contactResponse.getContactItems().get(0).getUid());
-            contact.setContactItems(contactResponse.getContactItems());
             return contact;
         }
 

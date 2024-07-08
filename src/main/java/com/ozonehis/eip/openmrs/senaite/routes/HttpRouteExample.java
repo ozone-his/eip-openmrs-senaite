@@ -20,10 +20,10 @@ public class HttpRouteExample {
                 byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
                 String authHeader = "Basic " + new String(encodedAuth);
                 Client client = new Client();
-                client.getClientItems().get(0).setPortalType("Client");
-                client.getClientItems().get(0).setTitle("SID SID");
+                client.setPortalType("Client");
+                client.setTitle("SID SID");
                 client.setClientID("123234");
-                client.getClientItems().get(0).setParentPath("/senaite/clients");
+                client.setParentPath("/senaite/clients");
 
                 // spotless:off
                 from("direct:senaite-create-client-route")
@@ -43,10 +43,10 @@ public class HttpRouteExample {
 
         // Create an instance of Client
         Client client = new Client();
-        client.getClientItems().get(0).setPortalType("Client");
-        client.getClientItems().get(0).setTitle("SID SID");
+        client.setPortalType("Client");
+        client.setTitle("SID SID");
         client.setClientID("123234");
-        client.getClientItems().get(0).setParentPath("/senaite/clients");
+        client.setParentPath("/senaite/clients");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(client);
 

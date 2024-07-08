@@ -23,7 +23,8 @@ public class ClientResponse {
             client.setPortalType(clientResponse.getClientItems().get(0).getPortalType());
             client.setTitle(clientResponse.getClientItems().get(0).getTitle());
             client.setUid(clientResponse.getClientItems().get(0).getUid());
-            client.setClientItems(clientResponse.getClientItems());
+            client.setParentPath(clientResponse.getClientItems().get(0).getParentPath());
+            client.setPath(clientResponse.getClientItems().get(0).getPath());
             return client;
         }
 

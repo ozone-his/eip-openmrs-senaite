@@ -24,10 +24,12 @@ public class CreateAnalysisRequestRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl()
-                        + CREATE_ANALYSIS_REQUEST_ENDPOINT
-                        + header(Constants.HEADER_CLIENT_ID))
-                .log("Response create-analysis-request: ${body}")
+                .toD(senaiteClient.getSenaiteBaseUrl() + CREATE_ANALYSIS_REQUEST_ENDPOINT + "${header."
+                        + Constants.HEADER_CLIENT_UID + "}")
+                .log(
+                        LoggingLevel.INFO,
+                        "Response create-analysis-request: ${body} clientUID ${header." + Constants.HEADER_CLIENT_UID
+                                + "}")
                 .end();
         // spotless:on
     }

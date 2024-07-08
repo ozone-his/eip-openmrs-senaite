@@ -1,4 +1,4 @@
-package com.ozonehis.eip.openmrs.senaite.model;
+package com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

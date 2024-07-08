@@ -19,9 +19,9 @@ public class ContactHandler {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
         log.error("sendContact response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
-        Contact savedContact = objectMapper.readValue(response, Contact.class);
-        log.error("sendContact {}", response);
-        return savedContact;
+        ContactResponse savedContactResponse = objectMapper.readValue(response, ContactResponse.class);
+        log.error("sendContact {}", savedContactResponse);
+        return savedContactResponse.contactResponseToContact(savedContactResponse);
     }
 
     public Contact getContact(ProducerTemplate producerTemplate, Map<String, Object> headers)

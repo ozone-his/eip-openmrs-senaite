@@ -1,4 +1,4 @@
-package com.ozonehis.eip.openmrs.senaite.model;
+package com.ozonehis.eip.openmrs.senaite.model.analysisRequest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnalysisProfile {
+public class Analyses {
     @JsonProperty("url")
-    private String url;
+    private String analysesUrl;
 
     @JsonProperty("uid")
-    private String uid;
+    private String analysesUid;
 
     @JsonProperty("api_url")
-    private String apiUrl;
+    private String analysesUrlApiUrl;
 }

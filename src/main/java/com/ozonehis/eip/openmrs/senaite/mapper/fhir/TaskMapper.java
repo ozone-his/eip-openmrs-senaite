@@ -1,7 +1,7 @@
 package com.ozonehis.eip.openmrs.senaite.mapper.fhir;
 
 import com.ozonehis.eip.openmrs.senaite.mapper.ToFhirMapping;
-import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;

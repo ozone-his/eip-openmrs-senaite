@@ -57,10 +57,8 @@ public class PatientProcessor implements Processor {
             log.info("PatientProcessor: savedClient {}", savedClient);
             Client client = clientMapper.toSenaite(patient);
             log.info("PatientProcessor: client {}", client);
-            if (savedClient != null
-                    && savedClient.getClientItems() != null
-                    && !savedClient.getClientItems().isEmpty()) {
-                savedClient.getClientItems().get(0).setTitle(client.getTitle());
+            if (savedClient != null && !savedClient.getUid().isEmpty()) {
+                savedClient.setTitle(client.getTitle());
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");
                 exchange.getMessage().setBody(savedClient);
             } else {

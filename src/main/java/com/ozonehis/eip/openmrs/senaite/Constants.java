@@ -24,4 +24,6 @@ public class Constants {
     public static final String HEADER_DESCRIPTION = "senaite.resource.description";
 
     public static final String HEADER_SERVICE_REQUEST_ID = "senaite.resource.service.request.id";
+
+    public static final String HEADER_CLIENT_UID = "senaite.resource.client.uid";
 }

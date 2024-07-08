@@ -25,10 +25,10 @@ public class GetAnalysisRequestRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl()
+                .toD(senaiteClient.getSenaiteBaseUrl()
                         + String.format(
                                 GET_ANALYSIS_REQUEST_ENDPOINT,
-                                header(Constants.HEADER_CLIENT_SAMPLE_ID),
+                                "${header." + Constants.HEADER_CLIENT_SAMPLE_ID + "}",
                                 "${header." + Constants.HEADER_CLIENT_ID + "}"))
                 .log("Response get-analysis-request: ${body}")
                 .end();

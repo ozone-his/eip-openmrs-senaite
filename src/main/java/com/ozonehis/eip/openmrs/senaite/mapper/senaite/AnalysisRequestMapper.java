@@ -7,11 +7,10 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
-import com.ozonehis.eip.openmrs.senaite.model.Analyses;
-import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.AnalysisRequestTemplate;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.Analyses;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
-import java.util.List;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.stereotype.Component;
@@ -28,24 +27,50 @@ public class AnalysisRequestMapper {
         serviceRequest.getCode().getCodingFirstRep().getCode();
 
         AnalysisRequest analysisRequest = new AnalysisRequest();
-        analysisRequest.setContact(client.getClientItems().get(0).getUid());
-        analysisRequest.setSampleType(
-                analysisRequestTemplate.getItems().get(0).getSampleType().getUid());
-        analysisRequest.setDateSampled(serviceRequest.getOccurrencePeriod().getStart());
-        analysisRequest.setTemplate(analysisRequestTemplate.getItems().get(0).getUid());
-        analysisRequest.setProfiles(
-                analysisRequestTemplate.getItems().get(0).getAnalysisProfile().getUid());
-        analysisRequest.setAnalyses(
-                getAnalysesUids(analysisRequestTemplate.getItems().get(0).getAnalyses()));
-        analysisRequest.setClientSampleID(serviceRequest.getId()); // TODO: Check
+
+        analysisRequest.setContact(client.getUid());
+        // TODO: Fix
+        //        analysisRequest.setDateSampled(new Date());
+        analysisRequest.setClientSampleID(serviceRequest.getIdPart());
+        analysisRequest.setReviewState("sample_due");
+
+        if (analysisRequestTemplate.getAnalysisRequestTemplateItems() != null
+                && !analysisRequestTemplate.getAnalysisRequestTemplateItems().isEmpty()) {
+
+            analysisRequest.setTemplate(analysisRequestTemplate
+                    .getAnalysisRequestTemplateItems()
+                    .get(0)
+                    .getUid());
+
+            if (analysisRequestTemplate.getAnalysisRequestTemplateItems().get(0).getSampleType() != null) {
+                analysisRequest.setSampleType(analysisRequestTemplate
+                        .getAnalysisRequestTemplateItems()
+                        .get(0)
+                        .getSampleType()
+                        .getUid());
+            }
+            if (analysisRequestTemplate.getAnalysisRequestTemplateItems().get(0).getAnalysisProfile() != null) {
+                analysisRequest.setProfiles(analysisRequestTemplate
+                        .getAnalysisRequestTemplateItems()
+                        .get(0)
+                        .getAnalysisProfile()
+                        .getUid());
+            }
+            if (analysisRequestTemplate.getAnalysisRequestTemplateItems().get(0).getAnalyses() != null) {
+                analysisRequest.setAnalyses(getAnalysesUids(analysisRequestTemplate
+                        .getAnalysisRequestTemplateItems()
+                        .get(0)
+                        .getAnalyses()));
+            }
+        }
 
         return analysisRequest;
     }
 
-    private String[] getAnalysesUids(List<Analyses> analysesList) {
-        String[] uids = new String[analysesList.size()];
-        for (int i = 0; i < analysesList.size(); i++) {
-            uids[i] = analysesList.get(i).getServiceUid();
+    private String[] getAnalysesUids(Analyses[] analysesList) {
+        String[] uids = new String[analysesList.length];
+        for (int i = 0; i < analysesList.length; i++) {
+            uids[i] = analysesList[i].getServiceUid();
         }
         return uids;
     }

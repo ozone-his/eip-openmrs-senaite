@@ -5,10 +5,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.eip.openmrs.senaite.model;
+package com.ozonehis.eip.openmrs.senaite.model.analysisRequest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,5 +51,5 @@ public class AnalysisRequest implements SenaiteResource {
     private String clientSampleID; // lab-order-uuid
 
     @JsonProperty("review_state")
-    private ReviewState reviewState; // service-request-transitioned-status
+    private String reviewState; // service-request-transitioned-status
 }
