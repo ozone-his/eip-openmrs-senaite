@@ -21,12 +21,15 @@ public class GetOpenmrsFhirTaskRoute extends RouteBuilder {
         from("direct:openmrs-get-task-route")
                 .log(LoggingLevel.INFO, "Fetching Task in OpenMRS...")
                 .routeId("openmrs-get-task-route")
-                .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
+                .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
                 .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + GET_ENDPOINT + "${header."
                         + Constants.HEADER_SERVICE_REQUEST_ID + "}")
-                .log("Response get-task-route: ${body}")
+                .log(
+                        LoggingLevel.INFO,
+                        "Response get-task-route: ${body} service_request_id ${header."
+                                + Constants.HEADER_SERVICE_REQUEST_ID + "}")
                 .end();
         // spotless:on
     }

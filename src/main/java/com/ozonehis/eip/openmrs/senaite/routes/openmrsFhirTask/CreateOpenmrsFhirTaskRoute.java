@@ -24,8 +24,8 @@ public class CreateOpenmrsFhirTaskRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
-                .to(openmrsFhirClient.getOpenmrsFhirBaseUrl() + CREATE_ENDPOINT)
-                .log("Response create-task-route: ${body}")
+                .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + CREATE_ENDPOINT)
+                .log(LoggingLevel.INFO, "Response create-task-route: ${body}")
                 .end();
         // spotless:on
     }

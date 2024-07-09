@@ -1,11 +1,13 @@
-package com.ozonehis.eip.openmrs.openmrs.handlers.openmrs;
+package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ca.uhn.fhir.context.FhirContext;
+import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;
 
@@ -14,22 +16,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskHandler {
 
-    public Task sendTask(ProducerTemplate producerTemplate, Task task) throws JsonProcessingException {
+    public Task sendTask(ProducerTemplate producerTemplate, Task task) {
         String response = producerTemplate.requestBody("direct:openmrs-create-task-route", task, String.class);
-        log.error("sendTask response {}", response);
-        ObjectMapper objectMapper = new ObjectMapper();
-        Task savedTask = objectMapper.readValue(response, Task.class);
-        log.error("sendTask {}", response);
+        log.info("sendTask response {}", response);
+        FhirContext ctx = FhirContext.forR4();
+        Task savedTask = ctx.newJsonParser().parseResource(Task.class, response);
+        log.info("sendTask {}", savedTask);
         return savedTask;
     }
 
-    public Task getTask(ProducerTemplate producerTemplate, Map<String, Object> headers) throws JsonProcessingException {
+    public Task getTask(ProducerTemplate producerTemplate, Map<String, Object> headers) {
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, String.class);
-        log.error("getTask response {}", response);
-        ObjectMapper objectMapper = new ObjectMapper();
-        Task task = objectMapper.readValue(response, Task.class);
-        log.error("getTask {}", task);
+        log.info("getTask response {}", response);
+        FhirContext ctx = FhirContext.forR4();
+        Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
+        List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
+
+        Task task = null;
+        for (Bundle.BundleEntryComponent entry : entries) {
+            Resource resource = entry.getResource();
+            if (resource instanceof Task) {
+                task = (Task) resource;
+            }
+        }
+        log.info("getTask {}", task);
         return task;
     }
 }

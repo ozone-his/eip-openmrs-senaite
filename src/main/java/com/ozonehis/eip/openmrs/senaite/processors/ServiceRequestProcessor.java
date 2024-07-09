@@ -7,8 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
-import com.ozonehis.eip.openmrs.openmrs.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
