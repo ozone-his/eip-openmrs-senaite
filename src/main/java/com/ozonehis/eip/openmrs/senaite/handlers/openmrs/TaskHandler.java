@@ -43,4 +43,13 @@ public class TaskHandler {
         log.info("getTask {}", task);
         return task;
     }
+
+    public Task updateTask(ProducerTemplate producerTemplate, Task task) {
+        String response = producerTemplate.requestBody("direct:openmrs-update-task-route", task, String.class);
+        log.info("updateTask response {}", response);
+        FhirContext ctx = FhirContext.forR4();
+        Task updatedTask = ctx.newJsonParser().parseResource(Task.class, response);
+        log.info("updateTask {}", updatedTask);
+        return updatedTask;
+    }
 }

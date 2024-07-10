@@ -11,6 +11,8 @@ public class Constants {
 
     public static final String GET = "GET";
 
+    public static final String PUT = "PUT";
+
     public static final String APPLICATION_JSON = "application/json";
 
     public static final String FHIR_RESOURCE_TYPE = "fhir.resource.type";
@@ -26,4 +28,6 @@ public class Constants {
     public static final String HEADER_SERVICE_REQUEST_ID = "senaite.resource.service.request.id";
 
     public static final String HEADER_CLIENT_UID = "senaite.resource.client.uid";
+
+    public static final String HEADER_TASK_ID = "senaite.resource.task.id";
 }

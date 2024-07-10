@@ -39,4 +39,16 @@ public class AnalysisRequestHandler {
         log.error("getAnalysisRequest {}", analysisRequestResponse);
         return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
     }
+
+    public AnalysisRequestResponse getAnalysisRequestResponse(
+            ProducerTemplate producerTemplate, Map<String, Object> headers) throws JsonProcessingException {
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-get-analysis-request-route", null, headers, String.class);
+        log.error("getAnalysisRequestResponse response {}", response);
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnalysisRequestResponse analysisRequestResponse =
+                objectMapper.readValue(response, AnalysisRequestResponse.class);
+        log.error("getAnalysisRequestResponse {}", analysisRequestResponse);
+        return analysisRequestResponse;
+    }
 }
