@@ -40,7 +40,10 @@
                 <simple>${exchangeProperty.results-encounter-uuid} == null || ${exchangeProperty.results-encounter-uuid} == ""</simple>
 
                 <setBody>
-                    <simple>{"location": "${exchangeProperty.service-request-location-uuid}","encounterType": "{{results.encounterType.uuid}}","encounterDatetime": "${exchangeProperty.service-request-encounter-datetime}","patient": "${exchangeProperty.patient-uuid}","visit":"${exchangeProperty.service-request-visit-uuid}", "encounterProviders":[{"provider": "${exchangeProperty.service-request-requester}","encounterRole": "a0b03050-c99b-11e0-9572-0800200c9a66"}]}</simple>
+                    <simple>{"location": "${exchangeProperty.service-request-location-uuid}","encounterType": "{{results.encounterType.uuid}}",
+                        "encounterDatetime": "${exchangeProperty.service-request-encounter-datetime}",
+                        "patient": "${exchangeProperty.patient-uuid}","visit":"${exchangeProperty.service-request-visit-uuid}",
+                        "encounterProviders":[{"provider": "${exchangeProperty.service-request-requester}","encounterRole": "a0b03050-c99b-11e0-9572-0800200c9a66"}]}</simple>
                 </setBody>
 
                 <setHeader name="CamelHttpMethod">
@@ -122,7 +125,11 @@
                 </when>
                 <otherwise>
                     <setBody>
-                        <simple>{"value": "${exchangeProperty.service-request-result}", "order": "${exchangeProperty.service-request-id}", "person": "${exchangeProperty.patient-uuid}", "obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}", "concept": "${exchangeProperty.service-request-test-concept-uuid}"}</simple>
+                        <simple>{"value": "${exchangeProperty.service-request-result}",
+                            "order": "${exchangeProperty.service-request-id}",
+                            "person": "${exchangeProperty.patient-uuid}",
+                            "obsDatetime": "${exchangeProperty.service-request-resultCaptureDate}",
+                            "concept": "${exchangeProperty.service-request-test-concept-uuid}"}</simple>
                     </setBody>
                 </otherwise>
             </choice>

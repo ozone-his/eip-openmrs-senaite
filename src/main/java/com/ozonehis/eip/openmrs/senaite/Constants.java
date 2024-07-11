@@ -30,4 +30,18 @@ public class Constants {
     public static final String HEADER_CLIENT_UID = "senaite.resource.client.uid";
 
     public static final String HEADER_TASK_ID = "senaite.resource.task.id";
+
+    public static final String HEADER_PATIENT_ID = "senaite.resource.patient.id";
+
+    public static final String HEADER_ENCOUNTER_TYPE_ID = "senaite.resource.encounter.type.id";
+
+    public static final String HEADER_ANALYSES_GET_ENDPOINT = "senaite.resource.analyses.get.endpoint";
+
+    public static final String HEADER_OBSERVATION_CODE = "senaite.resource.observation.code";
+
+    public static final String HEADER_OBSERVATION_SUBJECT = "senaite.resource.observation.subject";
+
+    public static final String HEADER_OBSERVATION_ENCOUNTER = "senaite.resource.observation.encounter";
+
+    public static final String HEADER_OBSERVATION_DATE = "senaite.resource.observation.date";
 }
