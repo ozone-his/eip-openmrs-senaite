@@ -36,6 +36,8 @@ public class EncounterHandler {
     }
 
     public Encounter sendEncounter(ProducerTemplate producerTemplate, Encounter encounter) {
+        log.info(
+                "sendEncounter response {}", FhirContext.forR4().newJsonParser().encodeResourceToString(encounter));
         String response =
                 producerTemplate.requestBody("direct:openmrs-create-encounter-route", encounter, String.class);
         log.info("sendEncounter response {}", response);

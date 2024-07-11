@@ -29,6 +29,7 @@ import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -169,8 +170,9 @@ public class TaskProcessor implements Processor {
                 Constants.HEADER_PATIENT_ID,
                 serviceRequest.getSubject().getReference().split("/")[1]);
         Encounter encounter = encounterHandler.getEncounter(producerTemplate, headers);
-        if (encounter.getPeriod().getStart().getTime()
-                == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
+        if (encounter != null
+                && encounter.getPeriod().getStart().getTime()
+                        == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
             // Result Encounter exists
             log.info(
                     "TaskProcessor: Result Encounter {} exists for serviceRequest id {}",
@@ -178,10 +180,14 @@ public class TaskProcessor implements Processor {
                     serviceRequest.getId());
         } else {
             Encounter resultEncounter = new Encounter();
-            resultEncounter.setLocation(encounter.getLocation());
-            resultEncounter.setType((Collections.singletonList(new CodeableConcept()
-                    .setCoding(
-                            Collections.singletonList(new Coding().setCode("3596fafb-6f6f-4396-8c87-6e63a0f1bd71"))))));
+            resultEncounter.setId(RandomStringUtils.random(14, true, true));
+            //            resultEncounter.setLocation(encounter.getLocation()); TODO: Set patient location
+            Coding coding = new Coding();
+            coding.setCode("3596fafb-6f6f-4396-8c87-6e63a0f1bd71");
+            coding.setSystem("http://fhir.openmrs.org/code-system/encounter-type");
+            coding.setDisplay("Lab Results");
+            resultEncounter.setType(
+                    (Collections.singletonList(new CodeableConcept().setCoding(Collections.singletonList(coding)))));
             resultEncounter.setPeriod(
                     new Period().setStart(serviceRequest.getOccurrencePeriod().getStart()));
             resultEncounter.setSubject(serviceRequest.getSubject());
