@@ -49,7 +49,7 @@ public class TaskRouting extends RouteBuilder {
         getContext().getTypeConverterRegistry().addTypeConverters(contactConverter);
         getContext().getTypeConverterRegistry().addTypeConverters(serviceRequestConverter);
         // spotless:off
-        from("scheduler:taskUpdate?initialDelay=60000&delay=60000")
+        from("scheduler:taskUpdate?initialDelay=30000&delay=30000")
                 .routeId("poll-senaite")
                 .log("Scheduled FHIR Task status updater")
                 .to("direct:openmrs-get-task-by-status-route")

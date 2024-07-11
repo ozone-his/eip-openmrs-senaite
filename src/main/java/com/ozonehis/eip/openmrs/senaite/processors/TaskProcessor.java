@@ -7,15 +7,18 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import ca.uhn.fhir.context.FhirContext;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +51,10 @@ public class TaskProcessor implements Processor {
     @Override
     public void process(Exchange exchange) {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
-            Bundle bundle = exchange.getMessage().getBody(Bundle.class);
+            String body = exchange.getMessage().getBody(String.class);
+            log.info("TaskProcessor: Body {}", body);
+            FhirContext ctx = FhirContext.forR4();
+            Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, body);
             List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
             for (Bundle.BundleEntryComponent entry : entries) {
                 Task task = null;
@@ -68,11 +74,13 @@ public class TaskProcessor implements Processor {
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequest(producerTemplate, headers);
                 if (serviceRequest.getStatus()
                         == ServiceRequest.ServiceRequestStatus.REVOKED) { // TODO: Check for voided & deleted
+                    log.info("TaskProcessor: ServiceRequest is voided or deleted {}", task);
                     Task rejectTask = new Task();
                     task.setId(task.getId());
                     task.setStatus(Task.TaskStatus.REJECTED);
                     task.setIntent(Task.TaskIntent.ORDER);
-                    taskHandler.updateTask(producerTemplate, rejectTask);
+                    Task rejectedTask = taskHandler.updateTask(producerTemplate, rejectTask);
+                    log.info("TaskProcessor: Rejected Task {}", rejectedTask);
                 } else {
                     headers.put(
                             Constants.HEADER_CLIENT_SAMPLE_ID,
@@ -82,6 +90,7 @@ public class TaskProcessor implements Processor {
                             serviceRequest.getSubject().getReference().split("/")[1]);
                     AnalysisRequestResponse analysisRequest =
                             analysisRequestHandler.getAnalysisRequestResponse(producerTemplate, headers);
+                    log.info("TaskProcessor: AnalysisRequestResponse {}", analysisRequest);
                     if (analysisRequest != null
                             && analysisRequest.getAnalysisRequestItems() != null
                             && !analysisRequest.getAnalysisRequestItems().isEmpty()) {
@@ -92,15 +101,18 @@ public class TaskProcessor implements Processor {
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
                             // TODO: Create ServiceRequest results in OpenMRS
+                            log.info("TaskProcessor: Creating ServiceRequest results in OpenMRS {}", analysisRequest);
                         } else if (analysisRequestTaskStatus != null
                                 && !analysisRequestTaskStatus.equalsIgnoreCase(
-                                        task.getStatus().toString())) {
+                                task.getStatus().toString())) {
                             Task updateTask = new Task();
                             updateTask.setId(task.getId());
                             updateTask.setIntent(Task.TaskIntent.ORDER);
                             updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
                             Task updatedTask = taskHandler.updateTask(producerTemplate, task);
                             log.info("TaskProcessor: Updated Task {}", updatedTask);
+                        } else {
+                            log.info("TaskProcessor: Nothing to update for task {} with status {}", task, task.getStatus());
                         }
                     }
                 }
