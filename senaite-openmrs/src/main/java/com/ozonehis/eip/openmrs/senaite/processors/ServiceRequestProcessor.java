@@ -21,9 +21,11 @@ import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -148,8 +150,8 @@ public class ServiceRequestProcessor implements Processor {
                             if (analysisRequestTemplate == null
                                     || analysisRequestTemplate.getAnalysisRequestTemplateItems() == null
                                     || analysisRequestTemplate
-                                            .getAnalysisRequestTemplateItems()
-                                            .isEmpty()) {
+                                    .getAnalysisRequestTemplateItems()
+                                    .isEmpty()) {
                                 log.error(
                                         "No ARTemplate found for id {}",
                                         serviceRequest
@@ -173,8 +175,8 @@ public class ServiceRequestProcessor implements Processor {
                         Task savedTask = taskHandler.getTask(producerTemplate, headers);
                         log.info("Fetched task {}", savedTask);
                         if (savedTask == null
-                                || savedTask.getDescription() == null
-                                || savedTask.getDescription().isEmpty()) {
+                                || savedTask.getId() == null
+                                || savedTask.getId().isEmpty()) {
                             Task task = taskMapper.toFhir(savedAnalysisRequest);
                             log.info("Mapped task from savedAnalysisRequest {}", task);
                             task.setStatus(Task.TaskStatus.REQUESTED);
