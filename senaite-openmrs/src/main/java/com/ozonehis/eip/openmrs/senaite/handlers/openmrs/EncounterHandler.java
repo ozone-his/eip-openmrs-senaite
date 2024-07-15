@@ -42,6 +42,16 @@ public class EncounterHandler {
         return encounter;
     }
 
+    public Encounter getEncounterById(ProducerTemplate producerTemplate, Map<String, Object> headers) {
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:openmrs-get-encounter-by-id-route", null, headers, String.class);
+        log.info("getEncounterById response {}", response);
+        FhirContext ctx = FhirContext.forR4();
+        Encounter encounter = ctx.newJsonParser().parseResource(Encounter.class, response);
+        log.info("getEncounterById {}", encounter);
+        return encounter;
+    }
+
     public Encounter sendEncounter(ProducerTemplate producerTemplate, Encounter encounter) {
         log.info(
                 "sendEncounter response {}", FhirContext.forR4().newJsonParser().encodeResourceToString(encounter));

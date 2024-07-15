@@ -18,7 +18,9 @@ import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysesHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +31,13 @@ import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Period;
+import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
@@ -179,23 +181,24 @@ public class TaskProcessor implements Processor {
                     encounter.getId(),
                     serviceRequest.getId());
         } else {
+            headers.put(
+                    Constants.HEADER_ENCOUNTER_ID,
+                    serviceRequest.getEncounter().getReference().split("/")[1]);
+            Encounter orderEncounter = encounterHandler.getEncounterById(producerTemplate, headers);
             Encounter resultEncounter = new Encounter();
-            resultEncounter.setId(RandomStringUtils.random(14, true, true));
-            //            resultEncounter.setLocation(encounter.getLocation()); TODO: Set patient location
+            resultEncounter.setLocation(orderEncounter.getLocation());
             Coding coding = new Coding();
             coding.setCode("3596fafb-6f6f-4396-8c87-6e63a0f1bd71");
             coding.setSystem("http://fhir.openmrs.org/code-system/encounter-type");
             coding.setDisplay("Lab Results");
             resultEncounter.setType(
                     (Collections.singletonList(new CodeableConcept().setCoding(Collections.singletonList(coding)))));
-            resultEncounter.setPeriod(
-                    new Period().setStart(serviceRequest.getOccurrencePeriod().getStart()));
-            resultEncounter.setSubject(serviceRequest.getSubject());
-            // TODO: "visit":"${exchangeProperty.service-request-visit-uuid}"
-            resultEncounter.setParticipant(Collections.singletonList(
-                    new Encounter.EncounterParticipantComponent().setIndividual(serviceRequest.getRequester())));
+            resultEncounter.setPeriod(orderEncounter.getPeriod());
+            resultEncounter.setSubject(orderEncounter.getSubject());
+            resultEncounter.setPartOf(orderEncounter.getPartOf());
+            resultEncounter.setParticipant(orderEncounter.getParticipant());
             Encounter savedResultEncounter = encounterHandler.sendEncounter(producerTemplate, resultEncounter);
-            log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getId());
+            log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
 
             headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analyses[0].getAnalysesUrlApiUrl());
             com.ozonehis.eip.openmrs.senaite.model.analyses.Analyses resultAnalyses =
@@ -208,13 +211,19 @@ public class TaskProcessor implements Processor {
             headers.put(
                     Constants.HEADER_OBSERVATION_SUBJECT,
                     serviceRequest.getSubject().getReference().split("/")[1]);
-            headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, savedResultEncounter.getId());
+            headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, savedResultEncounter.getIdPart());
             headers.put(Constants.HEADER_OBSERVATION_DATE, resultAnalyses.getResultCaptureDate());
             Observation savedObservation = observationHandler.getObservation(producerTemplate, headers);
             if (savedObservation == null || savedObservation.getId().isEmpty()) {
                 // Create result Observation
                 Observation observation = new Observation();
-                observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getId()));
+                observation.setStatus(Observation.ObservationStatus.FINAL);
+                observation.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
+                observation.setSubject(savedResultEncounter.getSubject());
+                observation.setEffective(
+                        new DateTimeType().setValue(Date.from(Instant.parse(resultAnalyses.getResultCaptureDate()))));
+                observation.setValue(new Quantity().setValue(Double.parseDouble(resultAnalyses.getResult())));
+                observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
                 savedObservation = observationHandler.sendObservation(producerTemplate, observation);
                 log.info("TaskProcessor: Saved Observation {}", savedObservation);
             }
