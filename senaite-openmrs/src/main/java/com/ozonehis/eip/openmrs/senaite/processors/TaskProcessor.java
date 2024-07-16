@@ -43,6 +43,7 @@ import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Task;
+import org.hl7.fhir.r4.model.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -96,23 +97,11 @@ public class TaskProcessor implements Processor {
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequest(producerTemplate, headers);
                 if (serviceRequest.getStatus()
                         == ServiceRequest.ServiceRequestStatus.REVOKED) { // TODO: Check for voided & deleted
-                    log.info("TaskProcessor: ServiceRequest is voided or deleted {}", task);
-                    Task rejectTask = new Task();
-                    task.setId(task.getId());
-                    task.setStatus(Task.TaskStatus.REJECTED);
-                    task.setIntent(Task.TaskIntent.ORDER);
-                    headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
-                    Task rejectedTask = taskHandler.updateTask(producerTemplate, rejectTask, headers);
+                    Task rejectedTask = markTaskRejected(producerTemplate, headers, task);
                     log.info("TaskProcessor: Rejected Task {}", rejectedTask);
                 } else {
-                    headers.put(
-                            Constants.HEADER_CLIENT_SAMPLE_ID,
-                            task.getBasedOn().get(0).getReference());
-                    headers.put(
-                            Constants.HEADER_CLIENT_ID,
-                            serviceRequest.getSubject().getReference().split("/")[1]);
                     AnalysisRequestResponse analysisRequest =
-                            analysisRequestHandler.getAnalysisRequestResponse(producerTemplate, headers);
+                            fetchAnalysisRequestByClientIDAndSampleID(producerTemplate, headers, task, serviceRequest);
                     log.info("TaskProcessor: AnalysisRequestResponse {}", analysisRequest);
                     if (analysisRequest != null
                             && analysisRequest.getAnalysisRequestItems() != null
@@ -134,18 +123,8 @@ public class TaskProcessor implements Processor {
                         if (analysisRequestTaskStatus != null
                                 && !analysisRequestTaskStatus.equalsIgnoreCase(
                                         task.getStatus().toString())) {
-                            Task updateTask = new Task();
-                            updateTask.setId(task.getIdPart());
-                            updateTask.setIntent(Task.TaskIntent.ORDER);
-                            updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
-                            headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
-                            log.info(
-                                    "TaskProcessor: Updating Task with id {} from status {} to status {} analysisRequest {}",
-                                    task.getIdPart(),
-                                    task.getStatus().toString(),
-                                    Task.TaskStatus.fromCode(analysisRequestTaskStatus),
-                                    analysisRequestTaskStatus);
-                            Task updatedTask = taskHandler.updateTask(producerTemplate, updateTask, headers);
+                            Task updatedTask =
+                                    updateTaskStatus(producerTemplate, headers, task, analysisRequestTaskStatus);
                             log.info("TaskProcessor: Updated Task {}", updatedTask);
                         }
                     }
@@ -175,12 +154,7 @@ public class TaskProcessor implements Processor {
             ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
-        headers.put(
-                Constants.HEADER_ENCOUNTER_TYPE_ID, "3596fafb-6f6f-4396-8c87-6e63a0f1bd71"); // TODO: Fetch from config
-        headers.put(
-                Constants.HEADER_PATIENT_ID,
-                serviceRequest.getSubject().getReference().split("/")[1]);
-        Encounter encounter = encounterHandler.getEncounter(producerTemplate, headers);
+        Encounter encounter = fetchLabResultTypeEncounterByServiceRequestID(producerTemplate, headers, serviceRequest);
         if (encounter != null
                 && encounter.getPeriod().getStart().getTime()
                         == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
@@ -189,24 +163,9 @@ public class TaskProcessor implements Processor {
                     "TaskProcessor: Result Encounter {} exists for serviceRequest id {}",
                     encounter.getId(),
                     serviceRequest.getId());
+            return;
         } else {
-            headers.put(
-                    Constants.HEADER_ENCOUNTER_ID,
-                    serviceRequest.getEncounter().getReference().split("/")[1]);
-            Encounter orderEncounter = encounterHandler.getEncounterById(producerTemplate, headers);
-            Encounter resultEncounter = new Encounter();
-            resultEncounter.setLocation(orderEncounter.getLocation());
-            Coding coding = new Coding();
-            coding.setCode("3596fafb-6f6f-4396-8c87-6e63a0f1bd71");
-            coding.setSystem("http://fhir.openmrs.org/code-system/encounter-type");
-            coding.setDisplay("Lab Results");
-            resultEncounter.setType(
-                    (Collections.singletonList(new CodeableConcept().setCoding(Collections.singletonList(coding)))));
-            resultEncounter.setPeriod(orderEncounter.getPeriod());
-            resultEncounter.setSubject(orderEncounter.getSubject());
-            resultEncounter.setPartOf(orderEncounter.getPartOf());
-            resultEncounter.setParticipant(orderEncounter.getParticipant());
-            Encounter savedResultEncounter = encounterHandler.sendEncounter(producerTemplate, resultEncounter);
+            Encounter savedResultEncounter = createLabResultEncounter(producerTemplate, headers, serviceRequest);
             log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
 
             headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analyses[0].getAnalysesUrlApiUrl());
@@ -216,40 +175,134 @@ public class TaskProcessor implements Processor {
             String conceptUuid = analysesDescription.substring(
                     analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
-            headers.put(Constants.HEADER_OBSERVATION_CODE, conceptUuid);
-            headers.put(
-                    Constants.HEADER_OBSERVATION_SUBJECT,
-                    serviceRequest.getSubject().getReference().split("/")[1]);
-            headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, savedResultEncounter.getIdPart());
-            headers.put(Constants.HEADER_OBSERVATION_DATE, resultAnalyses.getResultCaptureDate());
-            Observation savedObservation = observationHandler.getObservation(producerTemplate, headers);
+            Observation savedObservation = fetchObservationByConceptUuidPatientEncounterAndDate(
+                    producerTemplate, headers, serviceRequest, savedResultEncounter, resultAnalyses, conceptUuid);
             log.info("TaskProcessor: Fetched Observation {}", savedObservation);
             if (savedObservation == null || savedObservation.getId().isEmpty()) {
                 // Create result Observation
-                Observation observation = new Observation();
-                observation.setStatus(Observation.ObservationStatus.FINAL);
-                observation.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
-                observation.setSubject(savedResultEncounter.getSubject());
-                observation.setEffective(
-                        new DateTimeType().setValue(Date.from(Instant.parse(resultAnalyses.getResultCaptureDate()))));
-                if (resultAnalyses.getResult().matches("-?\\d+(\\.\\d+)?")) {
-                    // If result is a number
-                    observation.setValue(new Quantity().setValue(Double.parseDouble(resultAnalyses.getResult())));
-                } else if (resultAnalyses
-                        .getResult()
-                        .matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
-                    // If result is a UUID
-                    observation.setValue(new CodeableConcept()
-                            .setCoding(Collections.singletonList(new Coding().setCode(resultAnalyses.getResult()))));
-                } else {
-                    // Handle ordinary string values
-                    observation.setValue(new StringType(resultAnalyses.getResult()));
-                }
-                observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
-                savedObservation = observationHandler.sendObservation(producerTemplate, observation);
+                savedObservation = createResultObservationBySenaiteAnalysesResult(
+                        producerTemplate, savedResultEncounter, resultAnalyses, conceptUuid);
                 log.info("TaskProcessor: Saved Observation {}", savedObservation);
             }
             log.info("TaskProcessor: Completed saving results for service request {}", serviceRequest.getId());
         }
+    }
+
+    private Observation createResultObservationBySenaiteAnalysesResult(
+            ProducerTemplate producerTemplate,
+            Encounter savedResultEncounter,
+            com.ozonehis.eip.openmrs.senaite.model.analyses.Analyses resultAnalyses,
+            String conceptUuid) {
+        Observation observation = new Observation();
+        observation.setStatus(Observation.ObservationStatus.FINAL);
+        observation.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
+        observation.setSubject(savedResultEncounter.getSubject());
+        observation.setEffective(
+                new DateTimeType().setValue(Date.from(Instant.parse(resultAnalyses.getResultCaptureDate()))));
+        observation.setValue(getObservationValueBySenaiteResult(resultAnalyses.getResult()));
+        observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
+        return observationHandler.sendObservation(producerTemplate, observation);
+    }
+
+    private Type getObservationValueBySenaiteResult(String senaiteResult) {
+        if (senaiteResult.matches("-?\\d+(\\.\\d+)?")) {
+            // If result is a number
+            log.info("Result match number {}", senaiteResult);
+            return new Quantity().setValue(Double.parseDouble(senaiteResult));
+        } else if (senaiteResult.matches(".*AAA+$")) {
+            // If result is a UUID
+            log.info("Result match uuid {}", senaiteResult);
+            return new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode(senaiteResult)));
+        } else {
+            // Handle ordinary string values
+            log.info("Result match string {}", senaiteResult);
+            return new StringType(senaiteResult);
+        }
+    }
+
+    private Observation fetchObservationByConceptUuidPatientEncounterAndDate(
+            ProducerTemplate producerTemplate,
+            Map<String, Object> headers,
+            ServiceRequest serviceRequest,
+            Encounter savedResultEncounter,
+            com.ozonehis.eip.openmrs.senaite.model.analyses.Analyses resultAnalyses,
+            String conceptUuid) {
+        headers.put(Constants.HEADER_OBSERVATION_CODE, conceptUuid);
+        headers.put(
+                Constants.HEADER_OBSERVATION_SUBJECT,
+                serviceRequest.getSubject().getReference().split("/")[1]);
+        headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, savedResultEncounter.getIdPart());
+        headers.put(Constants.HEADER_OBSERVATION_DATE, resultAnalyses.getResultCaptureDate());
+        return observationHandler.getObservation(producerTemplate, headers);
+    }
+
+    private Encounter createLabResultEncounter(
+            ProducerTemplate producerTemplate, Map<String, Object> headers, ServiceRequest serviceRequest) {
+        headers.put(
+                Constants.HEADER_ENCOUNTER_ID,
+                serviceRequest.getEncounter().getReference().split("/")[1]);
+        Encounter orderEncounter = encounterHandler.getEncounterById(producerTemplate, headers);
+        Encounter resultEncounter = new Encounter();
+        resultEncounter.setLocation(orderEncounter.getLocation());
+        Coding coding = new Coding();
+        coding.setCode("3596fafb-6f6f-4396-8c87-6e63a0f1bd71");
+        coding.setSystem("http://fhir.openmrs.org/code-system/encounter-type");
+        coding.setDisplay("Lab Results");
+        resultEncounter.setType(
+                (Collections.singletonList(new CodeableConcept().setCoding(Collections.singletonList(coding)))));
+        resultEncounter.setPeriod(orderEncounter.getPeriod());
+        resultEncounter.setSubject(orderEncounter.getSubject());
+        resultEncounter.setPartOf(orderEncounter.getPartOf());
+        resultEncounter.setParticipant(orderEncounter.getParticipant());
+        return encounterHandler.sendEncounter(producerTemplate, resultEncounter);
+    }
+
+    private Encounter fetchLabResultTypeEncounterByServiceRequestID(
+            ProducerTemplate producerTemplate, Map<String, Object> headers, ServiceRequest serviceRequest) {
+        headers.put(
+                Constants.HEADER_ENCOUNTER_TYPE_ID, "3596fafb-6f6f-4396-8c87-6e63a0f1bd71"); // TODO: Fetch from config
+        headers.put(
+                Constants.HEADER_PATIENT_ID,
+                serviceRequest.getSubject().getReference().split("/")[1]);
+        return encounterHandler.getEncounter(producerTemplate, headers);
+    }
+
+    private Task markTaskRejected(ProducerTemplate producerTemplate, Map<String, Object> headers, Task task) {
+        log.info("TaskProcessor: ServiceRequest is voided or deleted {}", task);
+        Task rejectTask = new Task();
+        task.setId(task.getId());
+        task.setStatus(Task.TaskStatus.REJECTED);
+        task.setIntent(Task.TaskIntent.ORDER);
+        headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
+        return taskHandler.updateTask(producerTemplate, rejectTask, headers);
+    }
+
+    private AnalysisRequestResponse fetchAnalysisRequestByClientIDAndSampleID(
+            ProducerTemplate producerTemplate, Map<String, Object> headers, Task task, ServiceRequest serviceRequest)
+            throws JsonProcessingException {
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, task.getBasedOn().get(0).getReference());
+        headers.put(
+                Constants.HEADER_CLIENT_ID,
+                serviceRequest.getSubject().getReference().split("/")[1]);
+        return analysisRequestHandler.getAnalysisRequestResponse(producerTemplate, headers);
+    }
+
+    private Task updateTaskStatus(
+            ProducerTemplate producerTemplate,
+            Map<String, Object> headers,
+            Task task,
+            String analysisRequestTaskStatus) {
+        Task updateTask = new Task();
+        updateTask.setId(task.getIdPart());
+        updateTask.setIntent(Task.TaskIntent.ORDER);
+        updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
+        headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
+        log.info(
+                "TaskProcessor: Updating Task with id {} from status {} to status {} analysisRequest {}",
+                task.getIdPart(),
+                task.getStatus().toString(),
+                Task.TaskStatus.fromCode(analysisRequestTaskStatus),
+                analysisRequestTaskStatus);
+        return taskHandler.updateTask(producerTemplate, updateTask, headers);
     }
 }

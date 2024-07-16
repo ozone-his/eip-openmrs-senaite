@@ -22,6 +22,8 @@ public class Constants {
 
     public static final String APPLICATION_JSON = "application/json";
 
+    public static final String HEADER_ENABLE_PATIENT_SYNC = "enable.patient.sync";
+
     public static final String FHIR_RESOURCE_TYPE = "fhir.resource.type";
 
     public static final String HEADER_CLIENT_ID = "senaite.resource.client.id";

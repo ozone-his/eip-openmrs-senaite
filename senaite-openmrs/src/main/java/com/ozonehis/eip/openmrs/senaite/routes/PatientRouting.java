@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.routes;
 
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.converters.AnalysisRequestConverter;
 import com.ozonehis.eip.openmrs.senaite.converters.ClientConverter;
 import com.ozonehis.eip.openmrs.senaite.converters.ContactConverter;
@@ -16,9 +17,11 @@ import com.ozonehis.eip.openmrs.senaite.converters.TaskConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.PatientProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.hl7.fhir.r4.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Setter
@@ -40,6 +43,14 @@ public class PatientRouting extends RouteBuilder {
     @Autowired
     private ContactConverter contactConverter;
 
+    @Value("${openmrs.senaite.enable.patient.sync}")
+    private boolean isPatientSyncEnabled;
+
+    Predicate isPatientSyncEnabled() {
+        return exchange -> isPatientSyncEnabled
+                || Boolean.TRUE.equals(exchange.getIn().getHeader(Constants.HEADER_ENABLE_PATIENT_SYNC, Boolean.class));
+    }
+
     @Override
     public void configure() {
         getContext().getTypeConverterRegistry().addTypeConverters(clientConverter);
@@ -50,6 +61,7 @@ public class PatientRouting extends RouteBuilder {
         from("direct:patient-to-client-router")
                 .routeId("patient-to-client-router")
                 .filter(exchange -> exchange.getMessage().getBody() instanceof Patient)
+                .filter(isPatientSyncEnabled())
                 .log(LoggingLevel.INFO, "Processing Patient")
                 .process(patientProcessor)
                 .choice()
