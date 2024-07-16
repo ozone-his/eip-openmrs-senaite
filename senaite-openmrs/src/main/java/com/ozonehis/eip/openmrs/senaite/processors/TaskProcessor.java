@@ -41,6 +41,7 @@ import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
+import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -100,7 +101,8 @@ public class TaskProcessor implements Processor {
                     task.setId(task.getId());
                     task.setStatus(Task.TaskStatus.REJECTED);
                     task.setIntent(Task.TaskIntent.ORDER);
-                    Task rejectedTask = taskHandler.updateTask(producerTemplate, rejectTask);
+                    headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
+                    Task rejectedTask = taskHandler.updateTask(producerTemplate, rejectTask, headers);
                     log.info("TaskProcessor: Rejected Task {}", rejectedTask);
                 } else {
                     headers.put(
@@ -121,23 +123,30 @@ public class TaskProcessor implements Processor {
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequest);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            // TODO: Create ServiceRequest results in OpenMRS
                             log.info("TaskProcessor: Creating ServiceRequest results in OpenMRS {}", analysisRequest);
                             createResultsInOpenMRS(producerTemplate, serviceRequest, analyses);
-                        } else if (analysisRequestTaskStatus != null
-                                && !analysisRequestTaskStatus.equalsIgnoreCase(
-                                        task.getStatus().toString())) {
-                            Task updateTask = new Task();
-                            updateTask.setId(task.getId());
-                            updateTask.setIntent(Task.TaskIntent.ORDER);
-                            updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
-                            Task updatedTask = taskHandler.updateTask(producerTemplate, task);
-                            log.info("TaskProcessor: Updated Task {}", updatedTask);
                         } else {
                             log.info(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
                                     task,
                                     task.getStatus());
+                        }
+                        if (analysisRequestTaskStatus != null
+                                && !analysisRequestTaskStatus.equalsIgnoreCase(
+                                        task.getStatus().toString())) {
+                            Task updateTask = new Task();
+                            updateTask.setId(task.getIdPart());
+                            updateTask.setIntent(Task.TaskIntent.ORDER);
+                            updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
+                            headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
+                            log.info(
+                                    "TaskProcessor: Updating Task with id {} from status {} to status {} analysisRequest {}",
+                                    task.getIdPart(),
+                                    task.getStatus().toString(),
+                                    Task.TaskStatus.fromCode(analysisRequestTaskStatus),
+                                    analysisRequestTaskStatus);
+                            Task updatedTask = taskHandler.updateTask(producerTemplate, updateTask, headers);
+                            log.info("TaskProcessor: Updated Task {}", updatedTask);
                         }
                     }
                 }
@@ -214,6 +223,7 @@ public class TaskProcessor implements Processor {
             headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, savedResultEncounter.getIdPart());
             headers.put(Constants.HEADER_OBSERVATION_DATE, resultAnalyses.getResultCaptureDate());
             Observation savedObservation = observationHandler.getObservation(producerTemplate, headers);
+            log.info("TaskProcessor: Fetched Observation {}", savedObservation);
             if (savedObservation == null || savedObservation.getId().isEmpty()) {
                 // Create result Observation
                 Observation observation = new Observation();
@@ -222,7 +232,19 @@ public class TaskProcessor implements Processor {
                 observation.setSubject(savedResultEncounter.getSubject());
                 observation.setEffective(
                         new DateTimeType().setValue(Date.from(Instant.parse(resultAnalyses.getResultCaptureDate()))));
-                observation.setValue(new Quantity().setValue(Double.parseDouble(resultAnalyses.getResult())));
+                if (resultAnalyses.getResult().matches("-?\\d+(\\.\\d+)?")) {
+                    // If result is a number
+                    observation.setValue(new Quantity().setValue(Double.parseDouble(resultAnalyses.getResult())));
+                } else if (resultAnalyses
+                        .getResult()
+                        .matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
+                    // If result is a UUID
+                    observation.setValue(new CodeableConcept()
+                            .setCoding(Collections.singletonList(new Coding().setCode(resultAnalyses.getResult()))));
+                } else {
+                    // Handle ordinary string values
+                    observation.setValue(new StringType(resultAnalyses.getResult()));
+                }
                 observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
                 savedObservation = observationHandler.sendObservation(producerTemplate, observation);
                 log.info("TaskProcessor: Saved Observation {}", savedObservation);

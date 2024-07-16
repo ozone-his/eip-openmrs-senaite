@@ -51,8 +51,9 @@ public class TaskHandler {
         return task;
     }
 
-    public Task updateTask(ProducerTemplate producerTemplate, Task task) {
-        String response = producerTemplate.requestBody("direct:openmrs-update-task-route", task, String.class);
+    public Task updateTask(ProducerTemplate producerTemplate, Task task, Map<String, Object> headers) {
+        String response =
+                producerTemplate.requestBodyAndHeaders("direct:openmrs-update-task-route", task, headers, String.class);
         log.info("updateTask response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Task updatedTask = ctx.newJsonParser().parseResource(Task.class, response);
