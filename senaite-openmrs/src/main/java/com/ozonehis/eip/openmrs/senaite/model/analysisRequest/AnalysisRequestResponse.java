@@ -37,6 +37,10 @@ public class AnalysisRequestResponse implements SenaiteResource {
                     analysisRequestResponse.getAnalysisRequestItems().get(0).getDateSampled());
             analysisRequest.setTemplate(
                     analysisRequestResponse.getAnalysisRequestItems().get(0).getTemplateUid());
+            analysisRequest.setClient(
+                    analysisRequestResponse.getAnalysisRequestItems().get(0).getClientUID());
+            analysisRequest.setUid(
+                    analysisRequestResponse.getAnalysisRequestItems().get(0).getUid());
             if (analysisRequestResponse.getAnalysisRequestItems().get(0).getProfilesUid() != null
                     && analysisRequestResponse.getAnalysisRequestItems().get(0).getProfilesUid().length > 0) {
                 analysisRequest.setProfiles(

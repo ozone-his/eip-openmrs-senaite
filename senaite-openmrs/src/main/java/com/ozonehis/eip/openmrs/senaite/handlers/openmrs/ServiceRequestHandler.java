@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,13 @@ public class ServiceRequestHandler {
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-service-request-route", null, headers, String.class);
         log.info("getServiceRequest response {}", response);
+        if (response.contains("gone/deleted")) {
+            // TODO: Can be moved to route as well
+            ServiceRequest deletedServiceRequestResponse = new ServiceRequest();
+            deletedServiceRequestResponse.setId((String) headers.get(Constants.HEADER_SERVICE_REQUEST_ID));
+            deletedServiceRequestResponse.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+            return deletedServiceRequestResponse;
+        }
         FhirContext ctx = FhirContext.forR4();
         ServiceRequest serviceRequestResponse = ctx.newJsonParser().parseResource(ServiceRequest.class, response);
 

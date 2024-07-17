@@ -95,8 +95,7 @@ public class TaskProcessor implements Processor {
                         Constants.HEADER_SERVICE_REQUEST_ID,
                         task.getBasedOn().get(0).getReference());
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequest(producerTemplate, headers);
-                if (serviceRequest.getStatus()
-                        == ServiceRequest.ServiceRequestStatus.REVOKED) { // TODO: Check for voided & deleted
+                if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
                     Task rejectedTask = markTaskRejected(producerTemplate, headers, task);
                     log.info("TaskProcessor: Rejected Task {}", rejectedTask);
                 } else {
@@ -209,7 +208,9 @@ public class TaskProcessor implements Processor {
             // If result is a number
             log.info("Result match number {}", senaiteResult);
             return new Quantity().setValue(Double.parseDouble(senaiteResult));
-        } else if (senaiteResult.matches(".*AAA+$")) {
+        } else if (senaiteResult.matches(
+                        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+                || senaiteResult.matches("^[A-F0-9]{36,38}$")) {
             // If result is a UUID
             log.info("Result match uuid {}", senaiteResult);
             return new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode(senaiteResult)));
@@ -270,9 +271,9 @@ public class TaskProcessor implements Processor {
     private Task markTaskRejected(ProducerTemplate producerTemplate, Map<String, Object> headers, Task task) {
         log.info("TaskProcessor: ServiceRequest is voided or deleted {}", task);
         Task rejectTask = new Task();
-        task.setId(task.getId());
-        task.setStatus(Task.TaskStatus.REJECTED);
-        task.setIntent(Task.TaskIntent.ORDER);
+        rejectTask.setId(task.getId());
+        rejectTask.setStatus(Task.TaskStatus.REJECTED);
+        rejectTask.setIntent(Task.TaskIntent.ORDER);
         headers.put(Constants.HEADER_TASK_ID, task.getIdPart());
         return taskHandler.updateTask(producerTemplate, rejectTask, headers);
     }

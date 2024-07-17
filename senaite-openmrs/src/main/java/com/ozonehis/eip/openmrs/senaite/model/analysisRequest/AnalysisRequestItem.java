@@ -42,6 +42,12 @@ public class AnalysisRequestItem implements SenaiteResource {
     @JsonProperty("ClientSampleID")
     private String clientSampleID; // lab-order-uuid
 
+    @JsonProperty("getClientUID")
+    private String clientUID; // senaite client uid not OpenMRS patient id
+
+    @JsonProperty("uid")
+    private String uid; // AnalysisRequest uid
+
     @JsonProperty("review_state")
     private String reviewState; // service-request-transitioned-status
 }

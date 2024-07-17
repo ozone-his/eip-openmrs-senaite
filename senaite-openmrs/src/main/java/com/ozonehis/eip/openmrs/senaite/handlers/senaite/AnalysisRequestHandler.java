@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
 import java.util.Map;
@@ -37,8 +38,15 @@ public class AnalysisRequestHandler {
 
     public AnalysisRequest getAnalysisRequest(ProducerTemplate producerTemplate, Map<String, Object> headers)
             throws JsonProcessingException {
-        String response = producerTemplate.requestBodyAndHeaders(
-                "direct:senaite-get-analysis-request-route", null, headers, String.class);
+        String response;
+        if (headers.get(Constants.HEADER_CLIENT_ID) == null
+                || headers.get(Constants.HEADER_CLIENT_ID).toString().isEmpty()) {
+            response = producerTemplate.requestBodyAndHeaders(
+                    "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
+        } else {
+            response = producerTemplate.requestBodyAndHeaders(
+                    "direct:senaite-get-analysis-request-route", null, headers, String.class);
+        }
         log.error("getAnalysisRequest response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
@@ -57,5 +65,18 @@ public class AnalysisRequestHandler {
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
         log.error("getAnalysisRequestResponse {}", analysisRequestResponse);
         return analysisRequestResponse;
+    }
+
+    public AnalysisRequest updateAnalysisRequest(
+            ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, Map<String, Object> headers)
+            throws JsonProcessingException {
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-update-analysis-request-route", analysisRequest, headers, String.class);
+        log.error("updateAnalysisRequest response {}", response);
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnalysisRequestResponse savedAnalysisRequestResponse =
+                objectMapper.readValue(response, AnalysisRequestResponse.class);
+        log.error("updateAnalysisRequest {}", savedAnalysisRequestResponse);
+        return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
     }
 }

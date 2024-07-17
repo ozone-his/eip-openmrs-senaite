@@ -7,7 +7,9 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
@@ -71,6 +73,9 @@ public class ServiceRequestProcessor implements Processor {
     @Autowired
     private TaskMapper taskMapper;
 
+    @Autowired
+    private ServiceRequestHandler serviceRequestHandler;
+
     @Override
     public void process(Exchange exchange) {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
@@ -101,7 +106,7 @@ public class ServiceRequestProcessor implements Processor {
                 if (eventType == null) {
                     throw new IllegalArgumentException("Event type not found in the exchange headers.");
                 }
-                String serviceRequestUuid = serviceRequest.getIdPart(); // TODO: check it should be {body.identifier}
+                String serviceRequestUuid = serviceRequest.getIdPart();
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
@@ -184,10 +189,21 @@ public class ServiceRequestProcessor implements Processor {
 
                     } else {
                         // Executed when MODIFY option is selected in OpenMRS
+                        // Fetch ServiceRequest and if is revoked then cancel AnalysisRequest
+                        AnalysisRequest cancelledAnalysisRequest =
+                                cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
+                        log.info(
+                                "ServiceRequestProcessor: Executed when MODIFY option is selected in OpenMRS, Cancelled AnalysisRequest {}",
+                                cancelledAnalysisRequest);
                     }
                 } else if ("d".equals(eventType)) {
                     // Executed when DISCONTINUE option is selected in OpenMRS
-
+                    // Fetch ServiceRequest and if is revoked then cancel AnalysisRequest
+                    AnalysisRequest cancelledAnalysisRequest =
+                            cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
+                    log.info(
+                            "ServiceRequestProcessor: Executed when DISCONTINUE option is selected in OpenMRS, Cancelled AnalysisRequest {}",
+                            cancelledAnalysisRequest);
                 } else {
                     throw new IllegalArgumentException("Unsupported event type: " + eventType);
                 }
@@ -195,5 +211,29 @@ public class ServiceRequestProcessor implements Processor {
         } catch (Exception e) {
             throw new CamelExecutionException("Error processing ServiceRequest", exchange, e);
         }
+    }
+
+    private AnalysisRequest cancelAnalysisRequest(ProducerTemplate producerTemplate, String serviceRequestUuid)
+            throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestUuid);
+        ServiceRequest fetchedServiceRequest = serviceRequestHandler.getServiceRequest(producerTemplate, headers);
+        if (fetchedServiceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
+            headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, serviceRequestUuid);
+            AnalysisRequest analysisRequest = analysisRequestHandler.getAnalysisRequest(producerTemplate, headers);
+            if (!analysisRequest.getReviewState().equalsIgnoreCase("cancelled")) {
+                AnalysisRequest cancelAnalysisRequest = new AnalysisRequest();
+                cancelAnalysisRequest.setTransition("cancel");
+                cancelAnalysisRequest.setClient(analysisRequest.getClient());
+                headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequest.getUid());
+                return analysisRequestHandler.updateAnalysisRequest(producerTemplate, cancelAnalysisRequest, headers);
+            } else {
+                log.info(
+                        "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
+                        analysisRequest,
+                        serviceRequestUuid);
+            }
+        }
+        return null;
     }
 }

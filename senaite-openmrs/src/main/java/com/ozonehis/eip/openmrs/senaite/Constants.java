@@ -55,4 +55,6 @@ public class Constants {
     public static final String HEADER_OBSERVATION_DATE = "senaite.resource.observation.date";
 
     public static final String HEADER_ENCOUNTER_ID = "senaite.resource.encounter.id";
+
+    public static final String HEADER_ANALYSIS_REQUEST_UID = "senaite.resource.analysis.request.uid";
 }
