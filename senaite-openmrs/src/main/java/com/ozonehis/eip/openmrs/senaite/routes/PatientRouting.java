@@ -7,9 +7,9 @@
  */
 package com.ozonehis.eip.openmrs.senaite.routes;
 
+import static com.ozonehis.eip.openmrs.senaite.Constants.HEADER_ENABLE_PATIENT_SYNC;
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
-import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.converters.AnalysisRequestConverter;
 import com.ozonehis.eip.openmrs.senaite.converters.ClientConverter;
 import com.ozonehis.eip.openmrs.senaite.converters.ContactConverter;
@@ -48,7 +48,8 @@ public class PatientRouting extends RouteBuilder {
 
     Predicate isPatientSyncEnabled() {
         return exchange -> isPatientSyncEnabled
-                || Boolean.TRUE.equals(exchange.getIn().getHeader(Constants.HEADER_ENABLE_PATIENT_SYNC, Boolean.class));
+                || exchange.getMessage().getHeader(HEADER_ENABLE_PATIENT_SYNC, false, Boolean.class)
+                || "u".equals(exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE, String.class));
     }
 
     @Override
