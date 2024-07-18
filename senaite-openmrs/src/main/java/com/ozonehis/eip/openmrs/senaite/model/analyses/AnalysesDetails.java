@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Analyses implements SenaiteResource {
+public class AnalysesDetails implements SenaiteResource {
 
     @JsonProperty("Result")
     private String result;

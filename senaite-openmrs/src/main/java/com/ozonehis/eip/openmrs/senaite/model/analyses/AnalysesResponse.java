@@ -23,14 +23,15 @@ public class AnalysesResponse {
     @JsonProperty("items")
     private ArrayList<AnalysesItem> analysesItems;
 
-    public Analyses analysesResponseToAnalyses(AnalysesResponse analysesResponse) {
-        Analyses analyses = new Analyses();
+    public AnalysesDetails analysesResponseToAnalyses(AnalysesResponse analysesResponse) {
+        AnalysesDetails analysesDetails = new AnalysesDetails();
         if (analysesResponse != null && !analysesResponse.getAnalysesItems().isEmpty()) {
-            analyses.setResult(analysesResponse.getAnalysesItems().get(0).getResult());
-            analyses.setResultCaptureDate(
+            analysesDetails.setResult(analysesResponse.getAnalysesItems().get(0).getResult());
+            analysesDetails.setResultCaptureDate(
                     analysesResponse.getAnalysesItems().get(0).getResultCaptureDate());
-            analyses.setDescription(analysesResponse.getAnalysesItems().get(0).getDescription());
-            return analyses;
+            analysesDetails.setDescription(
+                    analysesResponse.getAnalysesItems().get(0).getDescription());
+            return analysesDetails;
         }
 
         return null;

@@ -66,4 +66,26 @@ public class TaskHandler {
         log.info("updateTask {}", updatedTask);
         return updatedTask;
     }
+
+    public Task markTaskRejected(ProducerTemplate producerTemplate, Task task) {
+        Task rejectTask = new Task();
+        rejectTask.setId(task.getId());
+        rejectTask.setStatus(Task.TaskStatus.REJECTED);
+        rejectTask.setIntent(Task.TaskIntent.ORDER);
+        return updateTask(producerTemplate, rejectTask, task.getIdPart());
+    }
+
+    public Task updateTaskStatus(ProducerTemplate producerTemplate, Task task, String analysisRequestTaskStatus) {
+        Task updateTask = new Task();
+        updateTask.setId(task.getIdPart());
+        updateTask.setIntent(Task.TaskIntent.ORDER);
+        updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
+        log.info(
+                "TaskProcessor: Updating Task with id {} from status {} to status {} analysisRequest {}",
+                task.getIdPart(),
+                task.getStatus().toString(),
+                Task.TaskStatus.fromCode(analysisRequestTaskStatus),
+                analysisRequestTaskStatus);
+        return updateTask(producerTemplate, updateTask, task.getIdPart());
+    }
 }
