@@ -7,14 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.routes;
 
-import com.ozonehis.eip.openmrs.senaite.converters.AnalysesConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.AnalysisRequestConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.ClientConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.ContactConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.EncounterConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.ObservationConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.ServiceRequestConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.TaskConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.FhirResourceConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.SenaiteResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.TaskProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
@@ -30,39 +24,15 @@ public class TaskRouting extends RouteBuilder {
     private TaskProcessor taskProcessor;
 
     @Autowired
-    private ClientConverter clientConverter;
+    private SenaiteResourceConverter senaiteResourceConverter;
 
     @Autowired
-    private AnalysisRequestConverter analysisRequestConverter;
-
-    @Autowired
-    private TaskConverter taskConverter;
-
-    @Autowired
-    private ContactConverter contactConverter;
-
-    @Autowired
-    private ServiceRequestConverter serviceRequestConverter;
-
-    @Autowired
-    private EncounterConverter encounterConverter;
-
-    @Autowired
-    private AnalysesConverter analysesConverter;
-
-    @Autowired
-    private ObservationConverter observationConverter;
+    private FhirResourceConverter fhirResourceConverter;
 
     @Override
     public void configure() {
-        getContext().getTypeConverterRegistry().addTypeConverters(clientConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(analysisRequestConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(taskConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(contactConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(serviceRequestConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(encounterConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(analysesConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(observationConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(senaiteResourceConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(fhirResourceConverter);
         // spotless:off
         from("scheduler:taskUpdate?initialDelay=30000&delay=30000")
                 .routeId("poll-senaite")

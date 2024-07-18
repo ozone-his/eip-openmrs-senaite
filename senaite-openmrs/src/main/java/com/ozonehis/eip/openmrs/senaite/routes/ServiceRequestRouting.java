@@ -8,10 +8,8 @@
 package com.ozonehis.eip.openmrs.senaite.routes;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.converters.AnalysisRequestConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.ClientConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.ContactConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.TaskConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.FhirResourceConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.SenaiteResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.ServiceRequestProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
@@ -36,23 +34,15 @@ public class ServiceRequestRouting extends RouteBuilder {
     private ServiceRequestProcessor serviceRequestProcessor;
 
     @Autowired
-    private ClientConverter clientConverter;
+    private SenaiteResourceConverter senaiteResourceConverter;
 
     @Autowired
-    private AnalysisRequestConverter analysisRequestConverter;
-
-    @Autowired
-    private TaskConverter taskConverter;
-
-    @Autowired
-    private ContactConverter contactConverter;
+    private FhirResourceConverter fhirResourceConverter;
 
     @Override
     public void configure() {
-        getContext().getTypeConverterRegistry().addTypeConverters(clientConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(analysisRequestConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(taskConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(contactConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(senaiteResourceConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(fhirResourceConverter);
         // spotless:off
         from("direct:fhir-servicerequest")
                 .routeId("service-request-to-analysis-request-router")

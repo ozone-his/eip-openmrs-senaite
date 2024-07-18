@@ -7,23 +7,24 @@
  */
 package com.ozonehis.eip.openmrs.senaite.converters;
 
-import ca.uhn.fhir.context.FhirContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Converter;
-import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Converter
 @Component
-public class ServiceRequestConverter {
+public class SenaiteResourceConverter {
 
     @Converter
-    public static InputStream convertServiceRequestToInputStream(ServiceRequest serviceRequest) {
-        FhirContext ctx = FhirContext.forR4();
-        String json = ctx.newJsonParser().encodeResourceToString(serviceRequest);
+    public static InputStream convertSenaiteResourceToInputStream(SenaiteResource senaiteResource) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(senaiteResource);
         return new ByteArrayInputStream(json.getBytes());
     }
 }
