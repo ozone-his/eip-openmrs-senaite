@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.context.FhirContext;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceRequestHandler {
 
-    public ServiceRequest getServiceRequest(ProducerTemplate producerTemplate, Map<String, Object> headers) {
+    public ServiceRequest getServiceRequestByID(ProducerTemplate producerTemplate, String serviceRequestID) {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-service-request-route", null, headers, String.class);
         log.info("getServiceRequest response {}", response);

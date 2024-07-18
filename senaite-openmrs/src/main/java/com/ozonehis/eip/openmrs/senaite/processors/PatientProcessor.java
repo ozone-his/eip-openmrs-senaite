@@ -9,7 +9,6 @@ package com.ozonehis.eip.openmrs.senaite.processors;
 
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
-import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
@@ -51,9 +50,7 @@ public class PatientProcessor implements Processor {
             log.info("PatientProcessor: Patient {}", patient);
 
             Map<String, Object> headers = new HashMap<>();
-            headers.put(Constants.HEADER_CLIENT_ID, patient.getIdPart());
-            log.info("PatientProcessor: header {}", headers.get(Constants.HEADER_CLIENT_ID));
-            Client savedClient = clientHandler.getClient(producerTemplate, headers);
+            Client savedClient = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
             log.info("PatientProcessor: savedClient {}", savedClient);
             Client client = clientMapper.toSenaite(patient);
             log.info("PatientProcessor: client {}", client);

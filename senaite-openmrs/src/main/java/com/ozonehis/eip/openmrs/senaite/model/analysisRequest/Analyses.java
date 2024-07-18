@@ -25,5 +25,5 @@ public class Analyses {
     private String analysesUid;
 
     @JsonProperty("api_url")
-    private String analysesUrlApiUrl;
+    private String analysesApiUrl;
 }

@@ -9,8 +9,10 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactResponse;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +33,10 @@ public class ContactHandler {
         return savedContactResponse.contactResponseToContact(savedContactResponse);
     }
 
-    public Contact getContact(ProducerTemplate producerTemplate, Map<String, Object> headers)
+    public Contact getContactByClientPath(ProducerTemplate producerTemplate, String clientPath)
             throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_PATH, clientPath);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
         log.error("getContact response {}", response);

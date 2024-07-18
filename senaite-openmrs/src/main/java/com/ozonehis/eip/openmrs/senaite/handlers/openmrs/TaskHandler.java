@@ -8,6 +8,8 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.ozonehis.eip.openmrs.senaite.Constants;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Setter;
@@ -32,7 +34,9 @@ public class TaskHandler {
         return savedTask;
     }
 
-    public Task getTask(ProducerTemplate producerTemplate, Map<String, Object> headers) {
+    public Task getTaskByServiceRequestID(ProducerTemplate producerTemplate, String serviceRequestID) {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, String.class);
         log.info("getTask response {}", response);
@@ -51,7 +55,9 @@ public class TaskHandler {
         return task;
     }
 
-    public Task updateTask(ProducerTemplate producerTemplate, Task task, Map<String, Object> headers) {
+    public Task updateTask(ProducerTemplate producerTemplate, Task task, String taskID) {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_TASK_ID, taskID);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:openmrs-update-task-route", task, headers, String.class);
         log.info("updateTask response {}", response);

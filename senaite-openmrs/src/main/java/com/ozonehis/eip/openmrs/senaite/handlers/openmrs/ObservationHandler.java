@@ -8,6 +8,8 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.ozonehis.eip.openmrs.senaite.Constants;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Setter;
@@ -23,7 +25,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObservationHandler {
 
-    public Observation getObservation(ProducerTemplate producerTemplate, Map<String, Object> headers) {
+    public Observation getObservationByCodeSubjectEncounterAndDate(
+            ProducerTemplate producerTemplate,
+            String codeID,
+            String subjectID,
+            String encounterID,
+            String observationDate) {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_OBSERVATION_CODE, codeID);
+        headers.put(Constants.HEADER_OBSERVATION_SUBJECT, subjectID);
+        headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, encounterID);
+        headers.put(Constants.HEADER_OBSERVATION_DATE, observationDate);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-observation-route", null, headers, String.class);
         log.info("getObservation response {}", response);

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,10 @@ import org.springframework.stereotype.Component;
 public class AnalysisRequestHandler {
 
     public AnalysisRequest sendAnalysisRequest(
-            ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, Map<String, Object> headers)
+            ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, String clientUID)
             throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_UID, clientUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-create-analysis-request-route", analysisRequest, headers, String.class);
         log.error("sendAnalysisRequest response {}", response);
@@ -36,27 +39,40 @@ public class AnalysisRequestHandler {
         return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
     }
 
-    public AnalysisRequest getAnalysisRequest(ProducerTemplate producerTemplate, Map<String, Object> headers)
-            throws JsonProcessingException {
-        String response;
-        if (headers.get(Constants.HEADER_CLIENT_ID) == null
-                || headers.get(Constants.HEADER_CLIENT_ID).toString().isEmpty()) {
-            response = producerTemplate.requestBodyAndHeaders(
-                    "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
-        } else {
-            response = producerTemplate.requestBodyAndHeaders(
-                    "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        }
-        log.error("getAnalysisRequest response {}", response);
+    public AnalysisRequest getAnalysisRequestByClientIDAndClientSampleID(
+            ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_ID, clientID);
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-get-analysis-request-route", null, headers, String.class);
+        log.error("getAnalysisRequestByClientIDAndClientSampleID response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.error("getAnalysisRequest {}", analysisRequestResponse);
+        log.error("getAnalysisRequestByClientIDAndClientSampleID {}", analysisRequestResponse);
         return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
     }
 
-    public AnalysisRequestResponse getAnalysisRequestResponse(
-            ProducerTemplate producerTemplate, Map<String, Object> headers) throws JsonProcessingException {
+    public AnalysisRequest getAnalysisRequestByClientSampleID(ProducerTemplate producerTemplate, String clientSampleID)
+            throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
+        log.error("getAnalysisRequestByClientSampleID response {}", response);
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnalysisRequestResponse analysisRequestResponse =
+                objectMapper.readValue(response, AnalysisRequestResponse.class);
+        log.error("getAnalysisRequestByClientSampleID {}", analysisRequestResponse);
+        return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
+    }
+
+    public AnalysisRequestResponse getAnalysisRequestResponseByClientIDAndClientSampleID(
+            ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_ID, clientID);
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
         log.error("getAnalysisRequestResponse response {}", response);
@@ -68,8 +84,10 @@ public class AnalysisRequestHandler {
     }
 
     public AnalysisRequest updateAnalysisRequest(
-            ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, Map<String, Object> headers)
+            ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, String analysisRequestUID)
             throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-update-analysis-request-route", analysisRequest, headers, String.class);
         log.error("updateAnalysisRequest response {}", response);

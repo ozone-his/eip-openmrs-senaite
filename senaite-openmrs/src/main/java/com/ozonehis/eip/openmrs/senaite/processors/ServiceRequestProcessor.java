@@ -8,7 +8,6 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
@@ -23,9 +22,7 @@ import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -110,12 +107,10 @@ public class ServiceRequestProcessor implements Processor {
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
-                        Map<String, Object> headers = new HashMap<>();
                         Client client = clientMapper.toSenaite(patient);
                         log.info("Mapped client from patient {}", client);
 
-                        headers.put(Constants.HEADER_CLIENT_ID, client.getClientID());
-                        Client savedClient = clientHandler.getClient(producerTemplate, headers);
+                        Client savedClient = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
                         log.info("Fetched client {}", savedClient);
 
                         if (savedClient == null
@@ -124,8 +119,8 @@ public class ServiceRequestProcessor implements Processor {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
                             log.info("Saved client {}", savedClient);
                         }
-                        headers.put(Constants.HEADER_PATH, savedClient.getPath());
-                        Contact savedContact = contactHandler.getContact(producerTemplate, headers);
+                        Contact savedContact =
+                                contactHandler.getContactByClientPath(producerTemplate, savedClient.getPath());
                         log.info("Fetched contact {}", savedContact);
                         if (savedContact == null
                                 || savedContact.getUid() == null
@@ -135,20 +130,21 @@ public class ServiceRequestProcessor implements Processor {
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
                             log.info("Saved contact {}", savedContact);
                         }
-                        headers.put(Constants.HEADER_CLIENT_ID, savedClient.getClientID());
-                        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, serviceRequestUuid);
                         AnalysisRequest savedAnalysisRequest =
-                                analysisRequestHandler.getAnalysisRequest(producerTemplate, headers);
+                                analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                                        producerTemplate, savedClient.getClientID(), serviceRequestUuid);
                         log.info("Fetched analysisRequest {}", savedAnalysisRequest);
                         if (savedAnalysisRequest == null
                                 || savedAnalysisRequest.getContact() == null
                                 || savedAnalysisRequest.getContact().isEmpty()) {
-                            headers.put(
-                                    Constants.HEADER_DESCRIPTION,
-                                    serviceRequest.getCode().getCoding().get(0).getCode());
                             AnalysisRequestTemplate analysisRequestTemplate =
-                                    analysisRequestTemplateHandler.getAnalysisRequestTemplate(
-                                            producerTemplate, headers);
+                                    analysisRequestTemplateHandler.getAnalysisRequestTemplateByServiceRequestCode(
+                                            producerTemplate,
+                                            serviceRequest
+                                                    .getCode()
+                                                    .getCoding()
+                                                    .get(0)
+                                                    .getCode());
                             log.info("Fetched analysisRequestTemplate {}", analysisRequestTemplate);
                             if (analysisRequestTemplate == null
                                     || analysisRequestTemplate.getAnalysisRequestTemplateItems() == null
@@ -169,13 +165,11 @@ public class ServiceRequestProcessor implements Processor {
                             log.info(
                                     "Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}",
                                     analysisRequest);
-                            headers.put(Constants.HEADER_CLIENT_UID, savedClient.getUid());
                             savedAnalysisRequest = analysisRequestHandler.sendAnalysisRequest(
-                                    producerTemplate, analysisRequest, headers);
+                                    producerTemplate, analysisRequest, savedClient.getUid());
                             log.info("Saved AnalysisRequest {}", savedAnalysisRequest);
                         }
-                        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestUuid);
-                        Task savedTask = taskHandler.getTask(producerTemplate, headers);
+                        Task savedTask = taskHandler.getTaskByServiceRequestID(producerTemplate, serviceRequestUuid);
                         log.info("Fetched task {}", savedTask);
                         if (savedTask == null
                                 || savedTask.getId() == null
@@ -215,18 +209,17 @@ public class ServiceRequestProcessor implements Processor {
 
     private AnalysisRequest cancelAnalysisRequest(ProducerTemplate producerTemplate, String serviceRequestUuid)
             throws JsonProcessingException {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestUuid);
-        ServiceRequest fetchedServiceRequest = serviceRequestHandler.getServiceRequest(producerTemplate, headers);
+        ServiceRequest fetchedServiceRequest =
+                serviceRequestHandler.getServiceRequestByID(producerTemplate, serviceRequestUuid);
         if (fetchedServiceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
-            headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, serviceRequestUuid);
-            AnalysisRequest analysisRequest = analysisRequestHandler.getAnalysisRequest(producerTemplate, headers);
+            AnalysisRequest analysisRequest =
+                    analysisRequestHandler.getAnalysisRequestByClientSampleID(producerTemplate, serviceRequestUuid);
             if (!analysisRequest.getReviewState().equalsIgnoreCase("cancelled")) {
                 AnalysisRequest cancelAnalysisRequest = new AnalysisRequest();
                 cancelAnalysisRequest.setTransition("cancel");
                 cancelAnalysisRequest.setClient(analysisRequest.getClient());
-                headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequest.getUid());
-                return analysisRequestHandler.updateAnalysisRequest(producerTemplate, cancelAnalysisRequest, headers);
+                return analysisRequestHandler.updateAnalysisRequest(
+                        producerTemplate, cancelAnalysisRequest, analysisRequest.getUid());
             } else {
                 log.info(
                         "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
