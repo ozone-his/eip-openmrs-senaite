@@ -19,6 +19,7 @@ import com.ozonehis.eip.openmrs.senaite.mapper.senaite.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.CancelAnalysisRequestPayload;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
 import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
@@ -209,23 +210,19 @@ public class ServiceRequestProcessor implements Processor {
 
     private AnalysisRequest cancelAnalysisRequest(ProducerTemplate producerTemplate, String serviceRequestUuid)
             throws JsonProcessingException {
-        ServiceRequest fetchedServiceRequest =
-                serviceRequestHandler.getServiceRequestByID(producerTemplate, serviceRequestUuid);
-        if (fetchedServiceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
-            AnalysisRequest analysisRequest =
-                    analysisRequestHandler.getAnalysisRequestByClientSampleID(producerTemplate, serviceRequestUuid);
-            if (!analysisRequest.getReviewState().equalsIgnoreCase("cancelled")) {
-                AnalysisRequest cancelAnalysisRequest = new AnalysisRequest();
-                cancelAnalysisRequest.setTransition("cancel");
-                cancelAnalysisRequest.setClient(analysisRequest.getClient());
-                return analysisRequestHandler.updateAnalysisRequest(
-                        producerTemplate, cancelAnalysisRequest, analysisRequest.getUid());
-            } else {
-                log.info(
-                        "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
-                        analysisRequest,
-                        serviceRequestUuid);
-            }
+        AnalysisRequest analysisRequest =
+                analysisRequestHandler.getAnalysisRequestByClientSampleID(producerTemplate, serviceRequestUuid);
+        if (!analysisRequest.getReviewState().equalsIgnoreCase("cancelled")) {
+            CancelAnalysisRequestPayload cancelAnalysisRequest = new CancelAnalysisRequestPayload();
+            cancelAnalysisRequest.setTransition("cancel");
+            cancelAnalysisRequest.setClient(analysisRequest.getClient());
+            return analysisRequestHandler.cancelAnalysisRequest(
+                    producerTemplate, cancelAnalysisRequest, analysisRequest.getUid());
+        } else {
+            log.info(
+                    "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
+                    analysisRequest,
+                    serviceRequestUuid);
         }
         return null;
     }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.CancelAnalysisRequestPayload;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -31,11 +32,11 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_UID, clientUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-create-analysis-request-route", analysisRequest, headers, String.class);
-        log.error("sendAnalysisRequest response {}", response);
+        log.info("sendAnalysisRequest response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.error("sendAnalysisRequest {}", savedAnalysisRequestResponse);
+        log.info("sendAnalysisRequest {}", savedAnalysisRequestResponse);
         return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
     }
 
@@ -46,11 +47,11 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        log.error("getAnalysisRequestByClientIDAndClientSampleID response {}", response);
+        log.info("getAnalysisRequestByClientIDAndClientSampleID response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.error("getAnalysisRequestByClientIDAndClientSampleID {}", analysisRequestResponse);
+        log.info("getAnalysisRequestByClientIDAndClientSampleID {}", analysisRequestResponse);
         return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
     }
 
@@ -60,11 +61,11 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
-        log.error("getAnalysisRequestByClientSampleID response {}", response);
+        log.info("getAnalysisRequestByClientSampleID response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.error("getAnalysisRequestByClientSampleID {}", analysisRequestResponse);
+        log.info("getAnalysisRequestByClientSampleID {}", analysisRequestResponse);
         return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
     }
 
@@ -75,26 +76,31 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        log.error("getAnalysisRequestResponse response {}", response);
+        log.info("getAnalysisRequestResponse response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.error("getAnalysisRequestResponse {}", analysisRequestResponse);
+        log.info("getAnalysisRequestResponse {}", analysisRequestResponse);
         return analysisRequestResponse;
     }
 
-    public AnalysisRequest updateAnalysisRequest(
-            ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, String analysisRequestUID)
+    public AnalysisRequest cancelAnalysisRequest(
+            ProducerTemplate producerTemplate,
+            CancelAnalysisRequestPayload cancelAnalysisRequestPayload,
+            String analysisRequestUID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
         String response = producerTemplate.requestBodyAndHeaders(
-                "direct:senaite-update-analysis-request-route", analysisRequest, headers, String.class);
-        log.error("updateAnalysisRequest response {}", response);
+                "direct:senaite-update-analysis-request-route", cancelAnalysisRequestPayload, headers, String.class);
+        log.info(
+                "updateAnalysisRequest response {} cancelAnalysisRequestPayload {}",
+                response,
+                cancelAnalysisRequestPayload);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.error("updateAnalysisRequest {}", savedAnalysisRequestResponse);
+        log.info("updateAnalysisRequest {}", savedAnalysisRequestResponse);
         return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
     }
 }

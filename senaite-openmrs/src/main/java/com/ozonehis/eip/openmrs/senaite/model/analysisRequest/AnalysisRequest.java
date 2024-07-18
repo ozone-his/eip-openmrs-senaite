@@ -53,9 +53,6 @@ public class AnalysisRequest implements SenaiteResource {
     @JsonProperty("Client")
     private String client; // senaite client uid not OpenMRS patient id
 
-    @JsonProperty("transition")
-    private String transition; // Used to Cancel AnalysisRequest
-
     @JsonProperty("uid")
     private String uid; // AnalysisRequest uid
 
