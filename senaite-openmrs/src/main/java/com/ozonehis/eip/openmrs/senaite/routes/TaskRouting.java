@@ -34,7 +34,7 @@ public class TaskRouting extends RouteBuilder {
         getContext().getTypeConverterRegistry().addTypeConverters(senaiteResourceConverter);
         getContext().getTypeConverterRegistry().addTypeConverters(fhirResourceConverter);
         // spotless:off
-        from("scheduler:taskUpdate?initialDelay=30000&delay=30000")
+        from("scheduler:taskUpdate?initialDelay=10000&delay=10000")
                 .routeId("poll-senaite")
                 .log("Scheduled FHIR Task status updater")
                 .to("direct:openmrs-get-task-by-status-route")
