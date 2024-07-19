@@ -163,30 +163,34 @@ public class TaskProcessor implements Processor {
             Encounter savedResultEncounter = encounterHandler.sendEncounter(
                     producerTemplate, encounterHandler.buildLabResultEncounter(orderEncounter));
             log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
-            AnalysesDetails resultAnalyses =
-                    analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analyses[0].getAnalysesApiUrl());
-            String analysesDescription = resultAnalyses.getDescription();
-            String conceptUuid = analysesDescription.substring(
-                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+            for (Analyses analysis : analyses) {
+                log.info("TaskProcessor: analysis {} and analyses {}", analysis, analyses);
+                AnalysesDetails resultAnalyses =
+                        analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
+                String analysesDescription = resultAnalyses.getDescription();
+                String conceptUuid = analysesDescription.substring(
+                        analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
-            Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                    producerTemplate,
-                    conceptUuid,
-                    subjectID,
-                    savedResultEncounter.getIdPart(),
-                    resultAnalyses.getResultCaptureDate());
-            log.info("TaskProcessor: Fetched Observation {}", savedObservation);
-            if (savedObservation == null || savedObservation.getId().isEmpty()) {
-                // Create result Observation
-                savedObservation = observationHandler.sendObservation(
+                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
                         producerTemplate,
-                        observationHandler.buildResultObservation(
-                                savedResultEncounter,
-                                conceptUuid,
-                                resultAnalyses.getResult(),
-                                resultAnalyses.getResultCaptureDate()));
-                log.info("TaskProcessor: Saved Observation {}", savedObservation);
+                        conceptUuid,
+                        subjectID,
+                        savedResultEncounter.getIdPart(),
+                        resultAnalyses.getResultCaptureDate());
+                log.info("TaskProcessor: Fetched Observation {}", savedObservation);
+                if (savedObservation == null || savedObservation.getId().isEmpty()) {
+                    // Create result Observation
+                    savedObservation = observationHandler.sendObservation(
+                            producerTemplate,
+                            observationHandler.buildResultObservation(
+                                    savedResultEncounter,
+                                    conceptUuid,
+                                    resultAnalyses.getResult(),
+                                    resultAnalyses.getResultCaptureDate()));
+                    log.info("TaskProcessor: Saved Observation {}", savedObservation);
+                }
             }
+
             log.info("TaskProcessor: Completed saving results for service request {}", serviceRequest.getId());
         }
     }
