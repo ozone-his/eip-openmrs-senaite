@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.processors;
 
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
@@ -18,6 +19,7 @@ import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDetails;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +29,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Resource;
@@ -58,6 +61,9 @@ public class TaskProcessor implements Processor {
 
     @Autowired
     private ObservationHandler observationHandler;
+
+    @Autowired
+    private DiagnosticReportHandler diagnosticReportHandler;
 
     @Override
     public void process(Exchange exchange) {
@@ -163,6 +169,7 @@ public class TaskProcessor implements Processor {
             Encounter savedResultEncounter = encounterHandler.sendEncounter(
                     producerTemplate, encounterHandler.buildLabResultEncounter(orderEncounter));
             log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
+            ArrayList<String> observationUuids = new ArrayList<>();
             for (Analyses analysis : analyses) {
                 log.info("TaskProcessor: analysis {} and analyses {}", analysis, analyses);
                 AnalysesDetails resultAnalyses =
@@ -189,7 +196,16 @@ public class TaskProcessor implements Processor {
                                     resultAnalyses.getResultCaptureDate()));
                     log.info("TaskProcessor: Saved Observation {}", savedObservation);
                 }
+                observationUuids.add(savedObservation.getIdPart());
             }
+            DiagnosticReport savedDiagnosticReport = diagnosticReportHandler.sendDiagnosticReport(
+                    producerTemplate,
+                    diagnosticReportHandler.buildDiagnosticReport(
+                            observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
+            log.info(
+                    "TaskProcessor: Saved DiagnosticReport {} for serviceRequest {}",
+                    savedDiagnosticReport.getIdPart(),
+                    serviceRequest.getIdPart());
 
             log.info("TaskProcessor: Completed saving results for service request {}", serviceRequest.getId());
         }
