@@ -74,8 +74,7 @@ public class EncounterHandler {
         return savedEncounter;
     }
 
-    public Encounter buildLabResultEncounter(ProducerTemplate producerTemplate, String encounterID) {
-        Encounter orderEncounter = getEncounterByEncounterID(producerTemplate, encounterID);
+    public Encounter buildLabResultEncounter(Encounter orderEncounter) {
         Encounter resultEncounter = new Encounter();
         resultEncounter.setLocation(orderEncounter.getLocation());
         Coding coding = new Coding();

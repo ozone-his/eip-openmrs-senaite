@@ -81,7 +81,8 @@ public class TaskProcessor implements Processor {
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(
                         producerTemplate, task.getBasedOn().get(0).getReference());
                 if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
-                    Task rejectedTask = taskHandler.markTaskRejected(producerTemplate, task);
+                    Task rejectedTask = taskHandler.updateTask(
+                            producerTemplate, taskHandler.markTaskRejected(task), task.getIdPart());
                     log.info("TaskProcessor: Rejected Task {}", rejectedTask);
                 } else {
                     AnalysisRequestResponse analysisRequest =
@@ -110,8 +111,10 @@ public class TaskProcessor implements Processor {
                         if (analysisRequestTaskStatus != null
                                 && !analysisRequestTaskStatus.equalsIgnoreCase(
                                         task.getStatus().toString())) {
-                            Task updatedTask =
-                                    taskHandler.updateTaskStatus(producerTemplate, task, analysisRequestTaskStatus);
+                            Task updatedTask = taskHandler.updateTask(
+                                    producerTemplate,
+                                    taskHandler.updateTaskStatus(task, analysisRequestTaskStatus),
+                                    task.getIdPart());
                             log.info("TaskProcessor: Updated Task {}", updatedTask);
                         }
                     }
@@ -156,8 +159,9 @@ public class TaskProcessor implements Processor {
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
             String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
+            Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(producerTemplate, encounterID);
             Encounter savedResultEncounter = encounterHandler.sendEncounter(
-                    producerTemplate, encounterHandler.buildLabResultEncounter(producerTemplate, encounterID));
+                    producerTemplate, encounterHandler.buildLabResultEncounter(orderEncounter));
             log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
             AnalysesDetails resultAnalyses =
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analyses[0].getAnalysesApiUrl());

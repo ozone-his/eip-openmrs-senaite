@@ -67,15 +67,15 @@ public class TaskHandler {
         return updatedTask;
     }
 
-    public Task markTaskRejected(ProducerTemplate producerTemplate, Task task) {
+    public Task markTaskRejected(Task task) {
         Task rejectTask = new Task();
         rejectTask.setId(task.getId());
         rejectTask.setStatus(Task.TaskStatus.REJECTED);
         rejectTask.setIntent(Task.TaskIntent.ORDER);
-        return updateTask(producerTemplate, rejectTask, task.getIdPart());
+        return rejectTask;
     }
 
-    public Task updateTaskStatus(ProducerTemplate producerTemplate, Task task, String analysisRequestTaskStatus) {
+    public Task updateTaskStatus(Task task, String analysisRequestTaskStatus) {
         Task updateTask = new Task();
         updateTask.setId(task.getIdPart());
         updateTask.setIntent(Task.TaskIntent.ORDER);
@@ -86,6 +86,6 @@ public class TaskHandler {
                 task.getStatus().toString(),
                 Task.TaskStatus.fromCode(analysisRequestTaskStatus),
                 analysisRequestTaskStatus);
-        return updateTask(producerTemplate, updateTask, task.getIdPart());
+        return updateTask;
     }
 }
