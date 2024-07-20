@@ -150,64 +150,74 @@ public class TaskProcessor implements Processor {
             ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses)
             throws JsonProcessingException {
         // TODO: Fetch typeID from config
-        Encounter encounter = encounterHandler.getEncounterByTypeAndSubject(
+        Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
                 producerTemplate,
                 "3596fafb-6f6f-4396-8c87-6e63a0f1bd71",
                 serviceRequest.getSubject().getReference().split("/")[1]);
-        if (encounter != null
-                && encounter.getPeriod().getStart().getTime()
+        if (resultEncounter != null
+                && resultEncounter.getPeriod().getStart().getTime()
                         == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
             // Result Encounter exists
             log.info(
                     "TaskProcessor: Result Encounter {} exists for serviceRequest id {}",
-                    encounter.getId(),
+                    resultEncounter.getId(),
                     serviceRequest.getId());
+            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter);
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
-            String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
             Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(producerTemplate, encounterID);
             Encounter savedResultEncounter = encounterHandler.sendEncounter(
                     producerTemplate, encounterHandler.buildLabResultEncounter(orderEncounter));
             log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
-            ArrayList<String> observationUuids = new ArrayList<>();
-            for (Analyses analysis : analyses) {
-                log.info("TaskProcessor: analysis {} and analyses {}", analysis, analyses);
-                AnalysesDetails resultAnalyses =
-                        analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
-                String analysesDescription = resultAnalyses.getDescription();
-                String conceptUuid = analysesDescription.substring(
-                        analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
-
-                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                        producerTemplate,
-                        conceptUuid,
-                        subjectID,
-                        savedResultEncounter.getIdPart(),
-                        resultAnalyses.getResultCaptureDate());
-                log.info("TaskProcessor: Fetched Observation {}", savedObservation);
-                if (savedObservation == null || savedObservation.getId().isEmpty()) {
-                    // Create result Observation
-                    savedObservation = observationHandler.sendObservation(
-                            producerTemplate,
-                            observationHandler.buildResultObservation(
-                                    savedResultEncounter,
-                                    conceptUuid,
-                                    resultAnalyses.getResult(),
-                                    resultAnalyses.getResultCaptureDate()));
-                    log.info("TaskProcessor: Saved Observation {}", savedObservation);
-                }
-                observationUuids.add(savedObservation.getIdPart());
-            }
-            DiagnosticReport savedDiagnosticReport = diagnosticReportHandler.sendDiagnosticReport(
-                    producerTemplate,
-                    diagnosticReportHandler.buildDiagnosticReport(
-                            observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
-            log.info(
-                    "TaskProcessor: Saved DiagnosticReport {} for serviceRequest {}",
-                    savedDiagnosticReport.getIdPart(),
-                    serviceRequest.getIdPart());
+            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter);
 
             log.info("TaskProcessor: Completed saving results for service request {}", serviceRequest.getId());
         }
+    }
+
+    private void saveObservationAndDiagnosticReport(
+            ProducerTemplate producerTemplate,
+            ServiceRequest serviceRequest,
+            Analyses[] analyses,
+            Encounter savedResultEncounter)
+            throws JsonProcessingException {
+        String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
+        ArrayList<String> observationUuids = new ArrayList<>();
+        for (Analyses analysis : analyses) {
+            log.info("TaskProcessor: analysis {} and analyses {}", analysis, analyses);
+            AnalysesDetails resultAnalyses =
+                    analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
+            String analysesDescription = resultAnalyses.getDescription();
+            String conceptUuid = analysesDescription.substring(
+                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+
+            Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+                    producerTemplate,
+                    conceptUuid,
+                    subjectID,
+                    savedResultEncounter.getIdPart(),
+                    resultAnalyses.getResultCaptureDate());
+            log.info("TaskProcessor: Fetched Observation {}", savedObservation);
+            if (savedObservation == null || savedObservation.getId().isEmpty()) {
+                // Create result Observation
+                savedObservation = observationHandler.sendObservation(
+                        producerTemplate,
+                        observationHandler.buildResultObservation(
+                                savedResultEncounter,
+                                conceptUuid,
+                                resultAnalyses.getResult(),
+                                resultAnalyses.getResultCaptureDate()));
+                log.info("TaskProcessor: Saved Observation {}", savedObservation);
+            }
+            observationUuids.add(savedObservation.getIdPart());
+        }
+        DiagnosticReport savedDiagnosticReport = diagnosticReportHandler.sendDiagnosticReport(
+                producerTemplate,
+                diagnosticReportHandler.buildDiagnosticReport(
+                        observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
+        log.info(
+                "TaskProcessor: Saved DiagnosticReport {} for serviceRequest {}",
+                savedDiagnosticReport.getIdPart(),
+                serviceRequest.getIdPart());
     }
 }
