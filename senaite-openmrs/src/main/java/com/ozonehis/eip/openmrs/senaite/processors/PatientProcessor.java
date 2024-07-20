@@ -43,17 +43,13 @@ public class PatientProcessor implements Processor {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
             Message message = exchange.getMessage();
             Patient patient = message.getBody(Patient.class);
-
             if (patient == null) {
                 return;
             }
-            log.info("PatientProcessor: Patient {}", patient);
 
             Map<String, Object> headers = new HashMap<>();
             Client savedClient = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
-            log.info("PatientProcessor: savedClient {}", savedClient);
             Client client = clientMapper.toSenaite(patient);
-            log.info("PatientProcessor: client {}", client);
             if (savedClient != null && !savedClient.getUid().isEmpty()) {
                 savedClient.setTitle(client.getTitle());
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");

@@ -32,7 +32,6 @@ public class UpdateClientRoute extends RouteBuilder {
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .to(senaiteClient.getSenaiteBaseUrl() + UPDATE_ENDPOINT)
-                .log("Response update-client-route: ${body}")
                 .end();
         // spotless:on
     }

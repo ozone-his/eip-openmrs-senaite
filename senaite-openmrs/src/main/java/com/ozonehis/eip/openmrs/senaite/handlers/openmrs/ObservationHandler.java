@@ -49,7 +49,6 @@ public class ObservationHandler {
         headers.put(Constants.HEADER_OBSERVATION_DATE, observationDate);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-observation-route", null, headers, String.class);
-        log.info("getObservation response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
         List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
@@ -61,17 +60,14 @@ public class ObservationHandler {
                 observation = (Observation) resource;
             }
         }
-        log.info("getObservation {}", observation);
         return observation;
     }
 
     public Observation sendObservation(ProducerTemplate producerTemplate, Observation observation) {
         String response =
                 producerTemplate.requestBody("direct:openmrs-create-observation-route", observation, String.class);
-        log.info("sendObservation response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Observation savedObservation = ctx.newJsonParser().parseResource(Observation.class, response);
-        log.info("sendObservation {}", savedObservation);
         return savedObservation;
     }
 
@@ -93,18 +89,21 @@ public class ObservationHandler {
     private Type getObservationValueBySenaiteResult(String senaiteResult) {
         if (senaiteResult.matches("-?\\d+(\\.\\d+)?")) {
             // If result is a number
-            log.info("Result match number {}", senaiteResult);
             return new Quantity().setValue(Double.parseDouble(senaiteResult));
         } else if (senaiteResult.matches(
                         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
                 || senaiteResult.matches("^[A-F0-9]{36,38}$")) {
             // If result is a UUID
-            log.info("Result match uuid {}", senaiteResult);
             return new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode(senaiteResult)));
         } else {
             // Handle ordinary string values
-            log.info("Result match string {}", senaiteResult);
             return new StringType(senaiteResult);
         }
+    }
+
+    public boolean doesObservationExists(Observation observation) {
+        return observation != null
+                && observation.getId() != null
+                && !observation.getId().isEmpty();
     }
 }

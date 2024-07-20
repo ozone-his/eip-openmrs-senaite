@@ -26,10 +26,8 @@ public class ClientHandler {
 
     public Client sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-client-route", client, String.class);
-        log.info("sendClient response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         ClientResponse savedClientResponse = objectMapper.readValue(response, ClientResponse.class);
-        log.info("sendClient {}", savedClientResponse);
         return savedClientResponse.clientResponseToClient(savedClientResponse);
     }
 
@@ -39,10 +37,12 @@ public class ClientHandler {
         headers.put(Constants.HEADER_CLIENT_ID, patientID);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-client-route", null, headers, String.class);
-        log.info("getClient response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         ClientResponse clientResponse = objectMapper.readValue(response, ClientResponse.class);
-        log.info("getClient {}", clientResponse);
         return clientResponse.clientResponseToClient(clientResponse);
+    }
+
+    public boolean doesClientExists(Client client) {
+        return client != null && client.getUid() != null && !client.getUid().isEmpty();
     }
 }

@@ -26,10 +26,8 @@ public class DiagnosticReportHandler {
     public DiagnosticReport sendDiagnosticReport(ProducerTemplate producerTemplate, DiagnosticReport diagnosticReport) {
         String response = producerTemplate.requestBody(
                 "direct:openmrs-create-diagnostic-report-route", diagnosticReport, String.class);
-        log.info("sendDiagnosticReport response {}", response);
         FhirContext ctx = FhirContext.forR4();
         DiagnosticReport savedDiagnosticReport = ctx.newJsonParser().parseResource(DiagnosticReport.class, response);
-        log.info("sendDiagnosticReport {}", savedDiagnosticReport);
         return savedDiagnosticReport;
     }
 

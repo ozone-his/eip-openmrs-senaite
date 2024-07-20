@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class ClientResponse {
 
     @JsonProperty("items")
-    private ArrayList<ClientItem> clientItems; // items[0].uid AND items[0].path
+    private ArrayList<ClientItem> clientItems;
 
     public Client clientResponseToClient(ClientResponse clientResponse) {
         Client client = new Client();

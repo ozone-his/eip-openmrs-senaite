@@ -33,7 +33,6 @@ public class GetContactRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .toD(senaiteClient.getSenaiteBaseUrl() + GET_CONTACT_ENDPOINT + "${header." + Constants.HEADER_PATH
                         + "}")
-                .log("Response get-contact: ${body}")
                 .end();
         // spotless:on
     }

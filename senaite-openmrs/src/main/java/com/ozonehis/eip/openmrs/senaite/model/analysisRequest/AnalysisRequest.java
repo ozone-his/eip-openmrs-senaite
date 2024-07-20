@@ -21,41 +21,33 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysisRequest implements SenaiteResource {
 
-    //   <simple>{"Contact": "${exchangeProperty.client-contact-uid}","SampleType":
-    // "${exchangeProperty.sample-type-uid}",
-    //   "DateSampled": "${exchangeProperty.lab-order-start-date}","Template":
-    // "${exchangeProperty.sample-template-uid}",
-    //   "Profiles": "${exchangeProperty.sample-analyses-profile-uid}","Analyses":
-    // [${exchangeProperty.sample-analyses-uids}],
-    //   "ClientSampleID": "${exchangeProperty.lab-order-uuid}"}</simple>
-
     @JsonProperty("Contact")
-    private String contact; // client-contact-uid
+    private String contact; // Contact UUID
 
     @JsonProperty("SampleType")
-    private String sampleType; // sample-type-uid
+    private String sampleType; // SampleType UUID
 
     @JsonProperty("DateSampled")
-    private Date dateSampled; // lab-order-start-date
+    private Date dateSampled;
 
     @JsonProperty("Template")
-    private String template; // sample-template-uid
+    private String template; // Template UUID
 
     @JsonProperty("Profiles")
-    private String profiles; // sample-analyses-profile-uid
+    private String profiles; // Profiles UUID
 
     @JsonProperty("Analyses")
-    private String[] analyses; // [${exchangeProperty.sample-analyses-uids}]
+    private String[] analyses; // Array of Analyses UUID
 
     @JsonProperty("ClientSampleID")
-    private String clientSampleID; // lab-order-uuid
+    private String clientSampleID;
 
     @JsonProperty("Client")
-    private String client; // senaite client uid not OpenMRS patient id
+    private String client; // SENAITE Client UUID, it's not OpenMRS Patient ID
 
     @JsonProperty("uid")
-    private String uid; // AnalysisRequest uid
+    private String uid; // SENAITE AnalysisRequest UUID
 
     @JsonProperty("review_state")
-    private String reviewState; // service-request-transitioned-status
+    private String reviewState;
 }

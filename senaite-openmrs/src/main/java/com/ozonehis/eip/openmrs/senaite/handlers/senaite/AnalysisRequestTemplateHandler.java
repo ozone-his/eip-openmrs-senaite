@@ -29,10 +29,14 @@ public class AnalysisRequestTemplateHandler {
         headers.put(Constants.HEADER_DESCRIPTION, serviceRequestCode);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-template-route", null, headers, String.class);
-        log.error("getAnalysisRequestTemplate response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestTemplate analysisRequest = objectMapper.readValue(response, AnalysisRequestTemplate.class);
-        log.error("getAnalysisRequestTemplate {}", analysisRequest);
         return analysisRequest;
+    }
+
+    public boolean doesAnalysisRequestTemplateExists(AnalysisRequestTemplate analysisRequestTemplate) {
+        return analysisRequestTemplate != null
+                && analysisRequestTemplate.getAnalysisRequestTemplateItems() != null
+                && !analysisRequestTemplate.getAnalysisRequestTemplateItems().isEmpty();
     }
 }

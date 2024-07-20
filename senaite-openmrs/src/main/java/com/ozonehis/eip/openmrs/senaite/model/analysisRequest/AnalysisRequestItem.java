@@ -22,32 +22,32 @@ import lombok.NoArgsConstructor;
 public class AnalysisRequestItem implements SenaiteResource {
 
     @JsonProperty("ContactUID")
-    private String contactUid; // client-contact-uid
+    private String contactUid;
 
     @JsonProperty("SampleTypeUID")
-    private String sampleTypeUid; // sample-type-uid
+    private String sampleTypeUid;
 
     @JsonProperty("DateSampled")
-    private Date dateSampled; // lab-order-start-date
+    private Date dateSampled;
 
     @JsonProperty("TemplateUID")
-    private String templateUid; // sample-template-uid
+    private String templateUid;
 
     @JsonProperty("ProfilesUID")
-    private String[] profilesUid; // sample-analyses-profile-uid
+    private String[] profilesUid;
 
     @JsonProperty("Analyses")
-    private Analyses[] analyses; // [${exchangeProperty.sample-analyses-uids}]
+    private Analyses[] analyses;
 
     @JsonProperty("ClientSampleID")
-    private String clientSampleID; // lab-order-uuid
+    private String clientSampleID;
 
     @JsonProperty("getClientUID")
-    private String clientUID; // senaite client uid not OpenMRS patient id
+    private String clientUID;
 
     @JsonProperty("uid")
-    private String uid; // AnalysisRequest uid
+    private String uid;
 
     @JsonProperty("review_state")
-    private String reviewState; // service-request-transitioned-status
+    private String reviewState;
 }

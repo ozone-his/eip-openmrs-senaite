@@ -32,7 +32,6 @@ public class CreateClientRoute extends RouteBuilder {
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .to(senaiteClient.getSenaiteBaseUrl() + CREATE_ENDPOINT)
-                .log("Response create-client-route: ${body}")
                 .end();
         // spotless:on
     }

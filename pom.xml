@@ -15,7 +15,7 @@
   <version>2.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>EIP OpenMRS SENAITE</name>
+  <name>EIP OpenMRS SENAITE Parent</name>
   <description>Apache Camel routes that integrates OpenMRS and SENAITE</description>
 
   <inceptionYear>2021</inceptionYear>

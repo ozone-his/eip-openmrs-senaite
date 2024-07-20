@@ -27,7 +27,6 @@ public class ServiceRequestHandler {
         headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-service-request-route", null, headers, String.class);
-        log.info("getServiceRequest response {}", response);
         if (response.contains("gone/deleted")) {
             // TODO: Can be moved to route as well
             ServiceRequest deletedServiceRequestResponse = new ServiceRequest();
@@ -38,7 +37,6 @@ public class ServiceRequestHandler {
         FhirContext ctx = FhirContext.forR4();
         ServiceRequest serviceRequestResponse = ctx.newJsonParser().parseResource(ServiceRequest.class, response);
 
-        log.info("getServiceRequest {}", serviceRequestResponse);
         return serviceRequestResponse;
     }
 }

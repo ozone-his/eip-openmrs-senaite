@@ -38,13 +38,6 @@ public class GetOpenmrsFhirObservationRoute extends RouteBuilder {
                                 "${header." + Constants.HEADER_OBSERVATION_SUBJECT + "}",
                                 "${header." + Constants.HEADER_OBSERVATION_ENCOUNTER + "}",
                                 "${header." + Constants.HEADER_OBSERVATION_DATE + "}"))
-                .log(
-                        LoggingLevel.INFO,
-                        "Response get-observation-route: ${body} code, subject, encounter, date" + "${header."
-                                + Constants.HEADER_OBSERVATION_CODE + "}" + "${header."
-                                + Constants.HEADER_OBSERVATION_SUBJECT + "}" + "${header."
-                                + Constants.HEADER_OBSERVATION_ENCOUNTER + "}" + "${header."
-                                + Constants.HEADER_OBSERVATION_DATE + "}")
                 .end();
         // spotless:on
     }

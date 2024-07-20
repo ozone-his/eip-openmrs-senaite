@@ -30,7 +30,6 @@ public class GetAnalysesRoute extends RouteBuilder {
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .toD("${header." + Constants.HEADER_ANALYSES_GET_ENDPOINT + "}")
-                .log("Response get-analyses: ${body}")
                 .end();
         // spotless:on
     }

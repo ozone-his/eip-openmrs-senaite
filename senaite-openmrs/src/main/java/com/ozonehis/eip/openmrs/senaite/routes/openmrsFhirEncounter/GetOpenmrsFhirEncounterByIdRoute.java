@@ -34,10 +34,6 @@ public class GetOpenmrsFhirEncounterByIdRoute extends RouteBuilder {
             .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl()
                         + String.format(
                         GET_ENDPOINT, "${header." + Constants.HEADER_ENCOUNTER_ID + "}"))
-            .log(
-                        LoggingLevel.INFO,
-                        "Response get-encounter-by-id-route: ${body} encounter_id ${header."
-                                + Constants.HEADER_ENCOUNTER_ID + "}")
                 .end();
         // spotless:on
     }

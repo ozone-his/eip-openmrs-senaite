@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Analyses {
+
     @JsonProperty("service_uid")
     private String serviceUid;
 

@@ -36,7 +36,6 @@ public class GetAnalysisRequestByClientSampleIDRoute extends RouteBuilder {
                         + String.format(
                                 GET_ANALYSIS_REQUEST_ENDPOINT,
                                 "${header." + Constants.HEADER_CLIENT_SAMPLE_ID + "}"))
-                .log("Response get-analysis-by-client-sample-id-request: ${body}")
                 .end();
         // spotless:on
     }

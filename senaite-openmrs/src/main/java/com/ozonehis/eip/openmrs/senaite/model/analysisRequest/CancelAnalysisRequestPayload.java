@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CancelAnalysisRequestPayload implements SenaiteResource {
+
     @JsonProperty("Client")
-    private String client; // senaite client uid not OpenMRS patient id
+    private String client; // SENAITE Client UUID, it's not OpenMRS Patient ID
 
     @JsonProperty("transition")
     private String transition; // Used to Cancel AnalysisRequest

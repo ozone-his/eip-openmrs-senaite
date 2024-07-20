@@ -33,10 +33,6 @@ public class CreateAnalysisRequestRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .toD(senaiteClient.getSenaiteBaseUrl() + CREATE_ANALYSIS_REQUEST_ENDPOINT + "${header."
                         + Constants.HEADER_CLIENT_UID + "}")
-                .log(
-                        LoggingLevel.INFO,
-                        "Response create-analysis-request: ${body} clientUID ${header." + Constants.HEADER_CLIENT_UID
-                                + "}")
                 .end();
         // spotless:on
     }

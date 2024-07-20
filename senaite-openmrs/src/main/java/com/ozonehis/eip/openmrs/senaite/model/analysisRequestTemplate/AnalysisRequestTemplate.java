@@ -21,10 +21,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysisRequestTemplate implements SenaiteResource {
 
-    //  {{senaite.baseUrl}}/@@API/senaite/v1/search?complete=true&amp;Description=
-    //  ${exchangeProperty.service-analysis-template}&amp;catalog=senaite_catalog_setup&amp;portal_type=ARTemplate
-
     @JsonProperty("items")
-    private ArrayList<AnalysisRequestTemplateItem>
-            analysisRequestTemplateItems; // .analysisRequestTemplateItems[0].SampleType.uid
+    private ArrayList<AnalysisRequestTemplateItem> analysisRequestTemplateItems;
 }

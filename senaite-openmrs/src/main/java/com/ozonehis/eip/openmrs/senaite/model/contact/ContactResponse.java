@@ -21,12 +21,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContactResponse implements SenaiteResource {
 
-    //  <simple>{"portal_type": "Contact","parent_path": "${exchangeProperty.client-storage-path}"
-    //  ,"Firstname": "${exchangeProperty.requester-given-name}","Surname":
-    // "${exchangeProperty.requester-family-name}"}</simple>
-
     @JsonProperty("items")
-    private ArrayList<ContactItem> contactItems; // items[0].uid
+    private ArrayList<ContactItem> contactItems;
 
     public Contact contactResponseToContact(ContactResponse contactResponse) {
         Contact contact = new Contact();

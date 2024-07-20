@@ -34,7 +34,6 @@ public class EncounterHandler {
         headers.put(Constants.HEADER_PATIENT_ID, subjectID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-encounter-route", null, headers, String.class);
-        log.info("getEncounter response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
         List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
@@ -46,7 +45,6 @@ public class EncounterHandler {
                 encounter = (Encounter) resource;
             }
         }
-        log.info("getEncounter {}", encounter);
         return encounter;
     }
 
@@ -55,22 +53,16 @@ public class EncounterHandler {
         headers.put(Constants.HEADER_ENCOUNTER_ID, encounterID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-encounter-by-id-route", null, headers, String.class);
-        log.info("getEncounterById response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Encounter encounter = ctx.newJsonParser().parseResource(Encounter.class, response);
-        log.info("getEncounterById {}", encounter);
         return encounter;
     }
 
     public Encounter sendEncounter(ProducerTemplate producerTemplate, Encounter encounter) {
-        log.info(
-                "sendEncounter response {}", FhirContext.forR4().newJsonParser().encodeResourceToString(encounter));
         String response =
                 producerTemplate.requestBody("direct:openmrs-create-encounter-route", encounter, String.class);
-        log.info("sendEncounter response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Encounter savedEncounter = ctx.newJsonParser().parseResource(Encounter.class, response);
-        log.info("sendEncounter {}", savedEncounter);
         return savedEncounter;
     }
 

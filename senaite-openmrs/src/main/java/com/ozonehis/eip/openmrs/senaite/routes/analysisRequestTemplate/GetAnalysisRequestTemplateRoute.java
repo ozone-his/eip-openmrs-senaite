@@ -34,8 +34,6 @@ public class GetAnalysisRequestTemplateRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .toD(senaiteClient.getSenaiteBaseUrl() + GET_ANALYSIS_REQUEST_TEMPLATE_ENDPOINT + "${header."
                         + Constants.HEADER_DESCRIPTION + "}")
-                .log("Response get-analysis-request-template: ${body} description ${header."
-                        + Constants.HEADER_DESCRIPTION + "}")
                 .end();
         // spotless:on
     }

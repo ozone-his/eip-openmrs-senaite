@@ -35,11 +35,11 @@ public class TaskRouting extends RouteBuilder {
         getContext().getTypeConverterRegistry().addTypeConverters(fhirResourceConverter);
         // spotless:off
         from("scheduler:taskUpdate?initialDelay=10000&delay=10000")
-                .routeId("poll-senaite")
-                .log("Scheduled FHIR Task status updater")
-                .to("direct:openmrs-get-task-by-status-route")
-                .process(taskProcessor)
-                .log(LoggingLevel.INFO, "Polling Tasks completed...")
+            .routeId("poll-senaite")
+            .log(LoggingLevel.INFO, "Polling Tasks started...")
+            .to("direct:openmrs-get-task-by-status-route")
+            .process(taskProcessor)
+            .log(LoggingLevel.INFO, "Polling Tasks completed.")
                 .end();
         // spotless:on
     }

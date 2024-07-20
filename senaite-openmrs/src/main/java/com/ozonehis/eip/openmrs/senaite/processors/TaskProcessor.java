@@ -29,7 +29,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Resource;
@@ -69,7 +68,7 @@ public class TaskProcessor implements Processor {
     public void process(Exchange exchange) {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
             String body = exchange.getMessage().getBody(String.class);
-            log.info("TaskProcessor: Body {}", body);
+            log.debug("TaskProcessor: Body {}", body);
             FhirContext ctx = FhirContext.forR4();
             Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, body);
             List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
@@ -80,38 +79,32 @@ public class TaskProcessor implements Processor {
                     task = (Task) resource;
                 }
 
-                if (task == null || task.getStatus() == null) {
+                if (!taskHandler.doesTaskExists(task)) {
                     continue;
                 }
-                log.info("TaskProcessor: Task {}", task);
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(
                         producerTemplate, task.getBasedOn().get(0).getReference());
                 if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
-                    Task rejectedTask = taskHandler.updateTask(
-                            producerTemplate, taskHandler.markTaskRejected(task), task.getIdPart());
-                    log.info("TaskProcessor: Rejected Task {}", rejectedTask);
+                    taskHandler.updateTask(producerTemplate, taskHandler.markTaskRejected(task), task.getIdPart());
                 } else {
+                    String serviceRequestSubjectID =
+                            serviceRequest.getSubject().getReference().split("/")[1];
+                    String taskBasedOnReference = task.getBasedOn().get(0).getReference();
                     AnalysisRequestResponse analysisRequest =
                             analysisRequestHandler.getAnalysisRequestResponseByClientIDAndClientSampleID(
-                                    producerTemplate,
-                                    serviceRequest.getSubject().getReference().split("/")[1],
-                                    task.getBasedOn().get(0).getReference());
-                    log.info("TaskProcessor: AnalysisRequestResponse {}", analysisRequest);
-                    if (analysisRequest != null
-                            && analysisRequest.getAnalysisRequestItems() != null
-                            && !analysisRequest.getAnalysisRequestItems().isEmpty()) {
+                                    producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
+                    if (analysisRequestHandler.doesAnalysisRequestResponseExists(analysisRequest)) {
                         Analyses[] analyses =
                                 analysisRequest.getAnalysisRequestItems().get(0).getAnalyses();
                         String analysisRequestTaskStatus =
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequest);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            log.info("TaskProcessor: Creating ServiceRequest results in OpenMRS {}", analysisRequest);
                             createResultsInOpenMRS(producerTemplate, serviceRequest, analyses);
                         } else {
-                            log.info(
+                            log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
-                                    task,
+                                    task.getIdPart(),
                                     task.getStatus());
                         }
                         if (analysisRequestTaskStatus != null
@@ -121,7 +114,10 @@ public class TaskProcessor implements Processor {
                                     producerTemplate,
                                     taskHandler.updateTaskStatus(task, analysisRequestTaskStatus),
                                     task.getIdPart());
-                            log.info("TaskProcessor: Updated Task {}", updatedTask);
+                            log.info(
+                                    "TaskProcessor: Updated Task {} with status {}",
+                                    updatedTask.getIdPart(),
+                                    updatedTask.getStatus());
                         }
                     }
                 }
@@ -158,20 +154,13 @@ public class TaskProcessor implements Processor {
                 && resultEncounter.getPeriod().getStart().getTime()
                         == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
             // Result Encounter exists
-            log.info(
-                    "TaskProcessor: Result Encounter {} exists for serviceRequest id {}",
-                    resultEncounter.getId(),
-                    serviceRequest.getId());
             saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter);
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
             Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(producerTemplate, encounterID);
             Encounter savedResultEncounter = encounterHandler.sendEncounter(
                     producerTemplate, encounterHandler.buildLabResultEncounter(orderEncounter));
-            log.info("TaskProcessor: savedResultEncounter id {}", savedResultEncounter.getIdPart());
             saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter);
-
-            log.info("TaskProcessor: Completed saving results for service request {}", serviceRequest.getId());
         }
     }
 
@@ -184,7 +173,6 @@ public class TaskProcessor implements Processor {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
         for (Analyses analysis : analyses) {
-            log.info("TaskProcessor: analysis {} and analyses {}", analysis, analyses);
             AnalysesDetails resultAnalyses =
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
             String analysesDescription = resultAnalyses.getDescription();
@@ -197,8 +185,7 @@ public class TaskProcessor implements Processor {
                     subjectID,
                     savedResultEncounter.getIdPart(),
                     resultAnalyses.getResultCaptureDate());
-            log.info("TaskProcessor: Fetched Observation {}", savedObservation);
-            if (savedObservation == null || savedObservation.getId().isEmpty()) {
+            if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create result Observation
                 savedObservation = observationHandler.sendObservation(
                         producerTemplate,
@@ -207,17 +194,12 @@ public class TaskProcessor implements Processor {
                                 conceptUuid,
                                 resultAnalyses.getResult(),
                                 resultAnalyses.getResultCaptureDate()));
-                log.info("TaskProcessor: Saved Observation {}", savedObservation);
             }
             observationUuids.add(savedObservation.getIdPart());
         }
-        DiagnosticReport savedDiagnosticReport = diagnosticReportHandler.sendDiagnosticReport(
+        diagnosticReportHandler.sendDiagnosticReport(
                 producerTemplate,
                 diagnosticReportHandler.buildDiagnosticReport(
                         observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
-        log.info(
-                "TaskProcessor: Saved DiagnosticReport {} for serviceRequest {}",
-                savedDiagnosticReport.getIdPart(),
-                serviceRequest.getIdPart());
     }
 }

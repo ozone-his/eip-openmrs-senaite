@@ -62,7 +62,7 @@ public class ServiceRequestRouting extends RouteBuilder {
         from("direct:service-request-to-analysis-request-processor")
                 .routeId("service-request-to-analysis-request-processor")
                 .process(serviceRequestProcessor)
-                .log(LoggingLevel.INFO, "Processing ServiceRequest")
+                .log(LoggingLevel.INFO, "Processed ServiceRequest")
                 .end();
         // spotless:on
     }

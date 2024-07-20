@@ -32,7 +32,6 @@ public class CreateOpenmrsFhirObservationRoute extends RouteBuilder {
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
                 .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + CREATE_ENDPOINT)
-                .log(LoggingLevel.INFO, "Response create-observation-route: ${body}")
                 .end();
         // spotless:on
     }

@@ -33,9 +33,6 @@ public class GetClientRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .toD(senaiteClient.getSenaiteBaseUrl() + GET_CLIENT_ENDPOINT + "${header." + Constants.HEADER_CLIENT_ID
                         + "}")
-                .log(
-                        LoggingLevel.INFO,
-                        "Response get-client: ${body} clientID ${header." + Constants.HEADER_CLIENT_ID + "}")
                 .end();
         // spotless:on
     }

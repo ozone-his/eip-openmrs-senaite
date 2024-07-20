@@ -108,97 +108,52 @@ public class ServiceRequestProcessor implements Processor {
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
+
                         Client client = clientMapper.toSenaite(patient);
-                        log.info("Mapped client from patient {}", client);
-
                         Client savedClient = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
-                        log.info("Fetched client {}", savedClient);
-
-                        if (savedClient == null
-                                || savedClient.getUid() == null
-                                || savedClient.getUid().isEmpty()) {
+                        if (!clientHandler.doesClientExists(savedClient)) {
                             savedClient = clientHandler.sendClient(producerTemplate, client);
-                            log.info("Saved client {}", savedClient);
                         }
                         Contact savedContact =
                                 contactHandler.getContactByClientPath(producerTemplate, savedClient.getPath());
-                        log.info("Fetched contact {}", savedContact);
-                        if (savedContact == null
-                                || savedContact.getUid() == null
-                                || savedContact.getUid().isEmpty()) {
+                        if (!contactHandler.doesContactExists(savedContact)) {
                             Contact contact = contactMapper.toSenaite(serviceRequest, savedClient);
-                            log.info("Mapped contact from savedClient {}", contact);
                             savedContact = contactHandler.sendContact(producerTemplate, contact);
-                            log.info("Saved contact {}", savedContact);
                         }
                         AnalysisRequest savedAnalysisRequest =
                                 analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
                                         producerTemplate, savedClient.getClientID(), serviceRequestUuid);
-                        log.info("Fetched analysisRequest {}", savedAnalysisRequest);
-                        if (savedAnalysisRequest == null
-                                || savedAnalysisRequest.getContact() == null
-                                || savedAnalysisRequest.getContact().isEmpty()) {
+                        if (!analysisRequestHandler.doesAnalysisRequestExists(savedAnalysisRequest)) {
+                            String serviceRequestCodeID =
+                                    serviceRequest.getCode().getCoding().get(0).getCode();
                             AnalysisRequestTemplate analysisRequestTemplate =
                                     analysisRequestTemplateHandler.getAnalysisRequestTemplateByServiceRequestCode(
-                                            producerTemplate,
-                                            serviceRequest
-                                                    .getCode()
-                                                    .getCoding()
-                                                    .get(0)
-                                                    .getCode());
-                            log.info("Fetched analysisRequestTemplate {}", analysisRequestTemplate);
-                            if (analysisRequestTemplate == null
-                                    || analysisRequestTemplate.getAnalysisRequestTemplateItems() == null
-                                    || analysisRequestTemplate
-                                            .getAnalysisRequestTemplateItems()
-                                            .isEmpty()) {
-                                log.error(
-                                        "No ARTemplate found for id {}",
-                                        serviceRequest
-                                                .getCode()
-                                                .getCoding()
-                                                .get(0)
-                                                .getCode());
+                                            producerTemplate, serviceRequestCodeID);
+                            if (!analysisRequestTemplateHandler.doesAnalysisRequestTemplateExists(
+                                    analysisRequestTemplate)) {
+                                log.error("No ARTemplate found in SENAITE code {}", serviceRequestCodeID);
+                                // TODO: Should we throw an error if ARTemplate with serviceRequest code does not exists
                                 return;
                             }
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
                                     savedClient, savedContact, analysisRequestTemplate, serviceRequest);
-                            log.info(
-                                    "Mapped analysisRequest from savedClient, analysisRequestTemplate, serviceRequest {}",
-                                    analysisRequest);
                             savedAnalysisRequest = analysisRequestHandler.sendAnalysisRequest(
                                     producerTemplate, analysisRequest, savedClient.getUid());
-                            log.info("Saved AnalysisRequest {}", savedAnalysisRequest);
                         }
                         Task savedTask = taskHandler.getTaskByServiceRequestID(producerTemplate, serviceRequestUuid);
-                        log.info("Fetched task {}", savedTask);
-                        if (savedTask == null
-                                || savedTask.getId() == null
-                                || savedTask.getId().isEmpty()) {
+                        if (!taskHandler.doesTaskExists(savedTask)) {
                             Task task = taskMapper.toFhir(savedAnalysisRequest);
-                            log.info("Mapped task from savedAnalysisRequest {}", task);
                             task.setStatus(Task.TaskStatus.REQUESTED);
-                            savedTask = taskHandler.sendTask(producerTemplate, task);
-                            log.info("Saved task {}", savedTask);
+                            taskHandler.sendTask(producerTemplate, task);
                         }
 
                     } else {
                         // Executed when MODIFY option is selected in OpenMRS
-                        // Fetch ServiceRequest and if is revoked then cancel AnalysisRequest
-                        AnalysisRequest cancelledAnalysisRequest =
-                                cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
-                        log.info(
-                                "ServiceRequestProcessor: Executed when MODIFY option is selected in OpenMRS, Cancelled AnalysisRequest {}",
-                                cancelledAnalysisRequest);
+                        cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
                     }
                 } else if ("d".equals(eventType)) {
                     // Executed when DISCONTINUE option is selected in OpenMRS
-                    // Fetch ServiceRequest and if is revoked then cancel AnalysisRequest
-                    AnalysisRequest cancelledAnalysisRequest =
-                            cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
-                    log.info(
-                            "ServiceRequestProcessor: Executed when DISCONTINUE option is selected in OpenMRS, Cancelled AnalysisRequest {}",
-                            cancelledAnalysisRequest);
+                    cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
                 } else {
                     throw new IllegalArgumentException("Unsupported event type: " + eventType);
                 }
@@ -219,7 +174,7 @@ public class ServiceRequestProcessor implements Processor {
             return analysisRequestHandler.cancelAnalysisRequest(
                     producerTemplate, cancelAnalysisRequest, analysisRequest.getUid());
         } else {
-            log.info(
+            log.debug(
                     "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
                     analysisRequest,
                     serviceRequestUuid);

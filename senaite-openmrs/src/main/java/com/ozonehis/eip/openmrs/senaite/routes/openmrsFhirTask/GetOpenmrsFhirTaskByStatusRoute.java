@@ -32,7 +32,6 @@ public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
                 .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + GET_BY_STATUS_ENDPOINT)
-                .log(LoggingLevel.INFO, "Response get-task-by-status-route: ${body}")
                 .end();
         // spotless:on
     }

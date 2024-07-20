@@ -26,10 +26,8 @@ public class ContactHandler {
 
     public Contact sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
-        log.error("sendContact response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         ContactResponse savedContactResponse = objectMapper.readValue(response, ContactResponse.class);
-        log.error("sendContact {}", savedContactResponse);
         return savedContactResponse.contactResponseToContact(savedContactResponse);
     }
 
@@ -39,10 +37,12 @@ public class ContactHandler {
         headers.put(Constants.HEADER_PATH, clientPath);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
-        log.error("getContact response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         ContactResponse contactResponse = objectMapper.readValue(response, ContactResponse.class);
-        log.error("getContact {}", contactResponse);
         return contactResponse.contactResponseToContact(contactResponse);
+    }
+
+    public boolean doesContactExists(Contact contact) {
+        return contact != null && contact.getUid() != null && !contact.getUid().isEmpty();
     }
 }

@@ -36,11 +36,6 @@ public class GetOpenmrsFhirEncounterRoute extends RouteBuilder {
                                 GET_ENDPOINT,
                                 "${header." + Constants.HEADER_ENCOUNTER_TYPE_ID + "}",
                                 "${header." + Constants.HEADER_PATIENT_ID + "}"))
-                .log(
-                        LoggingLevel.INFO,
-                        "Response get-encounter-route: ${body} encounter_id ${header."
-                                + Constants.HEADER_ENCOUNTER_TYPE_ID + "}" + " patient id ${header."
-                                + Constants.HEADER_PATIENT_ID + "}")
                 .end();
         // spotless:on
     }

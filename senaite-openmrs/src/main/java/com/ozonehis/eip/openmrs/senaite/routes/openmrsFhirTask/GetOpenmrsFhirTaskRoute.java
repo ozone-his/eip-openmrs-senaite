@@ -33,10 +33,6 @@ public class GetOpenmrsFhirTaskRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
                 .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + GET_ENDPOINT + "${header."
                         + Constants.HEADER_SERVICE_REQUEST_ID + "}")
-                .log(
-                        LoggingLevel.INFO,
-                        "Response get-task-route: ${body} service_request_id ${header."
-                                + Constants.HEADER_SERVICE_REQUEST_ID + "}")
                 .end();
         // spotless:on
     }

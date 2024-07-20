@@ -33,9 +33,6 @@ public class UpdateOpenmrsFhirTaskRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
                 .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + UPDATE_ENDPOINT + "${header."
                         + Constants.HEADER_TASK_ID + "}")
-                .log(
-                        LoggingLevel.INFO,
-                        "Response update-task-route: ${body} task_id ${header." + Constants.HEADER_TASK_ID + "}")
                 .end();
         // spotless:on
     }

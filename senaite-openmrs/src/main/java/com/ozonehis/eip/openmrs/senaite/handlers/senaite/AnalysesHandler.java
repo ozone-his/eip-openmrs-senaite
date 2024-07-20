@@ -30,10 +30,8 @@ public class AnalysesHandler {
         headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analysesApiUrl);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analyses-route", null, headers, String.class);
-        log.error("getAnalyses response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysesResponse analysisRequestResponse = objectMapper.readValue(response, AnalysesResponse.class);
-        log.error("getAnalyses {}", analysisRequestResponse);
         return analysisRequestResponse.analysesResponseToAnalyses(analysisRequestResponse);
     }
 }

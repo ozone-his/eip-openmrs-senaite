@@ -33,10 +33,6 @@ public class UpdateAnalysisRequestRoute extends RouteBuilder {
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .toD(senaiteClient.getSenaiteBaseUrl() + UPDATE_ANALYSIS_REQUEST_ENDPOINT + "${header."
                         + Constants.HEADER_ANALYSIS_REQUEST_UID + "}")
-                .log(
-                        LoggingLevel.INFO,
-                        "Response update-analysis-request: ${body} analysisRequestUID ${header." + Constants.HEADER_ANALYSIS_REQUEST_UID
-                                + "}")
                 .end();
         // spotless:on
     }

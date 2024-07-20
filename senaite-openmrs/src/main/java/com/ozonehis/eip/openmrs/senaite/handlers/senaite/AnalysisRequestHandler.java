@@ -32,11 +32,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_UID, clientUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-create-analysis-request-route", analysisRequest, headers, String.class);
-        log.info("sendAnalysisRequest response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.info("sendAnalysisRequest {}", savedAnalysisRequestResponse);
         return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
     }
 
@@ -47,11 +45,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        log.info("getAnalysisRequestByClientIDAndClientSampleID response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.info("getAnalysisRequestByClientIDAndClientSampleID {}", analysisRequestResponse);
         return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
     }
 
@@ -61,11 +57,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
-        log.info("getAnalysisRequestByClientSampleID response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.info("getAnalysisRequestByClientSampleID {}", analysisRequestResponse);
         return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
     }
 
@@ -76,11 +70,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        log.info("getAnalysisRequestResponse response {}", response);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.info("getAnalysisRequestResponse {}", analysisRequestResponse);
         return analysisRequestResponse;
     }
 
@@ -93,14 +85,21 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-update-analysis-request-route", cancelAnalysisRequestPayload, headers, String.class);
-        log.info(
-                "updateAnalysisRequest response {} cancelAnalysisRequestPayload {}",
-                response,
-                cancelAnalysisRequestPayload);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        log.info("updateAnalysisRequest {}", savedAnalysisRequestResponse);
         return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
+    }
+
+    public boolean doesAnalysisRequestExists(AnalysisRequest analysisRequest) {
+        return analysisRequest != null
+                && analysisRequest.getContact() != null
+                && !analysisRequest.getContact().isEmpty();
+    }
+
+    public boolean doesAnalysisRequestResponseExists(AnalysisRequestResponse analysisRequestResponse) {
+        return analysisRequestResponse != null
+                && analysisRequestResponse.getAnalysisRequestItems() != null
+                && !analysisRequestResponse.getAnalysisRequestItems().isEmpty();
     }
 }

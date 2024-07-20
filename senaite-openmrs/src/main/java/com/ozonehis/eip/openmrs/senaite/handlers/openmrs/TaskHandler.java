@@ -27,10 +27,8 @@ public class TaskHandler {
 
     public Task sendTask(ProducerTemplate producerTemplate, Task task) {
         String response = producerTemplate.requestBody("direct:openmrs-create-task-route", task, String.class);
-        log.info("sendTask response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Task savedTask = ctx.newJsonParser().parseResource(Task.class, response);
-        log.info("sendTask {}", savedTask);
         return savedTask;
     }
 
@@ -39,7 +37,6 @@ public class TaskHandler {
         headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, String.class);
-        log.info("getTask response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
         List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
@@ -51,7 +48,6 @@ public class TaskHandler {
                 task = (Task) resource;
             }
         }
-        log.info("getTask {}", task);
         return task;
     }
 
@@ -60,10 +56,8 @@ public class TaskHandler {
         headers.put(Constants.HEADER_TASK_ID, taskID);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:openmrs-update-task-route", task, headers, String.class);
-        log.info("updateTask response {}", response);
         FhirContext ctx = FhirContext.forR4();
         Task updatedTask = ctx.newJsonParser().parseResource(Task.class, response);
-        log.info("updateTask {}", updatedTask);
         return updatedTask;
     }
 
@@ -80,12 +74,10 @@ public class TaskHandler {
         updateTask.setId(task.getIdPart());
         updateTask.setIntent(Task.TaskIntent.ORDER);
         updateTask.setStatus(Task.TaskStatus.fromCode(analysisRequestTaskStatus));
-        log.info(
-                "TaskProcessor: Updating Task with id {} from status {} to status {} analysisRequest {}",
-                task.getIdPart(),
-                task.getStatus().toString(),
-                Task.TaskStatus.fromCode(analysisRequestTaskStatus),
-                analysisRequestTaskStatus);
         return updateTask;
+    }
+
+    public boolean doesTaskExists(Task task) {
+        return task != null && task.getId() != null && !task.getId().isEmpty() && task.getStatus() != null;
     }
 }

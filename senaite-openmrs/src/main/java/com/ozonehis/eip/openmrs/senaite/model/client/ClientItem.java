@@ -19,16 +19,16 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ClientItem {
     @JsonProperty("portal_type")
-    private String portalType; // Client
+    private String portalType;
 
     @JsonProperty("title")
-    private String title; // patient-name-unique
+    private String title;
 
     @JsonProperty("getClientID")
-    private String getClientID; // patient-id
+    private String getClientID;
 
     @JsonProperty("parent_path")
-    private String parentPath; // /senaite/clients
+    private String parentPath;
 
     @JsonProperty("uid")
     private String uid;

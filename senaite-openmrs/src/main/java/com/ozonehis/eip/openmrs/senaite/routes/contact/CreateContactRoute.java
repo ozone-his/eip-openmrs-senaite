@@ -32,7 +32,6 @@ public class CreateContactRoute extends RouteBuilder {
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
                 .to(senaiteClient.getSenaiteBaseUrl() + CREATE_ENDPOINT)
-                .log("Response senaite-create-contact: ${body}")
                 .end();
         // spotless:on
     }

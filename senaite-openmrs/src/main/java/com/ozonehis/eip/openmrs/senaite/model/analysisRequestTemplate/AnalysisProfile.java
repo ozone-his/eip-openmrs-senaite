@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysisProfile {
+
     @JsonProperty("url")
     private String url;
 
