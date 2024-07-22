@@ -59,7 +59,7 @@
     <openmrs.watcher.version>4.1.0-SNAPSHOT</openmrs.watcher.version>
     <camel.openmrs.fhir.version>4.1.0-SNAPSHOT</camel.openmrs.fhir.version>
     <fhir-r4.version>7.0.0</fhir-r4.version>
-    <camel.version>4.6.0</camel.version>
+    <camel.version>4.1.0</camel.version>
     <test.containers.version>1.19.3</test.containers.version>
     <ozone.version>1.0.0-SNAPSHOT</ozone.version>
     <skipTests>false</skipTests>
