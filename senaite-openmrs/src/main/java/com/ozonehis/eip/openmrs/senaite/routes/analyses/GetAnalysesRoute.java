@@ -9,12 +9,14 @@ package com.ozonehis.eip.openmrs.senaite.routes.analyses;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
+import lombok.AllArgsConstructor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class GetAnalysesRoute extends RouteBuilder {
 
     @Autowired
@@ -29,7 +31,7 @@ public class GetAnalysesRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .toD("${header." + Constants.HEADER_ANALYSES_GET_ENDPOINT + "}")
+                .toD("${header." + Constants.HEADER_ANALYSES_GET_ENDPOINT + "}") // Complete url will be passed in header
                 .end();
         // spotless:on
     }

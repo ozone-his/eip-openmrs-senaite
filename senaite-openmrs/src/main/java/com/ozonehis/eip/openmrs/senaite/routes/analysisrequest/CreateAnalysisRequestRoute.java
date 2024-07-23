@@ -9,12 +9,14 @@ package com.ozonehis.eip.openmrs.senaite.routes.analysisrequest;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
+import lombok.AllArgsConstructor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class CreateAnalysisRequestRoute extends RouteBuilder {
 
     @Autowired

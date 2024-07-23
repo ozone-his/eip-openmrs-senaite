@@ -7,7 +7,10 @@
  */
 package com.ozonehis.eip.openmrs.senaite.client;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,9 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Component
 public class SenaiteClient {
     @Value("${senaite.username}")
