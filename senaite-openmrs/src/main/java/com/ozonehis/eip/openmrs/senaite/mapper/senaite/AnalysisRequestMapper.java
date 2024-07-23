@@ -10,27 +10,25 @@ package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
-import com.ozonehis.eip.openmrs.senaite.model.client.Client;
 import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.TimeZone;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.ServiceRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Setter
 @Component
 public class AnalysisRequestMapper {
 
+    private static final Logger log = LoggerFactory.getLogger(AnalysisRequestMapper.class);
+
     public AnalysisRequest toSenaite(
-            Client client,
-            Contact contact,
-            AnalysisRequestTemplate analysisRequestTemplate,
-            ServiceRequest serviceRequest) {
+            Contact contact, AnalysisRequestTemplate analysisRequestTemplate, ServiceRequest serviceRequest) {
         if (serviceRequest == null) {
             return null;
         }
@@ -39,9 +37,8 @@ public class AnalysisRequestMapper {
         AnalysisRequest analysisRequest = new AnalysisRequest();
 
         analysisRequest.setContact(contact.getUid());
-        // TODO: Fix
-        //        analysisRequest.setDateSampled(
-        //                convertDateFormat(serviceRequest.getOccurrencePeriod().getStart()));
+        analysisRequest.setDateSampled(convertOpenmrsDateToSenaiteDate(
+                serviceRequest.getOccurrencePeriod().getStart()));
         analysisRequest.setClientSampleID(serviceRequest.getIdPart());
         analysisRequest.setReviewState("sample_due");
 
@@ -86,22 +83,10 @@ public class AnalysisRequestMapper {
         return uids;
     }
 
-    public Date convertDateFormat(Date openmrsDate) {
-        String inputDateStr = openmrsDate.toString(); // "Tue Oct 24 01:51:17 UTC 2023";
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
+    public String convertOpenmrsDateToSenaiteDate(Date openmrsDate) {
+        long timestampInSeconds = openmrsDate.toInstant().getEpochSecond();
+        Instant instant = Instant.ofEpochSecond(timestampInSeconds);
 
-        ZonedDateTime inputDateTime = ZonedDateTime.parse(inputDateStr, inputFormatter);
-
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-        String isoFormattedDate = inputDateTime.format(outputFormatter);
-
-        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        isoDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        try {
-            return isoDateFormat.parse(isoFormattedDate);
-        } catch (ParseException e) {
-            return null;
-        }
+        return DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.UTC).format(instant);
     }
 }

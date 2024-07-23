@@ -136,7 +136,7 @@ public class ServiceRequestProcessor implements Processor {
                                 return;
                             }
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
-                                    savedClient, savedContact, analysisRequestTemplate, serviceRequest);
+                                    savedContact, analysisRequestTemplate, serviceRequest);
                             savedAnalysisRequest = analysisRequestHandler.sendAnalysisRequest(
                                     producerTemplate, analysisRequest, savedClient.getUid());
                         }
