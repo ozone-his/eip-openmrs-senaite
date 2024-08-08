@@ -7,7 +7,6 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import ca.uhn.fhir.context.FhirContext;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Setter;
@@ -23,12 +22,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class DiagnosticReportHandler {
 
-    public DiagnosticReport sendDiagnosticReport(ProducerTemplate producerTemplate, DiagnosticReport diagnosticReport) {
-        String response = producerTemplate.requestBody(
-                "direct:openmrs-create-diagnostic-report-route", diagnosticReport, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        DiagnosticReport savedDiagnosticReport = ctx.newJsonParser().parseResource(DiagnosticReport.class, response);
-        return savedDiagnosticReport;
+    public void sendDiagnosticReport(ProducerTemplate producerTemplate, DiagnosticReport diagnosticReport) {
+        String response =
+                producerTemplate.requestBody("direct:openmrs-create-resource-route", diagnosticReport, String.class);
+        log.info("DiagnosticReportHandler: DiagnosticReport created {}", response);
     }
 
     public DiagnosticReport buildDiagnosticReport(

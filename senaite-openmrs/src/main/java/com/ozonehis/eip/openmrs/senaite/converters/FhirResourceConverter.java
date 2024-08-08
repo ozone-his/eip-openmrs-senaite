@@ -8,10 +8,12 @@
 package com.ozonehis.eip.openmrs.senaite.converters;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.api.MethodOutcome;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Converter;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.DomainResource;
 import org.springframework.stereotype.Component;
 
@@ -25,5 +27,15 @@ public class FhirResourceConverter {
         FhirContext ctx = FhirContext.forR4();
         String json = ctx.newJsonParser().encodeResourceToString(resource);
         return new ByteArrayInputStream(json.getBytes());
+    }
+
+    @Converter
+    public static IBaseResource convertMethodOutcomeToIBaseResource(MethodOutcome outcome) {
+        if (outcome.getResource() != null) {
+            return (IBaseResource) outcome.getResource();
+        } else {
+            log.warn("The MethodOutcome does not contain a valid IBaseResource. Returning null.");
+            return null;
+        }
     }
 }

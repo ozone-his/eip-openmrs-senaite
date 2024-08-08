@@ -59,8 +59,7 @@ public class EncounterHandler {
     }
 
     public Encounter sendEncounter(ProducerTemplate producerTemplate, Encounter encounter) {
-        String response =
-                producerTemplate.requestBody("direct:openmrs-create-encounter-route", encounter, String.class);
+        String response = producerTemplate.requestBody("direct:openmrs-create-resource-route", encounter, String.class);
         FhirContext ctx = FhirContext.forR4();
         Encounter savedEncounter = ctx.newJsonParser().parseResource(Encounter.class, response);
         return savedEncounter;

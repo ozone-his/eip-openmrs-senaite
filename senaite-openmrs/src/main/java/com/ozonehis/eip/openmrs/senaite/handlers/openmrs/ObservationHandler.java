@@ -65,7 +65,7 @@ public class ObservationHandler {
 
     public Observation sendObservation(ProducerTemplate producerTemplate, Observation observation) {
         String response =
-                producerTemplate.requestBody("direct:openmrs-create-observation-route", observation, String.class);
+                producerTemplate.requestBody("direct:openmrs-create-resource-route", observation, String.class);
         FhirContext ctx = FhirContext.forR4();
         Observation savedObservation = ctx.newJsonParser().parseResource(Observation.class, response);
         return savedObservation;

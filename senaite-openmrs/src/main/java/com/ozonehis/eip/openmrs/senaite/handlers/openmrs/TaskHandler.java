@@ -25,11 +25,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskHandler {
 
-    public Task sendTask(ProducerTemplate producerTemplate, Task task) {
-        String response = producerTemplate.requestBody("direct:openmrs-create-task-route", task, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Task savedTask = ctx.newJsonParser().parseResource(Task.class, response);
-        return savedTask;
+    public void sendTask(ProducerTemplate producerTemplate, Task task) {
+        String response = producerTemplate.requestBody("direct:openmrs-create-resource-route", task, String.class);
+        log.info("TaskHandler: Task created {}", response);
     }
 
     public Task getTaskByServiceRequestID(ProducerTemplate producerTemplate, String serviceRequestID) {
