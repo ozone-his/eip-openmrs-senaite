@@ -34,11 +34,11 @@ public class GetOpenmrsFhirServiceRequestRoute extends RouteBuilder {
                 .log(LoggingLevel.INFO, "ServiceRequest is gone/deleted error: ${exception.message}")
                 .setBody(simple("ServiceRequest is gone/deleted error: ${exception.message}"))
             .end()
-            .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
-            .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-            .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
-            .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl() + GET_ENDPOINT + "${header."
-                        + Constants.HEADER_SERVICE_REQUEST_ID + "}")
+            .toD("fhir:read/resourceById?resourceClass=ServiceRequest&stringId=" + "${header." + Constants.HEADER_SERVICE_REQUEST_ID + "}")
+            .marshal()
+            .fhirJson("R4")
+            .convertBodyTo(String.class)
+            .log("Fetched ServiceRequest ${body}")
                 .end();
         // spotless:on
     }

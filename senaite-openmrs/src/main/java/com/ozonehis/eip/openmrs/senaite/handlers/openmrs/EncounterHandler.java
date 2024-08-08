@@ -51,10 +51,8 @@ public class EncounterHandler {
     public Encounter getEncounterByEncounterID(ProducerTemplate producerTemplate, String encounterID) {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ENCOUNTER_ID, encounterID);
-        String response = producerTemplate.requestBodyAndHeaders(
-                "direct:openmrs-get-encounter-by-id-route", null, headers, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Encounter encounter = ctx.newJsonParser().parseResource(Encounter.class, response);
+        Encounter encounter = producerTemplate.requestBodyAndHeaders(
+                "direct:openmrs-get-encounter-by-id-route", null, headers, Encounter.class);
         return encounter;
     }
 

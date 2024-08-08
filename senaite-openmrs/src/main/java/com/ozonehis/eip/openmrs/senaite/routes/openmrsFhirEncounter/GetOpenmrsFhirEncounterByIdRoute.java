@@ -11,6 +11,7 @@ import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.client.OpenmrsFhirClient;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.hl7.fhir.r4.model.Encounter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,12 +29,11 @@ public class GetOpenmrsFhirEncounterByIdRoute extends RouteBuilder {
         from("direct:openmrs-get-encounter-by-id-route")
             .log(LoggingLevel.INFO, "Fetching Encounter by id in OpenMRS...")
             .routeId("openmrs-get-encounter-by-id-route")
-            .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
-            .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-            .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
-            .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl()
-                        + String.format(
-                        GET_ENDPOINT, "${header." + Constants.HEADER_ENCOUNTER_ID + "}"))
+            .toD("fhir:read/resourceById?resourceClass=Encounter&stringId=" + "${header." + Constants.HEADER_ENCOUNTER_ID + "}")
+            .marshal()
+            .fhirJson("R4")
+            .convertBodyTo(Encounter.class)
+                .log("Fetched Encounter ${body}")
                 .end();
         // spotless:on
     }
