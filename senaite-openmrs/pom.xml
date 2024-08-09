@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2021, Ozone HIS <info@ozone-his.com>
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.ozonehis</groupId>
+    <artifactId>eip-openmrs-senaite-parent</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>eip-openmrs-senaite</artifactId>
+  <packaging>jar</packaging>
+  <name>EIP OpenMRS SENAITE</name>
+  <description>Apache Camel routes that integrates OpenMRS and SENAITE</description>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <camel.version>4.0.1</camel.version>
+    <camel.openmrs.fhir.version>4.1.0-SNAPSHOT</camel.openmrs.fhir.version>
+    <camel.version>4.6.0</camel.version>
+
+    <!-- Classifier for the dependency report artifact -->
+    <dependencyReportClassifier>dependencies</dependencyReportClassifier>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openmrs.eip</groupId>
+      <artifactId>camel-openmrs-fhir</artifactId>
+      <version>${camel.openmrs.fhir.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.openmrs.eip:*</include>
+                  <include>org.apache.xmlrpc:xmlrpc-client</include>
+                  <include>org.liquibase:*</include>
+                  <include>com.ozonehis:*</include>
+                  <include>org.apache.camel:camel-fhir</include>
+                  <include>org.apache.camel:camel-fhir-api</include>
+                  <include>org.apache.commons:*</include>
+                  <include>commons-io:commons-io</include>
+                  <include>ca.uhn.hapi.fhir:*</include>
+                  <include>com.fasterxml.jackson.core:jackson-databind</include>
+                  <include>org.apache.httpcomponents:*</include>
+                  <include>com.google.guava:*</include>
+                </includes>
+              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/okio.kotlin_module</exclude>
+                    <exclude>META-INF.versions.9.module-info</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.mekomsolutions.maven.plugin</groupId>
+        <artifactId>dependency-tracker-maven-plugin</artifactId>
+        <version>1.0.0-alpha</version>
+        <executions>
+          <execution>
+            <id>Compile dependency report</id>
+            <goals>
+              <goal>track</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Attach the dependency report to the build -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>Attach the dependency report</id>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-dependencies.txt</file>
+                  <type>txt</type>
+                  <classifier>${dependencyReportClassifier}</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
