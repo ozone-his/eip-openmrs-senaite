@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ClientItem {
+
     @JsonProperty("portal_type")
     private String portalType;
 

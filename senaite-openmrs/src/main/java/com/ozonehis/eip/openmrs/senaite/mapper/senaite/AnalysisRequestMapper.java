@@ -14,18 +14,17 @@ import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.ServiceRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Setter
 @Component
 public class AnalysisRequestMapper {
-
-    private static final Logger log = LoggerFactory.getLogger(AnalysisRequestMapper.class);
 
     public AnalysisRequest toSenaite(
             Contact contact, AnalysisRequestTemplate analysisRequestTemplate, ServiceRequest serviceRequest) {
@@ -76,11 +75,8 @@ public class AnalysisRequestMapper {
     }
 
     private String[] getAnalysesUids(Analyses[] analysesList) {
-        String[] uids = new String[analysesList.length];
-        for (int i = 0; i < analysesList.length; i++) {
-            uids[i] = analysesList[i].getServiceUid();
-        }
-        return uids;
+
+        return Arrays.stream(analysesList).map(Analyses::getServiceUid).toArray(String[]::new);
     }
 
     public String convertOpenmrsDateToSenaiteDate(Date openmrsDate) {

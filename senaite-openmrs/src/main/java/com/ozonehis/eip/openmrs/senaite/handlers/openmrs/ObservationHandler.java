@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,6 @@ import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Type;
 import org.springframework.stereotype.Component;
@@ -47,16 +45,12 @@ public class ObservationHandler {
         headers.put(Constants.CUSTOM_URL, url);
         Bundle bundle = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-observation-route", null, headers, Bundle.class);
-        List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
-
-        Observation observation = null;
-        for (Bundle.BundleEntryComponent entry : entries) {
-            Resource resource = entry.getResource();
-            if (resource instanceof Observation) {
-                observation = (Observation) resource;
-            }
-        }
-        return observation;
+        return bundle.getEntry().stream()
+                .map(Bundle.BundleEntryComponent::getResource)
+                .filter(Observation.class::isInstance)
+                .map(Observation.class::cast)
+                .findFirst()
+                .orElse(null);
     }
 
     public Observation sendObservation(ProducerTemplate producerTemplate, Observation observation) {

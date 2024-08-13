@@ -26,7 +26,6 @@ import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
 import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
@@ -36,6 +35,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Task;
+import org.openmrs.eip.EIPException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -95,8 +95,7 @@ public class ServiceRequestProcessor implements Processor {
             }
 
             if (patient == null || encounter == null || serviceRequest == null) {
-                throw new CamelExecutionException(
-                        "Invalid Bundle. Bundle must contain Patient, Encounter and ServiceRequest", exchange);
+                throw new EIPException("Invalid Bundle. Bundle must contain Patient, Encounter and ServiceRequest");
             } else {
                 log.debug("Processing ServiceRequest for Patient with UUID {}", patient.getIdPart());
                 String eventType = exchange.getMessage()
@@ -159,7 +158,7 @@ public class ServiceRequestProcessor implements Processor {
                 }
             }
         } catch (Exception e) {
-            throw new CamelExecutionException("Error processing ServiceRequest", exchange, e);
+            throw new EIPException(String.format("Error processing ServiceRequest %s", e.getMessage()));
         }
     }
 

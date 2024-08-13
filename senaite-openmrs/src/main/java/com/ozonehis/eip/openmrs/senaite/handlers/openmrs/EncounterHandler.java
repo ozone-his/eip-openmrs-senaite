@@ -10,7 +10,6 @@ package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Encounter;
-import org.hl7.fhir.r4.model.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -27,22 +26,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class EncounterHandler {
 
+    @Value("${results.encounterType.uuid}")
+    private String resultEncounterTypeUUID;
+
     public Encounter getEncounterByTypeAndSubject(ProducerTemplate producerTemplate, String typeID, String subjectID) {
         String url = String.format("Encounter?type=%s&subject=%s", typeID, subjectID);
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.CUSTOM_URL, url);
         Bundle bundle = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-encounter-route", null, headers, Bundle.class);
-        List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
 
-        Encounter encounter = null;
-        for (Bundle.BundleEntryComponent entry : entries) {
-            Resource resource = entry.getResource();
-            if (resource instanceof Encounter) {
-                encounter = (Encounter) resource;
-            }
-        }
-        return encounter;
+        return bundle.getEntry().stream()
+                .map(Bundle.BundleEntryComponent::getResource)
+                .filter(Encounter.class::isInstance)
+                .map(Encounter.class::cast)
+                .findFirst()
+                .orElse(null);
     }
 
     public Encounter getEncounterByEncounterID(ProducerTemplate producerTemplate, String encounterID) {
@@ -60,7 +59,7 @@ public class EncounterHandler {
         Encounter resultEncounter = new Encounter();
         resultEncounter.setLocation(orderEncounter.getLocation());
         Coding coding = new Coding();
-        coding.setCode("3596fafb-6f6f-4396-8c87-6e63a0f1bd71"); // TODO: Fetch typeID from config
+        coding.setCode(resultEncounterTypeUUID);
         coding.setSystem("http://fhir.openmrs.org/code-system/encounter-type");
         coding.setDisplay("Lab Results");
         resultEncounter.setType(

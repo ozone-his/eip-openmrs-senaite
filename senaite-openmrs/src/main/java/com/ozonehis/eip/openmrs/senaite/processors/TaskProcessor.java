@@ -24,7 +24,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
@@ -34,7 +33,9 @@ import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Task;
+import org.openmrs.eip.EIPException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -42,6 +43,9 @@ import org.springframework.stereotype.Component;
 @Getter
 @Component
 public class TaskProcessor implements Processor {
+
+    @Value("${results.encounterType.uuid}")
+    private String resultEncounterTypeUUID;
 
     @Autowired
     private ServiceRequestHandler serviceRequestHandler;
@@ -114,7 +118,7 @@ public class TaskProcessor implements Processor {
                                     producerTemplate,
                                     taskHandler.updateTaskStatus(task, analysisRequestTaskStatus),
                                     task.getIdPart());
-                            log.info(
+                            log.debug(
                                     "TaskProcessor: Updated Task {} with status {}",
                                     updatedTask.getIdPart(),
                                     updatedTask.getStatus());
@@ -123,7 +127,7 @@ public class TaskProcessor implements Processor {
                 }
             }
         } catch (Exception e) {
-            throw new CamelExecutionException("Error processing Task", exchange, e);
+            throw new EIPException(String.format("Error processing Task %s", e.getMessage()));
         }
     }
 
@@ -145,10 +149,9 @@ public class TaskProcessor implements Processor {
     private void createResultsInOpenMRS(
             ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses)
             throws JsonProcessingException {
-        // TODO: Fetch typeID from config
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
                 producerTemplate,
-                "3596fafb-6f6f-4396-8c87-6e63a0f1bd71",
+                resultEncounterTypeUUID,
                 serviceRequest.getSubject().getReference().split("/")[1]);
         if (resultEncounter != null
                 && resultEncounter.getPeriod().getStart().getTime()

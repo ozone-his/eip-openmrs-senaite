@@ -9,13 +9,11 @@ package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;
 
@@ -34,16 +32,13 @@ public class TaskHandler {
         headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
         Bundle bundle =
                 producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, Bundle.class);
-        List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
 
-        Task task = null;
-        for (Bundle.BundleEntryComponent entry : entries) {
-            Resource resource = entry.getResource();
-            if (resource instanceof Task) {
-                task = (Task) resource;
-            }
-        }
-        return task;
+        return bundle.getEntry().stream()
+                .map(Bundle.BundleEntryComponent::getResource)
+                .filter(Task.class::isInstance)
+                .map(Task.class::cast)
+                .findFirst()
+                .orElse(null);
     }
 
     public Task updateTask(ProducerTemplate producerTemplate, Task task, String taskID) {

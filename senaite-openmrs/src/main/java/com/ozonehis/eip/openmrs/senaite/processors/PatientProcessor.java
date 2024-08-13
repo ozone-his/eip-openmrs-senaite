@@ -17,12 +17,12 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Patient;
+import org.openmrs.eip.EIPException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,7 +61,7 @@ public class PatientProcessor implements Processor {
             exchange.getMessage().setHeaders(headers);
 
         } catch (Exception e) {
-            throw new CamelExecutionException("Error processing Patient", exchange, e);
+            throw new EIPException(String.format("Error processing Patient %s", e.getMessage()));
         }
     }
 }
