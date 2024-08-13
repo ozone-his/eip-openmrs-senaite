@@ -8,20 +8,13 @@
 package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirServiceRequest;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.OpenmrsFhirClient;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.base.HttpOperationFailedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GetOpenmrsFhirServiceRequestRoute extends RouteBuilder {
-
-    @Autowired
-    private OpenmrsFhirClient openmrsFhirClient;
-
-    public static final String GET_ENDPOINT = "/ServiceRequest/";
 
     @Override
     public void configure() {
@@ -38,7 +31,6 @@ public class GetOpenmrsFhirServiceRequestRoute extends RouteBuilder {
             .marshal()
             .fhirJson("R4")
             .convertBodyTo(String.class)
-            .log("Fetched ServiceRequest ${body}")
                 .end();
         // spotless:on
     }

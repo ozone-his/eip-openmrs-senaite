@@ -8,19 +8,12 @@
 package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirObservation;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.OpenmrsFhirClient;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GetOpenmrsFhirObservationRoute extends RouteBuilder {
-
-    @Autowired
-    private OpenmrsFhirClient openmrsFhirClient;
-
-    public static final String GET_ENDPOINT = "/Observation?code=%s&subject=%s&encounter=%s&date=%s";
 
     @Override
     public void configure() {
@@ -28,16 +21,11 @@ public class GetOpenmrsFhirObservationRoute extends RouteBuilder {
         from("direct:openmrs-get-observation-route")
                 .log(LoggingLevel.INFO, "Fetching Observation in OpenMRS...")
                 .routeId("openmrs-get-observation-route")
-                .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
-                .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-                .setHeader(Constants.AUTHORIZATION, constant(openmrsFhirClient.authHeader()))
-                .toD(openmrsFhirClient.getOpenmrsFhirBaseUrl()
-                        + String.format(
-                                GET_ENDPOINT,
-                                "${header." + Constants.HEADER_OBSERVATION_CODE + "}",
-                                "${header." + Constants.HEADER_OBSERVATION_SUBJECT + "}",
-                                "${header." + Constants.HEADER_OBSERVATION_ENCOUNTER + "}",
-                                "${header." + Constants.HEADER_OBSERVATION_DATE + "}"))
+                .setHeader("CamelFhir.url", header(Constants.CUSTOM_URL))
+                .toD("fhir://search/searchByUrl")
+                .marshal()
+                .fhirJson("R4")
+                .convertBodyTo(String.class)
                 .end();
         // spotless:on
     }

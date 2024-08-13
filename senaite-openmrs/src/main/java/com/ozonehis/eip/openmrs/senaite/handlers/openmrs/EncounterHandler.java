@@ -29,9 +29,9 @@ import org.springframework.stereotype.Component;
 public class EncounterHandler {
 
     public Encounter getEncounterByTypeAndSubject(ProducerTemplate producerTemplate, String typeID, String subjectID) {
+        String url = String.format("Encounter?type=%s&subject=%s", typeID, subjectID);
         Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_ENCOUNTER_TYPE_ID, typeID);
-        headers.put(Constants.HEADER_PATIENT_ID, subjectID);
+        headers.put(Constants.CUSTOM_URL, url);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-encounter-route", null, headers, String.class);
         FhirContext ctx = FhirContext.forR4();

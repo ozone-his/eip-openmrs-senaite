@@ -8,20 +8,13 @@
 package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirEncounter;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.OpenmrsFhirClient;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.hl7.fhir.r4.model.Encounter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GetOpenmrsFhirEncounterByIdRoute extends RouteBuilder {
-
-    @Autowired
-    private OpenmrsFhirClient openmrsFhirClient;
-
-    public static final String GET_ENDPOINT = "/Encounter/%s";
 
     @Override
     public void configure() {
@@ -33,7 +26,6 @@ public class GetOpenmrsFhirEncounterByIdRoute extends RouteBuilder {
             .marshal()
             .fhirJson("R4")
             .convertBodyTo(Encounter.class)
-                .log("Fetched Encounter ${body}")
                 .end();
         // spotless:on
     }

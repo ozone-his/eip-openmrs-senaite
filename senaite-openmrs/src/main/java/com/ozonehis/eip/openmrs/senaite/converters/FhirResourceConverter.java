@@ -13,8 +13,11 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Converter;
+import org.apache.camel.Exchange;
+import org.apache.camel.converter.stream.InputStreamCache;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.DomainResource;
+import org.hl7.fhir.r4.model.Encounter;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -37,5 +40,12 @@ public class FhirResourceConverter {
             log.warn("The MethodOutcome does not contain a valid IBaseResource. Returning null.");
             return null;
         }
+    }
+
+    @Converter
+    public static Encounter toEncounter(InputStreamCache inputStreamCache, Exchange exchange) throws Exception {
+        FhirContext ctx = FhirContext.forR4();
+        String body = exchange.getContext().getTypeConverter().mandatoryConvertTo(String.class, inputStreamCache);
+        return (Encounter) ctx.newJsonParser().parseResource(Encounter.class, body);
     }
 }

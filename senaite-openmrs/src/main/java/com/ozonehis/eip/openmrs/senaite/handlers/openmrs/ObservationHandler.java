@@ -42,11 +42,10 @@ public class ObservationHandler {
             String subjectID,
             String encounterID,
             String observationDate) {
+        String url = String.format(
+                "Observation?code=%s&subject=%s&encounter=%s&date=%s", codeID, subjectID, encounterID, observationDate);
         Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_OBSERVATION_CODE, codeID);
-        headers.put(Constants.HEADER_OBSERVATION_SUBJECT, subjectID);
-        headers.put(Constants.HEADER_OBSERVATION_ENCOUNTER, encounterID);
-        headers.put(Constants.HEADER_OBSERVATION_DATE, observationDate);
+        headers.put(Constants.CUSTOM_URL, url);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-observation-route", null, headers, String.class);
         FhirContext ctx = FhirContext.forR4();
