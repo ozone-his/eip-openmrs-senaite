@@ -10,8 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.routes;
 import static com.ozonehis.eip.openmrs.senaite.Constants.HEADER_ENABLE_PATIENT_SYNC;
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
-import com.ozonehis.eip.openmrs.senaite.converters.FhirResourceConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.SenaiteResourceConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.ResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.PatientProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
@@ -30,10 +29,7 @@ public class PatientRouting extends RouteBuilder {
     private PatientProcessor patientProcessor;
 
     @Autowired
-    private SenaiteResourceConverter senaiteResourceConverter;
-
-    @Autowired
-    private FhirResourceConverter fhirResourceConverter;
+    private ResourceConverter resourceConverter;
 
     @Value("${openmrs.senaite.enable.patient.sync}")
     private boolean isPatientSyncEnabled;
@@ -46,8 +42,7 @@ public class PatientRouting extends RouteBuilder {
 
     @Override
     public void configure() {
-        getContext().getTypeConverterRegistry().addTypeConverters(senaiteResourceConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(fhirResourceConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(resourceConverter);
         // spotless:off
         from("direct:patient-to-client-router")
                 .routeId("patient-to-client-router")

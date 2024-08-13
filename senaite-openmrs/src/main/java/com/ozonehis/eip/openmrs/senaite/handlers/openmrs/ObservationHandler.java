@@ -7,7 +7,6 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import java.time.Instant;
 import java.util.Collections;
@@ -46,10 +45,8 @@ public class ObservationHandler {
                 "Observation?code=%s&subject=%s&encounter=%s&date=%s", codeID, subjectID, encounterID, observationDate);
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.CUSTOM_URL, url);
-        String response = producerTemplate.requestBodyAndHeaders(
-                "direct:openmrs-get-observation-route", null, headers, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
+        Bundle bundle = producerTemplate.requestBodyAndHeaders(
+                "direct:openmrs-get-observation-route", null, headers, Bundle.class);
         List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
 
         Observation observation = null;
@@ -63,11 +60,7 @@ public class ObservationHandler {
     }
 
     public Observation sendObservation(ProducerTemplate producerTemplate, Observation observation) {
-        String response =
-                producerTemplate.requestBody("direct:openmrs-create-resource-route", observation, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Observation savedObservation = ctx.newJsonParser().parseResource(Observation.class, response);
-        return savedObservation;
+        return producerTemplate.requestBody("direct:openmrs-create-resource-route", observation, Observation.class);
     }
 
     public Observation buildResultObservation(

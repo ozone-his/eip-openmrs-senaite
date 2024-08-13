@@ -10,6 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirEncounter;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,7 +26,7 @@ public class GetOpenmrsFhirEncounterRoute extends RouteBuilder {
             .toD("fhir://search/searchByUrl")
             .marshal()
             .fhirJson("R4")
-            .convertBodyTo(String.class)
+            .convertBodyTo(Bundle.class)
                 .end();
         // spotless:on
     }

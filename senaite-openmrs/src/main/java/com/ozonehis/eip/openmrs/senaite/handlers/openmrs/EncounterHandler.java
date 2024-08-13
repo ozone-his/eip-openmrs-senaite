@@ -7,7 +7,6 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,10 +31,8 @@ public class EncounterHandler {
         String url = String.format("Encounter?type=%s&subject=%s", typeID, subjectID);
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.CUSTOM_URL, url);
-        String response = producerTemplate.requestBodyAndHeaders(
-                "direct:openmrs-get-encounter-route", null, headers, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
+        Bundle bundle = producerTemplate.requestBodyAndHeaders(
+                "direct:openmrs-get-encounter-route", null, headers, Bundle.class);
         List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
 
         Encounter encounter = null;
@@ -51,16 +48,12 @@ public class EncounterHandler {
     public Encounter getEncounterByEncounterID(ProducerTemplate producerTemplate, String encounterID) {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ENCOUNTER_ID, encounterID);
-        Encounter encounter = producerTemplate.requestBodyAndHeaders(
+        return producerTemplate.requestBodyAndHeaders(
                 "direct:openmrs-get-encounter-by-id-route", null, headers, Encounter.class);
-        return encounter;
     }
 
     public Encounter sendEncounter(ProducerTemplate producerTemplate, Encounter encounter) {
-        String response = producerTemplate.requestBody("direct:openmrs-create-resource-route", encounter, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Encounter savedEncounter = ctx.newJsonParser().parseResource(Encounter.class, response);
-        return savedEncounter;
+        return producerTemplate.requestBody("direct:openmrs-create-resource-route", encounter, Encounter.class);
     }
 
     public Encounter buildLabResultEncounter(Encounter orderEncounter) {

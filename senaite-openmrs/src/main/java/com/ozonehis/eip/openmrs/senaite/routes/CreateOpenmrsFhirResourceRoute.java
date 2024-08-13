@@ -23,8 +23,6 @@ public class CreateOpenmrsFhirResourceRoute extends RouteBuilder {
                 .marshal().fhirJson("R4")
                 .convertBodyTo(String.class)
                 .to("fhir://create/resource?inBody=resourceAsString")
-                .marshal().fhirJson("R4")
-                .convertBodyTo(String.class)
                 .end();
         // spotless:on
     }

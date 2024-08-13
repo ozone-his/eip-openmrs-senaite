@@ -7,7 +7,6 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import java.util.HashMap;
 import java.util.List;
@@ -27,16 +26,14 @@ public class TaskHandler {
 
     public void sendTask(ProducerTemplate producerTemplate, Task task) {
         String response = producerTemplate.requestBody("direct:openmrs-create-resource-route", task, String.class);
-        log.info("TaskHandler: Task created {}", response);
+        log.debug("TaskHandler: Task created {}", response);
     }
 
     public Task getTaskByServiceRequestID(ProducerTemplate producerTemplate, String serviceRequestID) {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
-        String response =
-                producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, response);
+        Bundle bundle =
+                producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, Bundle.class);
         List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
 
         Task task = null;
@@ -52,11 +49,7 @@ public class TaskHandler {
     public Task updateTask(ProducerTemplate producerTemplate, Task task, String taskID) {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_TASK_ID, taskID);
-        String response =
-                producerTemplate.requestBodyAndHeaders("direct:openmrs-update-task-route", task, headers, String.class);
-        FhirContext ctx = FhirContext.forR4();
-        Task updatedTask = ctx.newJsonParser().parseResource(Task.class, response);
-        return updatedTask;
+        return producerTemplate.requestBodyAndHeaders("direct:openmrs-update-task-route", task, headers, Task.class);
     }
 
     public Task markTaskRejected(Task task) {

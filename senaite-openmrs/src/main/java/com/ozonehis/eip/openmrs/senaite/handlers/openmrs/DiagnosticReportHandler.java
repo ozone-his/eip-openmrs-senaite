@@ -25,7 +25,7 @@ public class DiagnosticReportHandler {
     public void sendDiagnosticReport(ProducerTemplate producerTemplate, DiagnosticReport diagnosticReport) {
         String response =
                 producerTemplate.requestBody("direct:openmrs-create-resource-route", diagnosticReport, String.class);
-        log.info("DiagnosticReportHandler: DiagnosticReport created {}", response);
+        log.debug("DiagnosticReportHandler: DiagnosticReport created {}", response);
     }
 
     public DiagnosticReport buildDiagnosticReport(

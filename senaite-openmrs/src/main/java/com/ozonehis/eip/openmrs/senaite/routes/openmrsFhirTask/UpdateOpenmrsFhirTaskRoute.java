@@ -10,6 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,8 +29,7 @@ public class UpdateOpenmrsFhirTaskRoute extends RouteBuilder {
                         + Constants.HEADER_TASK_ID + "}")
             .marshal()
             .fhirJson("R4")
-            .convertBodyTo(String.class)
-            .log(LoggingLevel.INFO, "Updating task ${body}")
+            .convertBodyTo(Task.class)
                 .end();
         // spotless:on
     }

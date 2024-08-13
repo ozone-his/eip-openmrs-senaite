@@ -8,8 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.routes;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.converters.FhirResourceConverter;
-import com.ozonehis.eip.openmrs.senaite.converters.SenaiteResourceConverter;
+import com.ozonehis.eip.openmrs.senaite.converters.ResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.ServiceRequestProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
@@ -34,15 +33,11 @@ public class ServiceRequestRouting extends RouteBuilder {
     private ServiceRequestProcessor serviceRequestProcessor;
 
     @Autowired
-    private SenaiteResourceConverter senaiteResourceConverter;
-
-    @Autowired
-    private FhirResourceConverter fhirResourceConverter;
+    private ResourceConverter resourceConverter;
 
     @Override
     public void configure() {
-        getContext().getTypeConverterRegistry().addTypeConverters(senaiteResourceConverter);
-        getContext().getTypeConverterRegistry().addTypeConverters(fhirResourceConverter);
+        getContext().getTypeConverterRegistry().addTypeConverters(resourceConverter);
         // spotless:off
         from("direct:fhir-servicerequest")
                 .routeId("service-request-to-analysis-request-router")
