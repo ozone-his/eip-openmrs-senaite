@@ -166,7 +166,7 @@ public class ServiceRequestProcessor implements Processor {
             throws JsonProcessingException {
         AnalysisRequest analysisRequest =
                 analysisRequestHandler.getAnalysisRequestByClientSampleID(producerTemplate, serviceRequestUuid);
-        if (!analysisRequest.getReviewState().equalsIgnoreCase("cancelled")) {
+        if (analysisRequest.getReviewState().equalsIgnoreCase("sample_due")) {
             CancelAnalysisRequestPayload cancelAnalysisRequest = new CancelAnalysisRequestPayload();
             cancelAnalysisRequest.setTransition("cancel");
             cancelAnalysisRequest.setClient(analysisRequest.getClient());
