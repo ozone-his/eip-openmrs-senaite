@@ -5,10 +5,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate;
+package com.ozonehis.eip.openmrs.senaite.model.contact.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,14 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SampleType {
+public class ContactResponse implements SenaiteResource {
 
-    @JsonProperty("url")
-    private String url;
-
-    @JsonProperty("uid")
-    private String uid;
-
-    @JsonProperty("api_url")
-    private String apiUrl;
+    @JsonProperty("items")
+    private ArrayList<ContactItem> contactItems;
 }

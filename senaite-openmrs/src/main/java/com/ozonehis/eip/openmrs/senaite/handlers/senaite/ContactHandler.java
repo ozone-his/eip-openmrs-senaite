@@ -10,8 +10,10 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
-import com.ozonehis.eip.openmrs.senaite.model.contact.ContactResponse;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDAO;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactMapper;
+import com.ozonehis.eip.openmrs.senaite.model.contact.request.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -24,14 +26,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContactHandler {
 
-    public Contact sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
+    public ContactDAO sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         ContactResponse savedContactResponse = objectMapper.readValue(response, ContactResponse.class);
-        return savedContactResponse.contactResponseToContact(savedContactResponse);
+        return ContactMapper.map(savedContactResponse);
     }
 
-    public Contact getContactByClientPath(ProducerTemplate producerTemplate, String clientPath)
+    public ContactDAO getContactByClientPath(ProducerTemplate producerTemplate, String clientPath)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_PATH, clientPath);
@@ -39,10 +41,12 @@ public class ContactHandler {
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         ContactResponse contactResponse = objectMapper.readValue(response, ContactResponse.class);
-        return contactResponse.contactResponseToContact(contactResponse);
+        return ContactMapper.map(contactResponse);
     }
 
-    public boolean doesContactExists(Contact contact) {
-        return contact != null && contact.getUid() != null && !contact.getUid().isEmpty();
+    public boolean doesContactExists(ContactDAO contactDAO) {
+        return contactDAO != null
+                && contactDAO.getUid() != null
+                && !contactDAO.getUid().isEmpty();
     }
 }

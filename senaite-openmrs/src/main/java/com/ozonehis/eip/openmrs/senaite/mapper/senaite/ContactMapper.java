@@ -7,8 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
-import com.ozonehis.eip.openmrs.senaite.model.client.Client;
-import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientDAO;
+import com.ozonehis.eip.openmrs.senaite.model.contact.request.Contact;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.stereotype.Component;
@@ -17,14 +17,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContactMapper {
 
-    public Contact toSenaite(ServiceRequest serviceRequest, Client client) {
+    public Contact toSenaite(ServiceRequest serviceRequest, ClientDAO clientDAO) {
         if (serviceRequest == null) {
             return null;
         }
         Contact contact = new Contact();
         contact.setPortalType("Contact");
-        if (!client.getUid().isEmpty()) {
-            contact.setParentPath(client.getPath());
+        if (!clientDAO.getUid().isEmpty()) {
+            contact.setParentPath(clientDAO.getPath());
         }
 
         String[] nameSplit = serviceRequest.getRequester().getDisplay().split(" ");

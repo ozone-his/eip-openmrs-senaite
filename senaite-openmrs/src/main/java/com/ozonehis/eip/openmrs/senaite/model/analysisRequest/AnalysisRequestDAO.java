@@ -7,9 +7,7 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.analysisRequest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,36 +15,27 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AnalysisRequest implements SenaiteResource {
+public class AnalysisRequestDAO {
 
-    @JsonProperty("Contact")
     private String contact; // Contact UUID
 
-    @JsonProperty("SampleType")
     private String sampleType; // SampleType UUID
 
-    @JsonProperty("DateSampled")
     private String dateSampled;
 
-    @JsonProperty("Template")
     private String template; // Template UUID
 
-    @JsonProperty("Profiles")
     private String profiles; // Profiles UUID
 
-    @JsonProperty("Analyses")
-    private String[] analyses; // Array of Analyses UUID
+    private String[] analysesUids; // Array of Analyses UUID
 
-    @JsonProperty("ClientSampleID")
     private String clientSampleID;
 
-    @JsonProperty("Client")
     private String client; // SENAITE Client UUID, it's not OpenMRS Patient ID
 
-    @JsonProperty("uid")
     private String uid; // SENAITE AnalysisRequest UUID
 
-    @JsonProperty("review_state")
     private String reviewState;
+
+    private Analyses[] analyses;
 }

@@ -10,8 +10,10 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.client.Client;
-import com.ozonehis.eip.openmrs.senaite.model.client.ClientResponse;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientDAO;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientMapper;
+import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
+import com.ozonehis.eip.openmrs.senaite.model.client.response.ClientResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -24,14 +26,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientHandler {
 
-    public Client sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
+    public ClientDAO sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-client-route", client, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         ClientResponse savedClientResponse = objectMapper.readValue(response, ClientResponse.class);
-        return savedClientResponse.clientResponseToClient(savedClientResponse);
+        return ClientMapper.map(savedClientResponse);
     }
 
-    public Client getClientByPatientID(ProducerTemplate producerTemplate, String patientID)
+    public ClientDAO getClientByPatientID(ProducerTemplate producerTemplate, String patientID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_ID, patientID);
@@ -39,10 +41,12 @@ public class ClientHandler {
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-client-route", null, headers, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         ClientResponse clientResponse = objectMapper.readValue(response, ClientResponse.class);
-        return clientResponse.clientResponseToClient(clientResponse);
+        return ClientMapper.map(clientResponse);
     }
 
-    public boolean doesClientExists(Client client) {
-        return client != null && client.getUid() != null && !client.getUid().isEmpty();
+    public boolean doesClientExists(ClientDAO clientDAO) {
+        return clientDAO != null
+                && clientDAO.getUid() != null
+                && !clientDAO.getUid().isEmpty();
     }
 }

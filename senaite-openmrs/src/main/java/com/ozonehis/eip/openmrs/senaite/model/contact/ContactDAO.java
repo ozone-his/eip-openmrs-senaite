@@ -7,9 +7,6 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.contact;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,21 +14,15 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Contact implements SenaiteResource {
+public class ContactDAO {
 
-    @JsonProperty("portal_type")
     private String portalType;
 
-    @JsonProperty("parent_path")
     private String parentPath;
 
-    @JsonProperty("Firstname")
     private String firstName;
 
-    @JsonProperty("Surname")
     private String surname;
 
-    @JsonProperty("uid")
     private String uid;
 }

@@ -10,8 +10,9 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDetails;
-import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesResponse;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesMapper;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AnalysesHandler {
 
-    public AnalysesDetails getAnalysesByAnalysesApiUrl(ProducerTemplate producerTemplate, String analysesApiUrl)
+    public AnalysesDAO getAnalysesByAnalysesApiUrl(ProducerTemplate producerTemplate, String analysesApiUrl)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analysesApiUrl);
@@ -32,6 +33,6 @@ public class AnalysesHandler {
                 "direct:senaite-get-analyses-route", null, headers, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysesResponse analysisRequestResponse = objectMapper.readValue(response, AnalysesResponse.class);
-        return analysisRequestResponse.analysesResponseToAnalyses(analysisRequestResponse);
+        return AnalysesMapper.map(analysisRequestResponse);
     }
 }

@@ -7,10 +7,10 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.Analyses;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
-import com.ozonehis.eip.openmrs.senaite.model.contact.Contact;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.Analyses;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDAO;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +27,9 @@ import org.springframework.stereotype.Component;
 public class AnalysisRequestMapper {
 
     public AnalysisRequest toSenaite(
-            Contact contact, AnalysisRequestTemplate analysisRequestTemplate, ServiceRequest serviceRequest) {
+            ContactDAO contactDAO,
+            AnalysisRequestTemplateDAO analysisRequestTemplateDAO,
+            ServiceRequest serviceRequest) {
         if (serviceRequest == null) {
             return null;
         }
@@ -35,39 +37,26 @@ public class AnalysisRequestMapper {
 
         AnalysisRequest analysisRequest = new AnalysisRequest();
 
-        analysisRequest.setContact(contact.getUid());
+        analysisRequest.setContact(contactDAO.getUid());
         analysisRequest.setDateSampled(convertOpenmrsDateToSenaiteDate(
                 serviceRequest.getOccurrencePeriod().getStart()));
         analysisRequest.setClientSampleID(serviceRequest.getIdPart());
         analysisRequest.setReviewState("sample_due");
 
-        if (analysisRequestTemplate.getAnalysisRequestTemplateItems() != null
-                && !analysisRequestTemplate.getAnalysisRequestTemplateItems().isEmpty()) {
+        if (analysisRequestTemplateDAO != null) {
 
-            analysisRequest.setTemplate(analysisRequestTemplate
-                    .getAnalysisRequestTemplateItems()
-                    .get(0)
-                    .getUid());
+            analysisRequest.setTemplate(analysisRequestTemplateDAO.getUid());
 
-            if (analysisRequestTemplate.getAnalysisRequestTemplateItems().get(0).getSampleType() != null) {
-                analysisRequest.setSampleType(analysisRequestTemplate
-                        .getAnalysisRequestTemplateItems()
-                        .get(0)
-                        .getSampleType()
-                        .getUid());
+            if (analysisRequestTemplateDAO.getSampleType() != null) {
+                analysisRequest.setSampleType(
+                        analysisRequestTemplateDAO.getSampleType().getUid());
             }
-            if (analysisRequestTemplate.getAnalysisRequestTemplateItems().get(0).getAnalysisProfile() != null) {
-                analysisRequest.setProfiles(analysisRequestTemplate
-                        .getAnalysisRequestTemplateItems()
-                        .get(0)
-                        .getAnalysisProfile()
-                        .getUid());
+            if (analysisRequestTemplateDAO.getAnalysisProfile() != null) {
+                analysisRequest.setProfiles(
+                        analysisRequestTemplateDAO.getAnalysisProfile().getUid());
             }
-            if (analysisRequestTemplate.getAnalysisRequestTemplateItems().get(0).getAnalyses() != null) {
-                analysisRequest.setAnalyses(getAnalysesUids(analysisRequestTemplate
-                        .getAnalysisRequestTemplateItems()
-                        .get(0)
-                        .getAnalyses()));
+            if (analysisRequestTemplateDAO.getAnalyses() != null) {
+                analysisRequest.setAnalyses(getAnalysesUids(analysisRequestTemplateDAO.getAnalyses()));
             }
         }
 

@@ -10,7 +10,9 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplate;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateMapper;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.AnalysisRequestTemplateResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -23,20 +25,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class AnalysisRequestTemplateHandler {
 
-    public AnalysisRequestTemplate getAnalysisRequestTemplateByServiceRequestCode(
+    public AnalysisRequestTemplateDAO getAnalysisRequestTemplateByServiceRequestCode(
             ProducerTemplate producerTemplate, String serviceRequestCode) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_DESCRIPTION, serviceRequestCode);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-template-route", null, headers, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        AnalysisRequestTemplate analysisRequest = objectMapper.readValue(response, AnalysisRequestTemplate.class);
-        return analysisRequest;
-    }
-
-    public boolean doesAnalysisRequestTemplateExists(AnalysisRequestTemplate analysisRequestTemplate) {
-        return analysisRequestTemplate != null
-                && analysisRequestTemplate.getAnalysisRequestTemplateItems() != null
-                && !analysisRequestTemplate.getAnalysisRequestTemplateItems().isEmpty();
+        AnalysisRequestTemplateResponse analysisRequestTemplateResponse =
+                objectMapper.readValue(response, AnalysisRequestTemplateResponse.class);
+        return AnalysisRequestTemplateMapper.map(analysisRequestTemplateResponse);
     }
 }

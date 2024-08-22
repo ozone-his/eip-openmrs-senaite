@@ -11,7 +11,8 @@ import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
-import com.ozonehis.eip.openmrs.senaite.model.client.Client;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientDAO;
+import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -48,12 +49,12 @@ public class PatientProcessor implements Processor {
             }
 
             Map<String, Object> headers = new HashMap<>();
-            Client savedClient = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
+            ClientDAO savedClientDAO = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
             Client client = clientMapper.toSenaite(patient);
-            if (savedClient != null && !savedClient.getUid().isEmpty()) {
-                savedClient.setTitle(client.getTitle());
+            if (savedClientDAO != null && !savedClientDAO.getUid().isEmpty()) {
+                savedClientDAO.setTitle(client.getTitle());
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");
-                exchange.getMessage().setBody(savedClient);
+                exchange.getMessage().setBody(savedClientDAO);
             } else {
                 headers.put(HEADER_FHIR_EVENT_TYPE, "c");
                 exchange.getMessage().setBody(client);

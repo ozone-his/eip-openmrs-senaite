@@ -16,9 +16,9 @@ import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysesHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
-import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDetails;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.Analyses;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -94,14 +94,13 @@ public class TaskProcessor implements Processor {
                     String serviceRequestSubjectID =
                             serviceRequest.getSubject().getReference().split("/")[1];
                     String taskBasedOnReference = task.getBasedOn().get(0).getReference();
-                    AnalysisRequestResponse analysisRequest =
-                            analysisRequestHandler.getAnalysisRequestResponseByClientIDAndClientSampleID(
+                    AnalysisRequestDAO analysisRequestDAO =
+                            analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
                                     producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
-                    if (analysisRequestHandler.doesAnalysisRequestResponseExists(analysisRequest)) {
-                        Analyses[] analyses =
-                                analysisRequest.getAnalysisRequestItems().get(0).getAnalyses();
+                    if (analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDAO)) {
+                        Analyses[] analyses = analysisRequestDAO.getAnalyses();
                         String analysisRequestTaskStatus =
-                                getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequest);
+                                getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDAO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
                             createResultsInOpenMRS(producerTemplate, serviceRequest, analyses);
@@ -131,9 +130,8 @@ public class TaskProcessor implements Processor {
         }
     }
 
-    private String getTaskStatusCorrespondingToAnalysisRequestStatus(AnalysisRequestResponse analysisRequestResponse) {
-        String analysisRequestStatus =
-                analysisRequestResponse.getAnalysisRequestItems().get(0).getReviewState();
+    private String getTaskStatusCorrespondingToAnalysisRequestStatus(AnalysisRequestDAO analysisRequestDAO) {
+        String analysisRequestStatus = analysisRequestDAO.getReviewState();
         if (analysisRequestStatus.equalsIgnoreCase("sample_due")) {
             return "requested";
         } else if (analysisRequestStatus.equalsIgnoreCase("sample_received")) {
@@ -176,9 +174,9 @@ public class TaskProcessor implements Processor {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
         for (Analyses analysis : analyses) {
-            AnalysesDetails resultAnalyses =
+            AnalysesDAO resultAnalysesDAO =
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
-            String analysesDescription = resultAnalyses.getDescription();
+            String analysesDescription = resultAnalysesDAO.getDescription();
             String conceptUuid = analysesDescription.substring(
                     analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
@@ -187,7 +185,7 @@ public class TaskProcessor implements Processor {
                     conceptUuid,
                     subjectID,
                     savedResultEncounter.getIdPart(),
-                    resultAnalyses.getResultCaptureDate());
+                    resultAnalysesDAO.getResultCaptureDate());
             if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create result Observation
                 savedObservation = observationHandler.sendObservation(
@@ -195,8 +193,8 @@ public class TaskProcessor implements Processor {
                         observationHandler.buildResultObservation(
                                 savedResultEncounter,
                                 conceptUuid,
-                                resultAnalyses.getResult(),
-                                resultAnalyses.getResultCaptureDate()));
+                                resultAnalysesDAO.getResult(),
+                                resultAnalysesDAO.getResultCaptureDate()));
             }
             observationUuids.add(savedObservation.getIdPart());
         }

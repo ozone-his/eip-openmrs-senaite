@@ -10,9 +10,11 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestResponse;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.CancelAnalysisRequestPayload;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMapper;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestResponse;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -25,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AnalysisRequestHandler {
 
-    public AnalysisRequest sendAnalysisRequest(
+    public AnalysisRequestDAO sendAnalysisRequest(
             ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, String clientUID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
@@ -35,10 +37,10 @@ public class AnalysisRequestHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
+        return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
     }
 
-    public AnalysisRequest getAnalysisRequestByClientIDAndClientSampleID(
+    public AnalysisRequestDAO getAnalysisRequestByClientIDAndClientSampleID(
             ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_ID, clientID);
@@ -48,11 +50,11 @@ public class AnalysisRequestHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
+        return AnalysisRequestMapper.map(analysisRequestResponse);
     }
 
-    public AnalysisRequest getAnalysisRequestByClientSampleID(ProducerTemplate producerTemplate, String clientSampleID)
-            throws JsonProcessingException {
+    public AnalysisRequestDAO getAnalysisRequestByClientSampleID(
+            ProducerTemplate producerTemplate, String clientSampleID) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
@@ -60,46 +62,25 @@ public class AnalysisRequestHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return analysisRequestResponse.analysisRequestResponseToAnalysisRequest(analysisRequestResponse);
+        return AnalysisRequestMapper.map(analysisRequestResponse);
     }
 
-    public AnalysisRequestResponse getAnalysisRequestResponseByClientIDAndClientSampleID(
-            ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_CLIENT_ID, clientID);
-        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
-        String response = producerTemplate.requestBodyAndHeaders(
-                "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
-        AnalysisRequestResponse analysisRequestResponse =
-                objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return analysisRequestResponse;
-    }
-
-    public AnalysisRequest cancelAnalysisRequest(
-            ProducerTemplate producerTemplate,
-            CancelAnalysisRequestPayload cancelAnalysisRequestPayload,
-            String analysisRequestUID)
+    public AnalysisRequestDAO cancelAnalysisRequest(
+            ProducerTemplate producerTemplate, CancelAnalysisRequest cancelAnalysisRequest, String analysisRequestUID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
         String response = producerTemplate.requestBodyAndHeaders(
-                "direct:senaite-update-analysis-request-route", cancelAnalysisRequestPayload, headers, String.class);
+                "direct:senaite-update-analysis-request-route", cancelAnalysisRequest, headers, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return savedAnalysisRequestResponse.analysisRequestResponseToAnalysisRequest(savedAnalysisRequestResponse);
+        return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
     }
 
-    public boolean doesAnalysisRequestExists(AnalysisRequest analysisRequest) {
-        return analysisRequest != null
-                && analysisRequest.getContact() != null
-                && !analysisRequest.getContact().isEmpty();
-    }
-
-    public boolean doesAnalysisRequestResponseExists(AnalysisRequestResponse analysisRequestResponse) {
-        return analysisRequestResponse != null
-                && analysisRequestResponse.getAnalysisRequestItems() != null
-                && !analysisRequestResponse.getAnalysisRequestItems().isEmpty();
+    public boolean doesAnalysisRequestExists(AnalysisRequestDAO analysisRequestDAO) {
+        return analysisRequestDAO != null
+                && analysisRequestDAO.getContact() != null
+                && !analysisRequestDAO.getContact().isEmpty();
     }
 }

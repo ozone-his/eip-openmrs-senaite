@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.eip.openmrs.senaite.model.analyses;
+package com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,14 +17,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnalysesItem {
+public class AnalysisProfile {
 
-    @JsonProperty("Result")
-    private String result;
+    @JsonProperty("url")
+    private String url;
 
-    @JsonProperty("ResultCaptureDate")
-    private String resultCaptureDate;
+    @JsonProperty("uid")
+    private String uid;
 
-    @JsonProperty("description")
-    private String description;
+    @JsonProperty("api_url")
+    private String apiUrl;
 }
