@@ -144,9 +144,15 @@ public class ServiceRequestProcessor implements Processor {
                         }
                         Task savedTask = taskHandler.getTaskByServiceRequestID(serviceRequestUuid);
                         if (!taskHandler.doesTaskExists(savedTask)) {
+                            log.info("Task does not exists for serviceRequest {}", serviceRequestUuid);
                             Task task = taskMapper.toFhir(savedAnalysisRequestDAO);
                             task.setStatus(Task.TaskStatus.REQUESTED);
                             taskHandler.sendTask(task);
+                        } else {
+                            log.info(
+                                    "Task exists for serviceRequest {}, Task ID {}",
+                                    serviceRequestUuid,
+                                    savedTask.getIdPart());
                         }
 
                     } else {

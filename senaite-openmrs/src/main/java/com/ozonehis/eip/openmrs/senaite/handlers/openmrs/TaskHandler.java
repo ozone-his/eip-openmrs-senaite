@@ -39,16 +39,16 @@ public class TaskHandler {
         Bundle bundle = openmrsFhirClient
                 .search()
                 .forResource(Task.class)
-                .where(Task.BASED_ON.hasId(serviceRequestID))
                 .returnBundle(Bundle.class)
                 .execute();
 
-        log.debug("TaskHandler: Task getTaskByServiceRequestID {}", bundle.getId());
+        log.info("TaskHandler: Task getTaskByServiceRequestID {}", bundle.getId());
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Task.class::isInstance)
                 .map(Task.class::cast)
+                .filter(task -> task.getBasedOn().get(0).getReference().equals(serviceRequestID))
                 .findFirst()
                 .orElse(null);
     }
