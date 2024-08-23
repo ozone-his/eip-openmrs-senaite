@@ -87,9 +87,9 @@ public class TaskProcessor implements Processor {
                     continue;
                 }
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(
-                        producerTemplate, task.getBasedOn().get(0).getReference());
+                        task.getBasedOn().get(0).getReference());
                 if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
-                    taskHandler.updateTask(producerTemplate, taskHandler.markTaskRejected(task), task.getIdPart());
+                    taskHandler.updateTask(taskHandler.markTaskRejected(task), task.getIdPart());
                 } else {
                     String serviceRequestSubjectID =
                             serviceRequest.getSubject().getReference().split("/")[1];
@@ -114,9 +114,7 @@ public class TaskProcessor implements Processor {
                                 && !analysisRequestTaskStatus.equalsIgnoreCase(
                                         task.getStatus().toString())) {
                             Task updatedTask = taskHandler.updateTask(
-                                    producerTemplate,
-                                    taskHandler.updateTaskStatus(task, analysisRequestTaskStatus),
-                                    task.getIdPart());
+                                    taskHandler.updateTaskStatus(task, analysisRequestTaskStatus), task.getIdPart());
                             log.debug(
                                     "TaskProcessor: Updated Task {} with status {}",
                                     updatedTask.getIdPart(),
@@ -148,7 +146,6 @@ public class TaskProcessor implements Processor {
             ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses)
             throws JsonProcessingException {
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
-                producerTemplate,
                 resultEncounterTypeUUID,
                 serviceRequest.getSubject().getReference().split("/")[1]);
         if (resultEncounter != null
@@ -158,9 +155,9 @@ public class TaskProcessor implements Processor {
             saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter);
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
-            Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(producerTemplate, encounterID);
-            Encounter savedResultEncounter = encounterHandler.sendEncounter(
-                    producerTemplate, encounterHandler.buildLabResultEncounter(orderEncounter));
+            Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(encounterID);
+            Encounter savedResultEncounter =
+                    encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
             saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter);
         }
     }
@@ -181,26 +178,18 @@ public class TaskProcessor implements Processor {
                     analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
             Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                    producerTemplate,
-                    conceptUuid,
-                    subjectID,
-                    savedResultEncounter.getIdPart(),
-                    resultAnalysesDAO.getResultCaptureDate());
+                    conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDAO.getResultCaptureDate());
             if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create result Observation
-                savedObservation = observationHandler.sendObservation(
-                        producerTemplate,
-                        observationHandler.buildResultObservation(
-                                savedResultEncounter,
-                                conceptUuid,
-                                resultAnalysesDAO.getResult(),
-                                resultAnalysesDAO.getResultCaptureDate()));
+                savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
+                        savedResultEncounter,
+                        conceptUuid,
+                        resultAnalysesDAO.getResult(),
+                        resultAnalysesDAO.getResultCaptureDate()));
             }
             observationUuids.add(savedObservation.getIdPart());
         }
-        diagnosticReportHandler.sendDiagnosticReport(
-                producerTemplate,
-                diagnosticReportHandler.buildDiagnosticReport(
-                        observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
+        diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
+                observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
     }
 }

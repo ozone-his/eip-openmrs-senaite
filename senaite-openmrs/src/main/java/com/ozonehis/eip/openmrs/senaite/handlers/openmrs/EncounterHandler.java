@@ -7,17 +7,16 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import com.ozonehis.eip.openmrs.senaite.Constants;
+import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Encounter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,12 +28,19 @@ public class EncounterHandler {
     @Value("${results.encounterType.uuid}")
     private String resultEncounterTypeUUID;
 
-    public Encounter getEncounterByTypeAndSubject(ProducerTemplate producerTemplate, String typeID, String subjectID) {
-        String url = String.format("Encounter?type=%s&subject=%s", typeID, subjectID);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.CUSTOM_URL, url);
-        Bundle bundle = producerTemplate.requestBodyAndHeaders(
-                "direct:openmrs-get-encounter-route", null, headers, Bundle.class);
+    @Autowired
+    private IGenericClient openmrsFhirClient;
+
+    public Encounter getEncounterByTypeAndSubject(String typeID, String subjectID) {
+        Bundle bundle = openmrsFhirClient
+                .search()
+                .forResource(Encounter.class)
+                .where(Encounter.TYPE.exactly().code(typeID))
+                .and(Encounter.SUBJECT.hasId(subjectID))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        log.debug("EncounterHandler: Encounter getEncounterByTypeAndSubject {}", bundle.getId());
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
@@ -44,15 +50,27 @@ public class EncounterHandler {
                 .orElse(null);
     }
 
-    public Encounter getEncounterByEncounterID(ProducerTemplate producerTemplate, String encounterID) {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_ENCOUNTER_ID, encounterID);
-        return producerTemplate.requestBodyAndHeaders(
-                "direct:openmrs-get-encounter-by-id-route", null, headers, Encounter.class);
+    public Encounter getEncounterByEncounterID(String encounterID) {
+        Encounter encounter = openmrsFhirClient
+                .read()
+                .resource(Encounter.class)
+                .withId(encounterID)
+                .execute();
+
+        log.debug("EncounterHandler: Encounter getEncounterByEncounterID {}", encounter.getId());
+        return encounter;
     }
 
-    public Encounter sendEncounter(ProducerTemplate producerTemplate, Encounter encounter) {
-        return producerTemplate.requestBody("direct:openmrs-create-resource-route", encounter, Encounter.class);
+    public Encounter sendEncounter(Encounter encounter) {
+        MethodOutcome methodOutcome = openmrsFhirClient
+                .create()
+                .resource(encounter)
+                .prettyPrint()
+                .encodedJson()
+                .execute();
+
+        log.debug("EncounterHandler: Encounter created {}", methodOutcome.getCreated());
+        return (Encounter) methodOutcome.getResource();
     }
 
     public Encounter buildLabResultEncounter(Encounter orderEncounter) {

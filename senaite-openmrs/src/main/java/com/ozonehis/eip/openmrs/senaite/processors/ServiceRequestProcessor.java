@@ -142,11 +142,11 @@ public class ServiceRequestProcessor implements Processor {
                             savedAnalysisRequestDAO = analysisRequestHandler.sendAnalysisRequest(
                                     producerTemplate, analysisRequest, savedClientDAO.getUid());
                         }
-                        Task savedTask = taskHandler.getTaskByServiceRequestID(producerTemplate, serviceRequestUuid);
+                        Task savedTask = taskHandler.getTaskByServiceRequestID(serviceRequestUuid);
                         if (!taskHandler.doesTaskExists(savedTask)) {
                             Task task = taskMapper.toFhir(savedAnalysisRequestDAO);
                             task.setStatus(Task.TaskStatus.REQUESTED);
-                            taskHandler.sendTask(producerTemplate, task);
+                            taskHandler.sendTask(task);
                         }
 
                     } else {

@@ -7,15 +7,13 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import com.ozonehis.eip.openmrs.senaite.Constants;
+import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -26,6 +24,7 @@ import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Type;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -33,18 +32,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObservationHandler {
 
+    @Autowired
+    private IGenericClient openmrsFhirClient;
+
     public Observation getObservationByCodeSubjectEncounterAndDate(
-            ProducerTemplate producerTemplate,
-            String codeID,
-            String subjectID,
-            String encounterID,
-            String observationDate) {
-        String url = String.format(
-                "Observation?code=%s&subject=%s&encounter=%s&date=%s", codeID, subjectID, encounterID, observationDate);
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.CUSTOM_URL, url);
-        Bundle bundle = producerTemplate.requestBodyAndHeaders(
-                "direct:openmrs-get-observation-route", null, headers, Bundle.class);
+            String codeID, String subjectID, String encounterID, String observationDate) {
+        Bundle bundle = openmrsFhirClient
+                .search()
+                .forResource(Observation.class)
+                .where(Observation.CODE.exactly().code(codeID))
+                .and(Observation.SUBJECT.hasId(subjectID))
+                .and(Observation.ENCOUNTER.hasId(encounterID))
+                .and(Observation.DATE.exactly().second(observationDate)) // TODO: Fix date format passed
+                .returnBundle(Bundle.class)
+                .execute();
+
+        log.debug("ObservationHandler: Observation getObservationByCodeSubjectEncounterAndDate {}", bundle.getId());
+
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Observation.class::isInstance)
@@ -53,8 +57,16 @@ public class ObservationHandler {
                 .orElse(null);
     }
 
-    public Observation sendObservation(ProducerTemplate producerTemplate, Observation observation) {
-        return producerTemplate.requestBody("direct:openmrs-create-resource-route", observation, Observation.class);
+    public Observation sendObservation(Observation observation) {
+        MethodOutcome methodOutcome = openmrsFhirClient
+                .create()
+                .resource(observation)
+                .prettyPrint()
+                .encodedJson()
+                .execute();
+
+        log.debug("ObservationHandler: Observation created {}", methodOutcome.getCreated());
+        return (Observation) methodOutcome.getResource();
     }
 
     public Observation buildResultObservation(

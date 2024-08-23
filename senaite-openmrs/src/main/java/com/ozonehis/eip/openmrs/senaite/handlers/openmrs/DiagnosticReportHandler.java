@@ -7,14 +7,16 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
+import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.ServiceRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -22,10 +24,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class DiagnosticReportHandler {
 
-    public void sendDiagnosticReport(ProducerTemplate producerTemplate, DiagnosticReport diagnosticReport) {
-        String response =
-                producerTemplate.requestBody("direct:openmrs-create-resource-route", diagnosticReport, String.class);
-        log.debug("DiagnosticReportHandler: DiagnosticReport created {}", response);
+    @Autowired
+    private IGenericClient openmrsFhirClient;
+
+    public void sendDiagnosticReport(DiagnosticReport diagnosticReport) {
+        MethodOutcome methodOutcome = openmrsFhirClient
+                .create()
+                .resource(diagnosticReport)
+                .prettyPrint()
+                .encodedJson()
+                .execute();
+
+        log.debug("DiagnosticReportHandler: DiagnosticReport created {}", methodOutcome.getCreated());
     }
 
     public DiagnosticReport buildDiagnosticReport(

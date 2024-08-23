@@ -7,14 +7,13 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import com.ozonehis.eip.openmrs.senaite.Constants;
-import java.util.HashMap;
-import java.util.Map;
+import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -22,16 +21,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskHandler {
 
-    public void sendTask(ProducerTemplate producerTemplate, Task task) {
-        String response = producerTemplate.requestBody("direct:openmrs-create-resource-route", task, String.class);
-        log.debug("TaskHandler: Task created {}", response);
+    @Autowired
+    private IGenericClient openmrsFhirClient;
+
+    public void sendTask(Task task) {
+        MethodOutcome methodOutcome = openmrsFhirClient
+                .create()
+                .resource(task)
+                .prettyPrint()
+                .encodedJson()
+                .execute();
+
+        log.debug("TaskHandler: Task created {}", methodOutcome.getCreated());
     }
 
-    public Task getTaskByServiceRequestID(ProducerTemplate producerTemplate, String serviceRequestID) {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
-        Bundle bundle =
-                producerTemplate.requestBodyAndHeaders("direct:openmrs-get-task-route", null, headers, Bundle.class);
+    public Task getTaskByServiceRequestID(String serviceRequestID) {
+        Bundle bundle = openmrsFhirClient
+                .search()
+                .forResource(Task.class)
+                .where(Task.BASED_ON.hasId(serviceRequestID))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        log.debug("TaskHandler: Task getTaskByServiceRequestID {}", bundle.getId());
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
@@ -41,10 +53,12 @@ public class TaskHandler {
                 .orElse(null);
     }
 
-    public Task updateTask(ProducerTemplate producerTemplate, Task task, String taskID) {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_TASK_ID, taskID);
-        return producerTemplate.requestBodyAndHeaders("direct:openmrs-update-task-route", task, headers, Task.class);
+    public Task updateTask(Task task, String taskID) {
+        MethodOutcome methodOutcome = openmrsFhirClient.update().resource(task).execute();
+
+        log.debug("TaskHandler: Task updateTask {}", methodOutcome.getCreated());
+
+        return (Task) methodOutcome.getResource();
     }
 
     public Task markTaskRejected(Task task) {
