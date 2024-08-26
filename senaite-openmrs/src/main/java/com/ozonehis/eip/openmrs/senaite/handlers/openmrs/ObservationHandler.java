@@ -43,7 +43,7 @@ public class ObservationHandler {
                 .where(Observation.CODE.exactly().code(codeID))
                 .and(Observation.SUBJECT.hasId(subjectID))
                 .and(Observation.ENCOUNTER.hasId(encounterID))
-                .and(Observation.DATE.exactly().second(observationDate)) // TODO: Fix date format passed
+                // .and(Observation.DATE.exactly().second(observationDate)) // TODO: Fix date format passed
                 .returnBundle(Bundle.class)
                 .execute();
 
