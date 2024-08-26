@@ -37,7 +37,7 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <lombok.version>1.18.30</lombok.version>
-    <eip.client.version>2.1.0-SNAPSHOT</eip.client.version>
+    <eip.client.version>2.1.0</eip.client.version>
     <spotless.version>2.30.0</spotless.version>
     <palantirJavaFormat.version>1.1.0</palantirJavaFormat.version>
     <openmrs.watcher.version>4.1.0-SNAPSHOT</openmrs.watcher.version>
