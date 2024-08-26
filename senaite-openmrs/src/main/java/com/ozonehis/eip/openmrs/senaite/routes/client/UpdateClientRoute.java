@@ -8,7 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.routes.client;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class UpdateClientRoute extends RouteBuilder {
 
     @Autowired
-    private SenaiteClient senaiteClient;
+    private SenaiteConfig senaiteConfig;
 
     public static final String UPDATE_ENDPOINT = "/@@API/senaite/v1/update";
 
@@ -30,8 +30,8 @@ public class UpdateClientRoute extends RouteBuilder {
                 .routeId("senaite-update-client-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-                .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .to(senaiteClient.getSenaiteBaseUrl() + UPDATE_ENDPOINT)
+                .setHeader(Constants.AUTHORIZATION, constant(senaiteConfig.authHeader()))
+                .to(senaiteConfig.getSenaiteBaseUrl() + UPDATE_ENDPOINT)
                 .end();
         // spotless:on
     }

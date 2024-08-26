@@ -8,7 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.routes.analyses;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class GetAnalysesRoute extends RouteBuilder {
 
     @Autowired
-    private SenaiteClient senaiteClient;
+    private SenaiteConfig senaiteConfig;
 
     @Override
     public void configure() {
@@ -28,7 +28,7 @@ public class GetAnalysesRoute extends RouteBuilder {
                 .routeId("senaite-get-analyses-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-                .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
+                .setHeader(Constants.AUTHORIZATION, constant(senaiteConfig.authHeader()))
                 .toD("${header." + Constants.HEADER_ANALYSES_GET_ENDPOINT + "}")
                 .end();
         // spotless:on

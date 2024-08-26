@@ -8,7 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.routes.contact;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class GetContactRoute extends RouteBuilder {
 
     @Autowired
-    private SenaiteClient senaiteClient;
+    private SenaiteConfig senaiteConfig;
 
     private static final String GET_CONTACT_ENDPOINT = "/@@API/senaite/v1/Contact?depth=2&path=";
 
@@ -30,8 +30,8 @@ public class GetContactRoute extends RouteBuilder {
                 .routeId("senaite-get-contact-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-                .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .toD(senaiteClient.getSenaiteBaseUrl() + GET_CONTACT_ENDPOINT + "${header." + Constants.HEADER_PATH
+                .setHeader(Constants.AUTHORIZATION, constant(senaiteConfig.authHeader()))
+                .toD(senaiteConfig.getSenaiteBaseUrl() + GET_CONTACT_ENDPOINT + "${header." + Constants.HEADER_PATH
                         + "}")
                 .end();
         // spotless:on

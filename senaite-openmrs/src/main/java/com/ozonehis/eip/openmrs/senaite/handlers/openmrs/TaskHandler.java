@@ -48,7 +48,10 @@ public class TaskHandler {
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Task.class::isInstance)
                 .map(Task.class::cast)
-                .filter(task -> task.getBasedOn().get(0).getReference().equals(serviceRequestID))
+                .filter(task -> task.getBasedOn()
+                        .get(0)
+                        .getReference()
+                        .equals(serviceRequestID)) // TODO: Use client impl and don't fetch all Tasks
                 .findFirst()
                 .orElse(null);
     }

@@ -8,7 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.routes.analysisrequest;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.client.SenaiteClient;
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class UpdateAnalysisRequestRoute extends RouteBuilder {
 
     @Autowired
-    private SenaiteClient senaiteClient;
+    private SenaiteConfig senaiteConfig;
 
     private static final String UPDATE_ANALYSIS_REQUEST_ENDPOINT = "/@@API/senaite/v1/AnalysisRequest/update/";
 
@@ -30,8 +30,8 @@ public class UpdateAnalysisRequestRoute extends RouteBuilder {
                 .routeId("senaite-update-analysis-request-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-                .setHeader(Constants.AUTHORIZATION, constant(senaiteClient.authHeader()))
-                .toD(senaiteClient.getSenaiteBaseUrl() + UPDATE_ANALYSIS_REQUEST_ENDPOINT + "${header."
+                .setHeader(Constants.AUTHORIZATION, constant(senaiteConfig.authHeader()))
+                .toD(senaiteConfig.getSenaiteBaseUrl() + UPDATE_ANALYSIS_REQUEST_ENDPOINT + "${header."
                         + Constants.HEADER_ANALYSIS_REQUEST_UID + "}")
                 .end();
         // spotless:on
