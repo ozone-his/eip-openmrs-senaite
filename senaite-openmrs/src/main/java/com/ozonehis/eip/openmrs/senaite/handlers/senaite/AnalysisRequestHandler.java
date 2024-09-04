@@ -10,7 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
@@ -29,7 +29,7 @@ public class AnalysisRequestHandler {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AnalysisRequestDAO sendAnalysisRequest(
+    public AnalysisRequestDTO sendAnalysisRequest(
             ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, String clientUID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
@@ -41,7 +41,7 @@ public class AnalysisRequestHandler {
         return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
     }
 
-    public AnalysisRequestDAO getAnalysisRequestByClientIDAndClientSampleID(
+    public AnalysisRequestDTO getAnalysisRequestByClientIDAndClientSampleID(
             ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_ID, clientID);
@@ -53,7 +53,7 @@ public class AnalysisRequestHandler {
         return AnalysisRequestMapper.map(analysisRequestResponse);
     }
 
-    public AnalysisRequestDAO getAnalysisRequestByClientSampleID(
+    public AnalysisRequestDTO getAnalysisRequestByClientSampleID(
             ProducerTemplate producerTemplate, String clientSampleID) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
@@ -64,7 +64,7 @@ public class AnalysisRequestHandler {
         return AnalysisRequestMapper.map(analysisRequestResponse);
     }
 
-    public AnalysisRequestDAO cancelAnalysisRequest(
+    public AnalysisRequestDTO cancelAnalysisRequest(
             ProducerTemplate producerTemplate, CancelAnalysisRequest cancelAnalysisRequest, String analysisRequestUID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
@@ -76,9 +76,9 @@ public class AnalysisRequestHandler {
         return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
     }
 
-    public boolean doesAnalysisRequestExists(AnalysisRequestDAO analysisRequestDAO) {
-        return analysisRequestDAO != null
-                && analysisRequestDAO.getContact() != null
-                && !analysisRequestDAO.getContact().isEmpty();
+    public boolean doesAnalysisRequestExists(AnalysisRequestDTO analysisRequestDTO) {
+        return analysisRequestDTO != null
+                && analysisRequestDTO.getContact() != null
+                && !analysisRequestDTO.getContact().isEmpty();
     }
 }

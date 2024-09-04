@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnalysesDAO {
+public class AnalysesDTO {
 
     private String result;
 

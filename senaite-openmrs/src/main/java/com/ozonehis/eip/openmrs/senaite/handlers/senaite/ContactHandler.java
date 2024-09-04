@@ -10,7 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDAO;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactMapper;
 import com.ozonehis.eip.openmrs.senaite.model.contact.request.Contact;
 import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactResponse;
@@ -28,13 +28,13 @@ public class ContactHandler {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ContactDAO sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
+    public ContactDTO sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
         ContactResponse savedContactResponse = objectMapper.readValue(response, ContactResponse.class);
         return ContactMapper.map(savedContactResponse);
     }
 
-    public ContactDAO getContactByClientPath(ProducerTemplate producerTemplate, String clientPath)
+    public ContactDTO getContactByClientPath(ProducerTemplate producerTemplate, String clientPath)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_PATH, clientPath);
@@ -44,9 +44,9 @@ public class ContactHandler {
         return ContactMapper.map(contactResponse);
     }
 
-    public boolean doesContactExists(ContactDAO contactDAO) {
-        return contactDAO != null
-                && contactDAO.getUid() != null
-                && !contactDAO.getUid().isEmpty();
+    public boolean doesContactExists(ContactDTO contactDTO) {
+        return contactDTO != null
+                && contactDTO.getUid() != null
+                && !contactDTO.getUid().isEmpty();
     }
 }

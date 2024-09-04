@@ -8,9 +8,9 @@
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.Analyses;
-import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDAO;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -27,8 +27,8 @@ import org.springframework.stereotype.Component;
 public class AnalysisRequestMapper {
 
     public AnalysisRequest toSenaite(
-            ContactDAO contactDAO,
-            AnalysisRequestTemplateDAO analysisRequestTemplateDAO,
+            ContactDTO contactDTO,
+            AnalysisRequestTemplateDTO analysisRequestTemplateDTO,
             ServiceRequest serviceRequest) {
         if (serviceRequest == null) {
             return null;
@@ -37,26 +37,26 @@ public class AnalysisRequestMapper {
 
         AnalysisRequest analysisRequest = new AnalysisRequest();
 
-        analysisRequest.setContact(contactDAO.getUid());
+        analysisRequest.setContact(contactDTO.getUid());
         analysisRequest.setDateSampled(convertOpenmrsDateToSenaiteDate(
                 serviceRequest.getOccurrencePeriod().getStart()));
         analysisRequest.setClientSampleID(serviceRequest.getIdPart());
         analysisRequest.setReviewState("sample_due");
 
-        if (analysisRequestTemplateDAO != null) {
+        if (analysisRequestTemplateDTO != null) {
 
-            analysisRequest.setTemplate(analysisRequestTemplateDAO.getUid());
+            analysisRequest.setTemplate(analysisRequestTemplateDTO.getUid());
 
-            if (analysisRequestTemplateDAO.getSampleType() != null) {
+            if (analysisRequestTemplateDTO.getSampleType() != null) {
                 analysisRequest.setSampleType(
-                        analysisRequestTemplateDAO.getSampleType().getUid());
+                        analysisRequestTemplateDTO.getSampleType().getUid());
             }
-            if (analysisRequestTemplateDAO.getAnalysisProfile() != null) {
+            if (analysisRequestTemplateDTO.getAnalysisProfile() != null) {
                 analysisRequest.setProfiles(
-                        analysisRequestTemplateDAO.getAnalysisProfile().getUid());
+                        analysisRequestTemplateDTO.getAnalysisProfile().getUid());
             }
-            if (analysisRequestTemplateDAO.getAnalyses() != null) {
-                analysisRequest.setAnalyses(getAnalysesUids(analysisRequestTemplateDAO.getAnalyses()));
+            if (analysisRequestTemplateDTO.getAnalyses() != null) {
+                analysisRequest.setAnalyses(getAnalysesUids(analysisRequestTemplateDTO.getAnalyses()));
             }
         }
 

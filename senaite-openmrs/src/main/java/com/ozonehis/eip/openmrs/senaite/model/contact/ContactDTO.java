@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.eip.openmrs.senaite.model.client;
+package com.ozonehis.eip.openmrs.senaite.model.contact;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,17 +14,15 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClientDAO {
+public class ContactDTO {
 
     private String portalType;
 
-    private String title;
-
-    private String clientID;
-
     private String parentPath;
 
-    private String uid;
+    private String firstName;
 
-    private String path;
+    private String surname;
+
+    private String uid;
 }

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnalysisRequestDAO {
+public class AnalysisRequestDTO {
 
     private String contact; // Contact UUID
 

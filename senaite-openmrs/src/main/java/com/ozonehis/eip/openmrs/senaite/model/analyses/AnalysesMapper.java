@@ -11,15 +11,15 @@ import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesResponse
 
 public class AnalysesMapper {
 
-    public static AnalysesDAO map(AnalysesResponse analysesResponse) {
-        AnalysesDAO analysesDAO = new AnalysesDAO();
+    public static AnalysesDTO map(AnalysesResponse analysesResponse) {
+        AnalysesDTO analysesDTO = new AnalysesDTO();
         if (analysesResponse != null && !analysesResponse.getAnalysesItems().isEmpty()) {
-            analysesDAO.setResult(analysesResponse.getAnalysesItems().get(0).getResult());
-            analysesDAO.setResultCaptureDate(
+            analysesDTO.setResult(analysesResponse.getAnalysesItems().get(0).getResult());
+            analysesDTO.setResultCaptureDate(
                     analysesResponse.getAnalysesItems().get(0).getResultCaptureDate());
-            analysesDAO.setDescription(
+            analysesDTO.setDescription(
                     analysesResponse.getAnalysesItems().get(0).getDescription());
-            return analysesDAO;
+            return analysesDTO;
         }
 
         return null;

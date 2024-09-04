@@ -12,8 +12,8 @@ import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.A
 
 public class AnalysisRequestTemplateMapper {
 
-    public static AnalysisRequestTemplateDAO map(AnalysisRequestTemplateResponse analysisRequestTemplateResponse) {
-        AnalysisRequestTemplateDAO analysisRequestTemplateDAO = new AnalysisRequestTemplateDAO();
+    public static AnalysisRequestTemplateDTO map(AnalysisRequestTemplateResponse analysisRequestTemplateResponse) {
+        AnalysisRequestTemplateDTO analysisRequestTemplateDTO = new AnalysisRequestTemplateDTO();
         if (analysisRequestTemplateResponse != null
                 && analysisRequestTemplateResponse.getAnalysisRequestTemplateItems() != null
                 && !analysisRequestTemplateResponse
@@ -23,13 +23,13 @@ public class AnalysisRequestTemplateMapper {
                     .getAnalysisRequestTemplateItems()
                     .get(0);
 
-            analysisRequestTemplateDAO.setUid(analysisRequestTemplateItem.getUid());
-            analysisRequestTemplateDAO.setPath(analysisRequestTemplateItem.getPath());
-            analysisRequestTemplateDAO.setAnalysisProfile(analysisRequestTemplateItem.getAnalysisProfile());
-            analysisRequestTemplateDAO.setAnalyses(analysisRequestTemplateItem.getAnalyses());
-            analysisRequestTemplateDAO.setSampleType(analysisRequestTemplateItem.getSampleType());
+            analysisRequestTemplateDTO.setUid(analysisRequestTemplateItem.getUid());
+            analysisRequestTemplateDTO.setPath(analysisRequestTemplateItem.getPath());
+            analysisRequestTemplateDTO.setAnalysisProfile(analysisRequestTemplateItem.getAnalysisProfile());
+            analysisRequestTemplateDTO.setAnalyses(analysisRequestTemplateItem.getAnalyses());
+            analysisRequestTemplateDTO.setSampleType(analysisRequestTemplateItem.getSampleType());
 
-            return analysisRequestTemplateDAO;
+            return analysisRequestTemplateDTO;
         }
 
         return null;

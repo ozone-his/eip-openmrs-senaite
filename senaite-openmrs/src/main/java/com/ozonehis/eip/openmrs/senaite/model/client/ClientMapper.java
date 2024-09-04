@@ -12,18 +12,18 @@ import com.ozonehis.eip.openmrs.senaite.model.client.response.ClientResponse;
 
 public class ClientMapper {
 
-    public static ClientDAO map(ClientResponse clientResponse) {
-        ClientDAO clientDAO = new ClientDAO();
+    public static ClientDTO map(ClientResponse clientResponse) {
+        ClientDTO clientDTO = new ClientDTO();
         if (clientResponse != null && !clientResponse.getClientItems().isEmpty()) {
             ClientItem clientItem = clientResponse.getClientItems().get(0);
 
-            clientDAO.setClientID(clientItem.getGetClientID());
-            clientDAO.setPortalType(clientItem.getPortalType());
-            clientDAO.setTitle(clientItem.getTitle());
-            clientDAO.setUid(clientItem.getUid());
-            clientDAO.setParentPath(clientItem.getParentPath());
-            clientDAO.setPath(clientItem.getPath());
-            return clientDAO;
+            clientDTO.setClientID(clientItem.getGetClientID());
+            clientDTO.setPortalType(clientItem.getPortalType());
+            clientDTO.setTitle(clientItem.getTitle());
+            clientDTO.setUid(clientItem.getUid());
+            clientDTO.setParentPath(clientItem.getParentPath());
+            clientDTO.setPath(clientItem.getPath());
+            return clientDTO;
         }
 
         return null;

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnalysisRequestTemplateDAO {
+public class AnalysisRequestTemplateDTO {
 
     private String uid;
 

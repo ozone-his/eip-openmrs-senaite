@@ -12,17 +12,17 @@ import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactResponse;
 
 public class ContactMapper {
 
-    public static ContactDAO map(ContactResponse contactResponse) {
-        ContactDAO contactDAO = new ContactDAO();
+    public static ContactDTO map(ContactResponse contactResponse) {
+        ContactDTO contactDTO = new ContactDTO();
         if (contactResponse != null && !contactResponse.getContactItems().isEmpty()) {
             ContactItem contactItem = contactResponse.getContactItems().get(0);
 
-            contactDAO.setFirstName(contactItem.getFirstName());
-            contactDAO.setSurname(contactItem.getSurname());
-            contactDAO.setPortalType(contactItem.getPortalType());
-            contactDAO.setParentPath(contactItem.getParentPath());
-            contactDAO.setUid(contactItem.getUid());
-            return contactDAO;
+            contactDTO.setFirstName(contactItem.getFirstName());
+            contactDTO.setSurname(contactItem.getSurname());
+            contactDTO.setPortalType(contactItem.getPortalType());
+            contactDTO.setParentPath(contactItem.getParentPath());
+            contactDTO.setUid(contactItem.getUid());
+            return contactDTO;
         }
         return null;
     }

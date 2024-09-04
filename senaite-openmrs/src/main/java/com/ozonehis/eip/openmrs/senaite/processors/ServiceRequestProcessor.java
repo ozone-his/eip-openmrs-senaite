@@ -18,13 +18,13 @@ import com.ozonehis.eip.openmrs.senaite.mapper.fhir.TaskMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDAO;
-import com.ozonehis.eip.openmrs.senaite.model.client.ClientDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDTO;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
 import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
-import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDAO;
+import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
 import com.ozonehis.eip.openmrs.senaite.model.contact.request.Contact;
 import java.util.List;
 import lombok.Setter;
@@ -112,40 +112,40 @@ public class ServiceRequestProcessor implements Processor {
                             && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
 
                         Client client = clientMapper.toSenaite(patient);
-                        ClientDAO savedClientDAO =
+                        ClientDTO savedClientDTO =
                                 clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
-                        if (!clientHandler.doesClientExists(savedClientDAO)) {
-                            savedClientDAO = clientHandler.sendClient(producerTemplate, client);
+                        if (!clientHandler.doesClientExists(savedClientDTO)) {
+                            savedClientDTO = clientHandler.sendClient(producerTemplate, client);
                         }
-                        ContactDAO savedContactDAO =
-                                contactHandler.getContactByClientPath(producerTemplate, savedClientDAO.getPath());
-                        if (!contactHandler.doesContactExists(savedContactDAO)) {
-                            Contact contact = contactMapper.toSenaite(serviceRequest, savedClientDAO);
-                            savedContactDAO = contactHandler.sendContact(producerTemplate, contact);
+                        ContactDTO savedContactDTO =
+                                contactHandler.getContactByClientPath(producerTemplate, savedClientDTO.getPath());
+                        if (!contactHandler.doesContactExists(savedContactDTO)) {
+                            Contact contact = contactMapper.toSenaite(serviceRequest, savedClientDTO);
+                            savedContactDTO = contactHandler.sendContact(producerTemplate, contact);
                         }
-                        AnalysisRequestDAO savedAnalysisRequestDAO =
+                        AnalysisRequestDTO savedAnalysisRequestDTO =
                                 analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
-                                        producerTemplate, savedClientDAO.getClientID(), serviceRequestUuid);
-                        if (!analysisRequestHandler.doesAnalysisRequestExists(savedAnalysisRequestDAO)) {
+                                        producerTemplate, savedClientDTO.getClientID(), serviceRequestUuid);
+                        if (!analysisRequestHandler.doesAnalysisRequestExists(savedAnalysisRequestDTO)) {
                             String serviceRequestCodeID =
                                     serviceRequest.getCode().getCoding().get(0).getCode();
-                            AnalysisRequestTemplateDAO analysisRequestTemplateDAO =
+                            AnalysisRequestTemplateDTO analysisRequestTemplateDTO =
                                     analysisRequestTemplateHandler.getAnalysisRequestTemplateByServiceRequestCode(
                                             producerTemplate, serviceRequestCodeID);
-                            if (analysisRequestTemplateDAO == null) {
+                            if (analysisRequestTemplateDTO == null) {
                                 log.error("No ARTemplate found in SENAITE code {}", serviceRequestCodeID);
                                 // TODO: Should we throw an error if ARTemplate with serviceRequest code does not exists
                                 return;
                             }
                             AnalysisRequest analysisRequest = analysisRequestMapper.toSenaite(
-                                    savedContactDAO, analysisRequestTemplateDAO, serviceRequest);
-                            savedAnalysisRequestDAO = analysisRequestHandler.sendAnalysisRequest(
-                                    producerTemplate, analysisRequest, savedClientDAO.getUid());
+                                    savedContactDTO, analysisRequestTemplateDTO, serviceRequest);
+                            savedAnalysisRequestDTO = analysisRequestHandler.sendAnalysisRequest(
+                                    producerTemplate, analysisRequest, savedClientDTO.getUid());
                         }
                         Task savedTask = taskHandler.getTaskByServiceRequestID(serviceRequestUuid);
                         if (!taskHandler.doesTaskExists(savedTask)) {
                             log.info("Task does not exists for serviceRequest {}", serviceRequestUuid);
-                            Task task = taskMapper.toFhir(savedAnalysisRequestDAO);
+                            Task task = taskMapper.toFhir(savedAnalysisRequestDTO);
                             task.setStatus(Task.TaskStatus.REQUESTED);
                             taskHandler.sendTask(task);
                         } else {
@@ -171,20 +171,20 @@ public class ServiceRequestProcessor implements Processor {
         }
     }
 
-    private AnalysisRequestDAO cancelAnalysisRequest(ProducerTemplate producerTemplate, String serviceRequestUuid)
+    private AnalysisRequestDTO cancelAnalysisRequest(ProducerTemplate producerTemplate, String serviceRequestUuid)
             throws JsonProcessingException {
-        AnalysisRequestDAO analysisRequestDAO =
+        AnalysisRequestDTO analysisRequestDTO =
                 analysisRequestHandler.getAnalysisRequestByClientSampleID(producerTemplate, serviceRequestUuid);
-        if (analysisRequestDAO.getReviewState().equalsIgnoreCase("sample_due")) {
+        if (analysisRequestDTO.getReviewState().equalsIgnoreCase("sample_due")) {
             CancelAnalysisRequest cancelAnalysisRequest = new CancelAnalysisRequest();
             cancelAnalysisRequest.setTransition("cancel");
-            cancelAnalysisRequest.setClient(analysisRequestDAO.getClient());
+            cancelAnalysisRequest.setClient(analysisRequestDTO.getClient());
             return analysisRequestHandler.cancelAnalysisRequest(
-                    producerTemplate, cancelAnalysisRequest, analysisRequestDAO.getUid());
+                    producerTemplate, cancelAnalysisRequest, analysisRequestDTO.getUid());
         } else {
             log.debug(
                     "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
-                    analysisRequestDAO,
+                    analysisRequestDTO,
                     serviceRequestUuid);
         }
         return null;

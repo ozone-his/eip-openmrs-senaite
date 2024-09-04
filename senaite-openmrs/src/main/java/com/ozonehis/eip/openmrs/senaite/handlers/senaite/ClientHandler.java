@@ -10,7 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.client.ClientDAO;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
 import com.ozonehis.eip.openmrs.senaite.model.client.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
 import com.ozonehis.eip.openmrs.senaite.model.client.response.ClientResponse;
@@ -28,13 +28,13 @@ public class ClientHandler {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ClientDAO sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
+    public ClientDTO sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-client-route", client, String.class);
         ClientResponse savedClientResponse = objectMapper.readValue(response, ClientResponse.class);
         return ClientMapper.map(savedClientResponse);
     }
 
-    public ClientDAO getClientByPatientID(ProducerTemplate producerTemplate, String patientID)
+    public ClientDTO getClientByPatientID(ProducerTemplate producerTemplate, String patientID)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_ID, patientID);
@@ -44,9 +44,9 @@ public class ClientHandler {
         return ClientMapper.map(clientResponse);
     }
 
-    public boolean doesClientExists(ClientDAO clientDAO) {
-        return clientDAO != null
-                && clientDAO.getUid() != null
-                && !clientDAO.getUid().isEmpty();
+    public boolean doesClientExists(ClientDTO clientDTO) {
+        return clientDTO != null
+                && clientDTO.getUid() != null
+                && !clientDTO.getUid().isEmpty();
     }
 }

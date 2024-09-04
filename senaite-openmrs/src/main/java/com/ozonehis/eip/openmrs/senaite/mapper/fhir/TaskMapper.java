@@ -8,18 +8,18 @@
 package com.ozonehis.eip.openmrs.senaite.mapper.fhir;
 
 import com.ozonehis.eip.openmrs.senaite.mapper.ToFhirMapping;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskMapper implements ToFhirMapping<AnalysisRequestDAO, Task> {
+public class TaskMapper implements ToFhirMapping<AnalysisRequestDTO, Task> {
 
     @Override
-    public Task toFhir(AnalysisRequestDAO analysisRequestDAO) {
+    public Task toFhir(AnalysisRequestDTO analysisRequestDTO) {
         Task task = new Task();
         task.setIntent(Task.TaskIntent.ORDER);
-        task.addBasedOn().setReference(analysisRequestDAO.getClientSampleID()).setType("ServiceRequest");
+        task.addBasedOn().setReference(analysisRequestDTO.getClientSampleID()).setType("ServiceRequest");
         return task;
     }
 }

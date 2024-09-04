@@ -10,7 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
-import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDAO;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesResponse;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class AnalysesHandler {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AnalysesDAO getAnalysesByAnalysesApiUrl(ProducerTemplate producerTemplate, String analysesApiUrl)
+    public AnalysesDTO getAnalysesByAnalysesApiUrl(ProducerTemplate producerTemplate, String analysesApiUrl)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analysesApiUrl);

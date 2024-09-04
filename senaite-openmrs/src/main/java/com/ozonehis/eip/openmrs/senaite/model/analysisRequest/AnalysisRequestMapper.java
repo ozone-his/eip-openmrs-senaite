@@ -14,34 +14,34 @@ import java.util.Arrays;
 
 public class AnalysisRequestMapper {
 
-    public static AnalysisRequestDAO map(AnalysisRequestResponse analysisRequestResponse) {
-        AnalysisRequestDAO analysisRequestDAO = new AnalysisRequestDAO();
+    public static AnalysisRequestDTO map(AnalysisRequestResponse analysisRequestResponse) {
+        AnalysisRequestDTO analysisRequestDTO = new AnalysisRequestDTO();
         if (analysisRequestResponse != null
                 && analysisRequestResponse.getAnalysisRequestItems() != null
                 && !analysisRequestResponse.getAnalysisRequestItems().isEmpty()) {
             AnalysisRequestItem analysisRequestItem =
                     analysisRequestResponse.getAnalysisRequestItems().get(0);
 
-            analysisRequestDAO.setContact(analysisRequestItem.getContactUid());
-            analysisRequestDAO.setSampleType(analysisRequestItem.getSampleTypeUid());
-            analysisRequestDAO.setDateSampled(analysisRequestItem.getDateSampled());
-            analysisRequestDAO.setTemplate(analysisRequestItem.getTemplateUid());
-            analysisRequestDAO.setClient(analysisRequestItem.getClientUID());
-            analysisRequestDAO.setUid(analysisRequestItem.getUid());
+            analysisRequestDTO.setContact(analysisRequestItem.getContactUid());
+            analysisRequestDTO.setSampleType(analysisRequestItem.getSampleTypeUid());
+            analysisRequestDTO.setDateSampled(analysisRequestItem.getDateSampled());
+            analysisRequestDTO.setTemplate(analysisRequestItem.getTemplateUid());
+            analysisRequestDTO.setClient(analysisRequestItem.getClientUID());
+            analysisRequestDTO.setUid(analysisRequestItem.getUid());
             if (analysisRequestItem.getProfilesUid() != null && analysisRequestItem.getProfilesUid().length > 0) {
-                analysisRequestDAO.setProfiles(analysisRequestItem.getProfilesUid()[0]);
+                analysisRequestDTO.setProfiles(analysisRequestItem.getProfilesUid()[0]);
             }
             if (analysisRequestItem.getAnalyses() != null && analysisRequestItem.getAnalyses().length > 0) {
                 String[] uids = Arrays.stream(analysisRequestItem.getAnalyses())
                         .map(Analyses::getAnalysesUid)
                         .toArray(String[]::new);
 
-                analysisRequestDAO.setAnalysesUids(uids);
+                analysisRequestDTO.setAnalysesUids(uids);
             }
-            analysisRequestDAO.setAnalyses(analysisRequestItem.getAnalyses());
-            analysisRequestDAO.setClientSampleID(analysisRequestItem.getClientSampleID());
-            analysisRequestDAO.setReviewState(analysisRequestItem.getReviewState());
-            return analysisRequestDAO;
+            analysisRequestDTO.setAnalyses(analysisRequestItem.getAnalyses());
+            analysisRequestDTO.setClientSampleID(analysisRequestItem.getClientSampleID());
+            analysisRequestDTO.setReviewState(analysisRequestItem.getReviewState());
+            return analysisRequestDTO;
         }
 
         return null;
