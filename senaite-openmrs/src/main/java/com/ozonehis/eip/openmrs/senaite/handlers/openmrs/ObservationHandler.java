@@ -58,12 +58,8 @@ public class ObservationHandler {
     }
 
     public Observation sendObservation(Observation observation) {
-        MethodOutcome methodOutcome = openmrsFhirClient
-                .create()
-                .resource(observation)
-                .prettyPrint()
-                .encodedJson()
-                .execute();
+        MethodOutcome methodOutcome =
+                openmrsFhirClient.create().resource(observation).encodedJson().execute();
 
         log.debug("ObservationHandler: Observation created {}", methodOutcome.getCreated());
         return (Observation) methodOutcome.getResource();
@@ -100,8 +96,6 @@ public class ObservationHandler {
     }
 
     public boolean doesObservationExists(Observation observation) {
-        return observation != null
-                && observation.getId() != null
-                && !observation.getId().isEmpty();
+        return observation != null && observation.hasId();
     }
 }

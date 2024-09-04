@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AnalysisRequestHandler {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public AnalysisRequestDAO sendAnalysisRequest(
             ProducerTemplate producerTemplate, AnalysisRequest analysisRequest, String clientUID)
             throws JsonProcessingException {
@@ -34,7 +36,6 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_UID, clientUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-create-analysis-request-route", analysisRequest, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
         return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
@@ -47,7 +48,6 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
         return AnalysisRequestMapper.map(analysisRequestResponse);
@@ -59,7 +59,6 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse analysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
         return AnalysisRequestMapper.map(analysisRequestResponse);
@@ -72,7 +71,6 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-update-analysis-request-route", cancelAnalysisRequest, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         AnalysisRequestResponse savedAnalysisRequestResponse =
                 objectMapper.readValue(response, AnalysisRequestResponse.class);
         return AnalysisRequestMapper.map(savedAnalysisRequestResponse);

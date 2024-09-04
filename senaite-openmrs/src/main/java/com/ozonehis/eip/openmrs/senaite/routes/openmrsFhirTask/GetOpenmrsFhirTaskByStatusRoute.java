@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,9 +24,9 @@ public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
                 .log(LoggingLevel.INFO, "Fetching Task by Status in OpenMRS...")
                 .routeId("openmrs-get-task-by-status-route")
                 .toD("fhir://search/searchByUrl?url=" + GET_BY_STATUS_ENDPOINT)
-                .marshal()
+                .unmarshal()
                 .fhirJson("R4")
-                .convertBodyTo(String.class)
+                .convertBodyTo(Bundle.class)
                 .end();
         // spotless:on
     }

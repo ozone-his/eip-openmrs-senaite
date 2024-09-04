@@ -31,7 +31,6 @@ public class DiagnosticReportHandler {
         MethodOutcome methodOutcome = openmrsFhirClient
                 .create()
                 .resource(diagnosticReport)
-                .prettyPrint()
                 .encodedJson()
                 .execute();
 
@@ -44,10 +43,14 @@ public class DiagnosticReportHandler {
         diagnosticReport.setStatus(DiagnosticReport.DiagnosticReportStatus.FINAL);
         diagnosticReport.setCode(serviceRequest.getCode());
         diagnosticReport.setSubject(serviceRequest.getSubject());
-        diagnosticReport.setEncounter(new Reference().setReference("Encounter/" + labResultsEncounterID));
+        diagnosticReport.setEncounter(new Reference()
+                .setReference("Encounter/" + labResultsEncounterID)
+                .setType("Encounter"));
         List<Reference> referenceList = new ArrayList<>();
         for (String observationUuid : observationUuids) {
-            referenceList.add(new Reference().setReference("Observation/" + observationUuid));
+            referenceList.add(new Reference()
+                    .setReference("Observation/" + observationUuid)
+                    .setType("Observation"));
         }
         diagnosticReport.setResult(referenceList);
         return diagnosticReport;

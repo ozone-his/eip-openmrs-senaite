@@ -26,9 +26,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContactHandler {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public ContactDAO sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         ContactResponse savedContactResponse = objectMapper.readValue(response, ContactResponse.class);
         return ContactMapper.map(savedContactResponse);
     }
@@ -39,7 +40,6 @@ public class ContactHandler {
         headers.put(Constants.HEADER_PATH, clientPath);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         ContactResponse contactResponse = objectMapper.readValue(response, ContactResponse.class);
         return ContactMapper.map(contactResponse);
     }

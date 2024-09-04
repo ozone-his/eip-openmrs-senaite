@@ -25,13 +25,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class AnalysesHandler {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public AnalysesDAO getAnalysesByAnalysesApiUrl(ProducerTemplate producerTemplate, String analysesApiUrl)
             throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analysesApiUrl);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analyses-route", null, headers, String.class);
-        ObjectMapper objectMapper = new ObjectMapper();
         AnalysesResponse analysisRequestResponse = objectMapper.readValue(response, AnalysesResponse.class);
         return AnalysesMapper.map(analysisRequestResponse);
     }

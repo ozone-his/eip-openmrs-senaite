@@ -11,7 +11,8 @@ import com.ozonehis.eip.openmrs.senaite.mapper.ToSenaiteMapping;
 import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
 import java.util.Optional;
 import lombok.Setter;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Patient;
 import org.springframework.stereotype.Component;
 
 @Setter

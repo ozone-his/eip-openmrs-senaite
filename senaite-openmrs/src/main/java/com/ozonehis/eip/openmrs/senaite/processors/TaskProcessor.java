@@ -7,7 +7,6 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
@@ -71,10 +70,8 @@ public class TaskProcessor implements Processor {
     @Override
     public void process(Exchange exchange) {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
-            String body = exchange.getMessage().getBody(String.class);
-            log.debug("TaskProcessor: Body {}", body);
-            FhirContext ctx = FhirContext.forR4();
-            Bundle bundle = ctx.newJsonParser().parseResource(Bundle.class, body);
+            Bundle bundle = exchange.getMessage().getBody(Bundle.class);
+            log.debug("TaskProcessor: bundle {}", bundle.getId());
             List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
             for (Bundle.BundleEntryComponent entry : entries) {
                 Task task = null;

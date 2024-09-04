@@ -8,12 +8,11 @@
 package com.ozonehis.eip.openmrs.senaite.config;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Getter
 @Component
 public class SenaiteConfig {
@@ -27,6 +26,12 @@ public class SenaiteConfig {
     private String senaiteBaseUrl;
 
     public String authHeader() {
+        if (StringUtils.isEmpty(getSenaiteUsername())) {
+            throw new IllegalArgumentException("SENAITE username is empty");
+        }
+        if (StringUtils.isEmpty(getSenaitePassword())) {
+            throw new IllegalArgumentException("SENAITE password is empty");
+        }
         String auth = getSenaiteUsername() + ":" + getSenaitePassword();
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
         return "Basic " + new String(encodedAuth);

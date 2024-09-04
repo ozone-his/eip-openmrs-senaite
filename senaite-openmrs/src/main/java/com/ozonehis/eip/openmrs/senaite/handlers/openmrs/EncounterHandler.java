@@ -62,12 +62,8 @@ public class EncounterHandler {
     }
 
     public Encounter sendEncounter(Encounter encounter) {
-        MethodOutcome methodOutcome = openmrsFhirClient
-                .create()
-                .resource(encounter)
-                .prettyPrint()
-                .encodedJson()
-                .execute();
+        MethodOutcome methodOutcome =
+                openmrsFhirClient.create().resource(encounter).encodedJson().execute();
 
         log.debug("EncounterHandler: Encounter created {}", methodOutcome.getCreated());
         return (Encounter) methodOutcome.getResource();

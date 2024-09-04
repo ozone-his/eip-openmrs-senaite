@@ -25,12 +25,8 @@ public class TaskHandler {
     private IGenericClient openmrsFhirClient;
 
     public void sendTask(Task task) {
-        MethodOutcome methodOutcome = openmrsFhirClient
-                .create()
-                .resource(task)
-                .prettyPrint()
-                .encodedJson()
-                .execute();
+        MethodOutcome methodOutcome =
+                openmrsFhirClient.create().resource(task).encodedJson().execute();
 
         log.debug("TaskHandler: Task created {}", methodOutcome.getCreated());
     }
@@ -81,6 +77,6 @@ public class TaskHandler {
     }
 
     public boolean doesTaskExists(Task task) {
-        return task != null && task.getId() != null && !task.getId().isEmpty() && task.getStatus() != null;
+        return task != null && task.hasId() && task.hasStatus();
     }
 }

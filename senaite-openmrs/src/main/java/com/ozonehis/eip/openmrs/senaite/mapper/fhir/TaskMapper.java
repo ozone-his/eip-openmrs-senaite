@@ -13,7 +13,7 @@ import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskMapper implements ToFhirMapping<Task, AnalysisRequestDAO> {
+public class TaskMapper implements ToFhirMapping<AnalysisRequestDAO, Task> {
 
     @Override
     public Task toFhir(AnalysisRequestDAO analysisRequestDAO) {

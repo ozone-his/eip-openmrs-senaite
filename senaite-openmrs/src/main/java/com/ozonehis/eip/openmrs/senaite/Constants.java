@@ -32,17 +32,9 @@ public class Constants {
 
     public static final String HEADER_DESCRIPTION = "senaite.resource.description";
 
-    public static final String HEADER_SERVICE_REQUEST_ID = "senaite.resource.service.request.id";
-
     public static final String HEADER_CLIENT_UID = "senaite.resource.client.uid";
-
-    public static final String HEADER_TASK_ID = "senaite.resource.task.id";
 
     public static final String HEADER_ANALYSES_GET_ENDPOINT = "senaite.resource.analyses.get.endpoint";
 
-    public static final String HEADER_ENCOUNTER_ID = "senaite.resource.encounter.id";
-
     public static final String HEADER_ANALYSIS_REQUEST_UID = "senaite.resource.analysis.request.uid";
-
-    public static final String CUSTOM_URL = "senaite.resource.custom.url";
 }

@@ -21,9 +21,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResourceConverter {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Converter
     public static InputStream convertSenaiteResourceToInputStream(SenaiteResource senaiteResource) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(senaiteResource);
         return new ByteArrayInputStream(json.getBytes());
     }
