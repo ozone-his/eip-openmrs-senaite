@@ -52,9 +52,10 @@ public class PatientProcessor implements Processor {
             ClientDTO savedClientDTO = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
             Client client = clientMapper.toSenaite(patient);
             if (savedClientDTO != null && !savedClientDTO.getUid().isEmpty()) {
-                savedClientDTO.setTitle(client.getTitle());
+                client.setUid(savedClientDTO.getUid());
+                client.setPath(savedClientDTO.getPath());
                 headers.put(HEADER_FHIR_EVENT_TYPE, "u");
-                exchange.getMessage().setBody(savedClientDTO);
+                exchange.getMessage().setBody(client);
             } else {
                 headers.put(HEADER_FHIR_EVENT_TYPE, "c");
                 exchange.getMessage().setBody(client);
