@@ -7,20 +7,20 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.analysisRequest;
 
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestItem;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestResponse;
 import java.util.Arrays;
 
 public class AnalysisRequestMapper {
 
-    public static AnalysisRequestDTO map(AnalysisRequestResponse analysisRequestResponse) {
+    public static AnalysisRequestDTO map(SenaiteResponseWrapper<AnalysisRequestItem> analysisRequestResponse) {
         AnalysisRequestDTO analysisRequestDTO = new AnalysisRequestDTO();
         if (analysisRequestResponse != null
-                && analysisRequestResponse.getAnalysisRequestItems() != null
-                && !analysisRequestResponse.getAnalysisRequestItems().isEmpty()) {
+                && analysisRequestResponse.getItems() != null
+                && !analysisRequestResponse.getItems().isEmpty()) {
             AnalysisRequestItem analysisRequestItem =
-                    analysisRequestResponse.getAnalysisRequestItems().get(0);
+                    analysisRequestResponse.getItems().get(0);
 
             analysisRequestDTO.setContact(analysisRequestItem.getContactUid());
             analysisRequestDTO.setSampleType(analysisRequestItem.getSampleTypeUid());

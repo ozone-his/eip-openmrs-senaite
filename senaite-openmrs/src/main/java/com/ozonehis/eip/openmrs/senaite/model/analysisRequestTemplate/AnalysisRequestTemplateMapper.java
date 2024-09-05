@@ -7,21 +7,19 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate;
 
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.AnalysisRequestTemplateItem;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.AnalysisRequestTemplateResponse;
 
 public class AnalysisRequestTemplateMapper {
 
-    public static AnalysisRequestTemplateDTO map(AnalysisRequestTemplateResponse analysisRequestTemplateResponse) {
+    public static AnalysisRequestTemplateDTO map(
+            SenaiteResponseWrapper<AnalysisRequestTemplateItem> analysisRequestTemplateResponse) {
         AnalysisRequestTemplateDTO analysisRequestTemplateDTO = new AnalysisRequestTemplateDTO();
         if (analysisRequestTemplateResponse != null
-                && analysisRequestTemplateResponse.getAnalysisRequestTemplateItems() != null
-                && !analysisRequestTemplateResponse
-                        .getAnalysisRequestTemplateItems()
-                        .isEmpty()) {
-            AnalysisRequestTemplateItem analysisRequestTemplateItem = analysisRequestTemplateResponse
-                    .getAnalysisRequestTemplateItems()
-                    .get(0);
+                && analysisRequestTemplateResponse.getItems() != null
+                && !analysisRequestTemplateResponse.getItems().isEmpty()) {
+            AnalysisRequestTemplateItem analysisRequestTemplateItem =
+                    analysisRequestTemplateResponse.getItems().get(0);
 
             analysisRequestTemplateDTO.setUid(analysisRequestTemplateItem.getUid());
             analysisRequestTemplateDTO.setPath(analysisRequestTemplateItem.getPath());

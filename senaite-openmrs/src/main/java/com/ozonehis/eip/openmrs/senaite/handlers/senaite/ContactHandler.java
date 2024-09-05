@@ -8,12 +8,14 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactMapper;
 import com.ozonehis.eip.openmrs.senaite.model.contact.request.Contact;
-import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactResponse;
+import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactItem;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -30,8 +32,9 @@ public class ContactHandler {
 
     public ContactDTO sendContact(ProducerTemplate producerTemplate, Contact contact) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
-        ContactResponse savedContactResponse = objectMapper.readValue(response, ContactResponse.class);
-        return ContactMapper.map(savedContactResponse);
+        TypeReference<SenaiteResponseWrapper<ContactItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<ContactItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return ContactMapper.map(responseWrapper);
     }
 
     public ContactDTO getContactByClientPath(ProducerTemplate producerTemplate, String clientPath)
@@ -40,8 +43,9 @@ public class ContactHandler {
         headers.put(Constants.HEADER_PATH, clientPath);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
-        ContactResponse contactResponse = objectMapper.readValue(response, ContactResponse.class);
-        return ContactMapper.map(contactResponse);
+        TypeReference<SenaiteResponseWrapper<ContactItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<ContactItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return ContactMapper.map(responseWrapper);
     }
 
     public boolean doesContactExists(ContactDTO contactDTO) {

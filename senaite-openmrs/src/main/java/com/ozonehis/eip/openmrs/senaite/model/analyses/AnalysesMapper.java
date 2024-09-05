@@ -7,18 +7,17 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.analyses;
 
-import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesResponse;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesItem;
 
 public class AnalysesMapper {
 
-    public static AnalysesDTO map(AnalysesResponse analysesResponse) {
+    public static AnalysesDTO map(SenaiteResponseWrapper<AnalysesItem> analysesResponse) {
         AnalysesDTO analysesDTO = new AnalysesDTO();
-        if (analysesResponse != null && !analysesResponse.getAnalysesItems().isEmpty()) {
-            analysesDTO.setResult(analysesResponse.getAnalysesItems().get(0).getResult());
-            analysesDTO.setResultCaptureDate(
-                    analysesResponse.getAnalysesItems().get(0).getResultCaptureDate());
-            analysesDTO.setDescription(
-                    analysesResponse.getAnalysesItems().get(0).getDescription());
+        if (analysesResponse != null && !analysesResponse.getItems().isEmpty()) {
+            analysesDTO.setResult(analysesResponse.getItems().get(0).getResult());
+            analysesDTO.setResultCaptureDate(analysesResponse.getItems().get(0).getResultCaptureDate());
+            analysesDTO.setDescription(analysesResponse.getItems().get(0).getDescription());
             return analysesDTO;
         }
 

@@ -8,11 +8,13 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesMapper;
-import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesResponse;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesItem;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -33,7 +35,8 @@ public class AnalysesHandler {
         headers.put(Constants.HEADER_ANALYSES_GET_ENDPOINT, analysesApiUrl);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analyses-route", null, headers, String.class);
-        AnalysesResponse analysisRequestResponse = objectMapper.readValue(response, AnalysesResponse.class);
-        return AnalysesMapper.map(analysisRequestResponse);
+        TypeReference<SenaiteResponseWrapper<AnalysesItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysesItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return AnalysesMapper.map(responseWrapper);
     }
 }

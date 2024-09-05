@@ -7,15 +7,15 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.contact;
 
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactItem;
-import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactResponse;
 
 public class ContactMapper {
 
-    public static ContactDTO map(ContactResponse contactResponse) {
+    public static ContactDTO map(SenaiteResponseWrapper<ContactItem> contactResponse) {
         ContactDTO contactDTO = new ContactDTO();
-        if (contactResponse != null && !contactResponse.getContactItems().isEmpty()) {
-            ContactItem contactItem = contactResponse.getContactItems().get(0);
+        if (contactResponse != null && !contactResponse.getItems().isEmpty()) {
+            ContactItem contactItem = contactResponse.getItems().get(0);
 
             contactDTO.setFirstName(contactItem.getFirstName());
             contactDTO.setSurname(contactItem.getSurname());

@@ -8,11 +8,13 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.AnalysisRequestTemplateMapper;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.AnalysisRequestTemplateResponse;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequestTemplate.response.AnalysisRequestTemplateItem;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -33,8 +35,9 @@ public class AnalysisRequestTemplateHandler {
         headers.put(Constants.HEADER_DESCRIPTION, serviceRequestCode);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-template-route", null, headers, String.class);
-        AnalysisRequestTemplateResponse analysisRequestTemplateResponse =
-                objectMapper.readValue(response, AnalysisRequestTemplateResponse.class);
-        return AnalysisRequestTemplateMapper.map(analysisRequestTemplateResponse);
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestTemplateItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestTemplateItem> responseWrapper =
+                objectMapper.readValue(response, typeReference);
+        return AnalysisRequestTemplateMapper.map(responseWrapper);
     }
 }

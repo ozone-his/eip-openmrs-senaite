@@ -8,13 +8,15 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestResponse;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestItem;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -36,9 +38,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_UID, clientUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-create-analysis-request-route", analysisRequest, headers, String.class);
-        AnalysisRequestResponse savedAnalysisRequestResponse =
-                objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return AnalysisRequestMapper.map(responseWrapper);
     }
 
     public AnalysisRequestDTO getAnalysisRequestByClientIDAndClientSampleID(
@@ -48,9 +50,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        AnalysisRequestResponse analysisRequestResponse =
-                objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return AnalysisRequestMapper.map(analysisRequestResponse);
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return AnalysisRequestMapper.map(responseWrapper);
     }
 
     public AnalysisRequestDTO getAnalysisRequestByClientSampleID(
@@ -59,9 +61,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
-        AnalysisRequestResponse analysisRequestResponse =
-                objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return AnalysisRequestMapper.map(analysisRequestResponse);
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return AnalysisRequestMapper.map(responseWrapper);
     }
 
     public AnalysisRequestDTO cancelAnalysisRequest(
@@ -71,9 +73,9 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-update-analysis-request-route", cancelAnalysisRequest, headers, String.class);
-        AnalysisRequestResponse savedAnalysisRequestResponse =
-                objectMapper.readValue(response, AnalysisRequestResponse.class);
-        return AnalysisRequestMapper.map(savedAnalysisRequestResponse);
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return AnalysisRequestMapper.map(responseWrapper);
     }
 
     public boolean doesAnalysisRequestExists(AnalysisRequestDTO analysisRequestDTO) {

@@ -8,12 +8,14 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
 import com.ozonehis.eip.openmrs.senaite.model.client.ClientMapper;
 import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
-import com.ozonehis.eip.openmrs.senaite.model.client.response.ClientResponse;
+import com.ozonehis.eip.openmrs.senaite.model.client.response.ClientItem;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Setter;
@@ -30,8 +32,9 @@ public class ClientHandler {
 
     public ClientDTO sendClient(ProducerTemplate producerTemplate, Client client) throws JsonProcessingException {
         String response = producerTemplate.requestBody("direct:senaite-create-client-route", client, String.class);
-        ClientResponse savedClientResponse = objectMapper.readValue(response, ClientResponse.class);
-        return ClientMapper.map(savedClientResponse);
+        TypeReference<SenaiteResponseWrapper<ClientItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<ClientItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return ClientMapper.map(responseWrapper);
     }
 
     public ClientDTO getClientByPatientID(ProducerTemplate producerTemplate, String patientID)
@@ -40,8 +43,9 @@ public class ClientHandler {
         headers.put(Constants.HEADER_CLIENT_ID, patientID);
         String response =
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-client-route", null, headers, String.class);
-        ClientResponse clientResponse = objectMapper.readValue(response, ClientResponse.class);
-        return ClientMapper.map(clientResponse);
+        TypeReference<SenaiteResponseWrapper<ClientItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<ClientItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return ClientMapper.map(responseWrapper);
     }
 
     public boolean doesClientExists(ClientDTO clientDTO) {
