@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2021, Ozone HIS <info@ozone-his.com>
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.ozonehis</groupId>
+    <artifactId>eip-openmrs-senaite-parent</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>openmrs-senaite-integration-tests</artifactId>
+  <name>Integration Tests</name>
+  <description>Integration tests for FHIR to SENAITE</description>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.ozonehis</groupId>
+      <artifactId>eip-openmrs-senaite</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.ozonehis.camel</groupId>
+      <artifactId>test-infra-senaite</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-infra-core</artifactId>
+      <version>${camel.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.16.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>resource-dependencies</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>process-test-resources</phase>
+            <configuration>
+              <includeArtifactIds>test-infra-senaite</includeArtifactIds>
+              <includes>**/*</includes>
+              <outputDirectory>${project.build.directory}/test-classes/</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>process-test-classes</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <target>
+                <!--                <chmod perm="755">-->
+                <!--                  <fileset dir="target/test-classes/distro/data/postgresql">-->
+                <!--                    <include name="**/*.sh"/>-->
+                <!--                  </fileset>-->
+                <!--                </chmod>-->
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

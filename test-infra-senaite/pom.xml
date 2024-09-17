@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2021, Ozone HIS <info@ozone-his.com>
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.ozonehis</groupId>
+    <artifactId>eip-openmrs-senaite-parent</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>com.ozonehis.camel</groupId>
+  <artifactId>test-infra-senaite</artifactId>
+  <name>Test Infra SENAITE</name>
+  <description>Test Infrastructure for SENAITE</description>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.ozonehis</groupId>
+      <artifactId>ozone</artifactId>
+      <version>${ozone.version}</version>
+      <type>zip</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-test-resources</phase>
+            <configuration>
+              <includeGroupIds>com.ozonehis</includeGroupIds>
+              <includeArtifactIds>ozone</includeArtifactIds>
+              <includeTypes>zip</includeTypes>
+              <!--              <includes>distro/binaries/odoo/**,-->
+              <!--                                distro/configs/odoo/**,-->
+              <!--                                distro/data/postgresql/odoo/,-->
+              <!--                                distro/data/postgresql/**.sh,</includes>-->
+              <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
