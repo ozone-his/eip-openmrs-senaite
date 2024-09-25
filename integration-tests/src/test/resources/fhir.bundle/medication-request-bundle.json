@@ -1,0 +1,334 @@
+{
+  "resourceType": "Bundle",
+  "id": "2275116b-4694-41b7-9284-38b0e162be7f",
+  "meta": {
+    "lastUpdated": "2024-04-15T10:32:39.032+00:00",
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+        "code": "SUBSETTED",
+        "display": "Resource encoded in summary mode"
+      }
+    ]
+  },
+  "type": "searchset",
+  "total": 1,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost/openmrs/ws/fhir2/R4/MedicationRequest?_include=MedicationRequest%3Aencounter&_include=MedicationRequest%3Amedication&_include=MedicationRequest%3Apatient&_summary=data"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/MedicationRequest/fa0d542d-de79-4028-84fb-3635332d8839",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "fa0d542d-de79-4028-84fb-3635332d8839",
+        "meta": {
+          "versionId": "1713177005000",
+          "lastUpdated": "2024-04-15T10:30:05.000+00:00",
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+              "code": "SUBSETTED",
+              "display": "Resource encoded in summary mode"
+            }
+          ]
+        },
+        "status": "active",
+        "intent": "order",
+        "priority": "routine",
+        "medicationReference": {
+          "reference": "Medication/09e58895-e7f0-4649-b7c0-e665c5c08e93",
+          "type": "Medication",
+          "display": "Aspirin 81mg"
+        },
+        "subject": {
+          "reference": "Patient/79355a93-3a4f-4490-98aa-278f922fa87c",
+          "type": "Patient",
+          "display": "Jane Doe (OpenMRS ID: 100000Y)"
+        },
+        "encounter": {
+          "reference": "Encounter/a97199c8-b0a5-4f9e-8c9d-5569235b97f4",
+          "type": "Encounter"
+        },
+        "authoredOn": "2024-04-15T10:30:05+00:00",
+        "requester": {
+          "reference": "Practitioner/16decb1a-f439-405c-83df-ef09089eafa8",
+          "type": "Practitioner",
+          "identifier": {
+            "value": "admin"
+          },
+          "display": "Super User (Identifier: admin)"
+        },
+        "dosageInstruction": [
+          {
+            "timing": {
+              "repeat": {
+                "duration": 5,
+                "durationUnit": "d"
+              },
+              "code": {
+                "coding": [
+                  {
+                    "code": "160858AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "display": "Twice daily"
+                  },
+                  {
+                    "system": "https://cielterminology.org",
+                    "code": "160858"
+                  },
+                  {
+                    "system": "http://snomed.info/sct/",
+                    "code": "229799001"
+                  }
+                ],
+                "text": "Twice daily"
+              }
+            },
+            "asNeededBoolean": false,
+            "route": {
+              "coding": [
+                {
+                  "code": "160240AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "display": "Oral"
+                },
+                {
+                  "system": "https://cielterminology.org",
+                  "code": "160240"
+                },
+                {
+                  "system": "http://snomed.info/sct/",
+                  "code": "26643006"
+                }
+              ],
+              "text": "Oral"
+            },
+            "doseAndRate": [
+              {
+                "doseQuantity": {
+                  "value": 2.0,
+                  "unit": "Tablet",
+                  "code": "1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                }
+              }
+            ]
+          }
+        ],
+        "dispenseRequest": {
+          "validityPeriod": {
+            "start": "2024-04-15T10:30:05+00:00"
+          },
+          "numberOfRepeatsAllowed": 0,
+          "quantity": {
+            "value": 20.0,
+            "unit": "Tablet",
+            "code": "1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/Patient/79355a93-3a4f-4490-98aa-278f922fa87c",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "79355a93-3a4f-4490-98aa-278f922fa87c",
+        "meta": {
+          "versionId": "1712919975000",
+          "lastUpdated": "2024-04-12T11:06:15.000+00:00",
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+              "code": "SUBSETTED",
+              "display": "Resource encoded in summary mode"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "id": "850ced82-7397-4534-b9b3-7c091d822228",
+            "extension": [
+              {
+                "url": "http://fhir.openmrs.org/ext/patient/identifier#location",
+                "valueReference": {
+                  "reference": "Location/8d9045ad-50f0-45b8-93c8-3ed4bce19dbf",
+                  "type": "Location",
+                  "display": "Mobile Clinic"
+                }
+              }
+            ],
+            "use": "official",
+            "type": {
+              "coding": [
+                {
+                  "code": "05a29f94-c0ed-11e2-94be-8c13b969e334"
+                }
+              ],
+              "text": "OpenMRS ID"
+            },
+            "value": "100000Y"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "id": "c794204e-3654-4411-9260-910dffce1212",
+            "family": "Doe",
+            "given": [
+              "Jane"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1984",
+        "deceasedBoolean": false,
+        "address": [
+          {
+            "id": "9586b468-cd0c-474e-b83e-7caf1c05d504",
+            "extension": [
+              {
+                "url": "http://fhir.openmrs.org/ext/address",
+                "extension": [
+                  {
+                    "url": "http://fhir.openmrs.org/ext/address#address1",
+                    "valueString": "Kericho"
+                  },
+                  {
+                    "url": "http://fhir.openmrs.org/ext/address#address2",
+                    "valueString": "Tea Land"
+                  }
+                ]
+              }
+            ],
+            "use": "home",
+            "city": "Tororo",
+            "state": "Rift Valley",
+            "postalCode": "00390",
+            "country": "Kenya"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/Encounter/a97199c8-b0a5-4f9e-8c9d-5569235b97f4",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "a97199c8-b0a5-4f9e-8c9d-5569235b97f4",
+        "meta": {
+          "versionId": "1712920114000",
+          "lastUpdated": "2024-04-12T11:08:34.000+00:00",
+          "tag": [
+            {
+              "system": "http://fhir.openmrs.org/ext/encounter-tag",
+              "code": "encounter",
+              "display": "Encounter"
+            },
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+              "code": "SUBSETTED",
+              "display": "Resource encoded in summary mode"
+            }
+          ]
+        },
+        "status": "unknown",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://fhir.openmrs.org/code-system/encounter-type",
+                "code": "dd528487-82a5-4082-9c72-ed246bd49591",
+                "display": "Consultation"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/79355a93-3a4f-4490-98aa-278f922fa87c",
+          "type": "Patient",
+          "display": "Jane Doe (OpenMRS ID: 100000Y)"
+        },
+        "period": {
+          "start": "2024-04-12T11:08:34+00:00"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/8d9045ad-50f0-45b8-93c8-3ed4bce19dbf",
+              "type": "Location",
+              "display": "Mobile Clinic"
+            }
+          }
+        ],
+        "partOf": {
+          "reference": "Encounter/26616e46-2cfe-4563-afaa-c243ca94f4c7",
+          "type": "Encounter"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/Medication/09e58895-e7f0-4649-b7c0-e665c5c08e93",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "09e58895-e7f0-4649-b7c0-e665c5c08e93",
+        "meta": {
+          "versionId": "1712915594000",
+          "lastUpdated": "2024-04-12T09:53:14.000+00:00",
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+              "code": "SUBSETTED",
+              "display": "Resource encoded in summary mode"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://fhir.openmrs.org/ext/medicine",
+            "extension": [
+              {
+                "url": "http://fhir.openmrs.org/ext/medicine#drugName",
+                "valueString": "Aspirin 81mg"
+              },
+              {
+                "url": "http://fhir.openmrs.org/ext/medicine#strength",
+                "valueString": "81mg"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "71617AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "display": "Aspirin"
+            }
+          ],
+          "text": "Aspirin"
+        },
+        "status": "active",
+        "form": {
+          "coding": [
+            {
+              "code": "1513AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "display": "Tablet"
+            },
+            {
+              "system": "https://cielterminology.org",
+              "code": "1513"
+            },
+            {
+              "system": "http://snomed.info/sct/",
+              "code": "385055001"
+            }
+          ],
+          "text": "Tablet"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+services:
+
+  # SENAITE
+  senaite:
+    depends_on:
+      env-substitution:
+        condition: service_completed_successfully
+    environment:
+      - SITE=senaite
+      - ADMIN_USER=admin
+      - ADMIN_PASSWORD=password
+    image: mekomsolutions/senaite:2.3.0-1.0.0
+    ports:
+      - '8081:8080'
+    restart: unless-stopped
+    volumes:
+      - "../distro/configs/senaite/initializer_config:/data/importdata/senaite"
+      - senaite-filestorage:/data/filestorage
+      - senaite-blobstorage:/data/blobstorage
+
+#  mysql:
+#    environment:
+#      EIP_DB_NAME_SENAITE: ${EIP_DB_NAME_SENAITE}
+#      EIP_DB_USER_SENAITE: ${EIP_DB_USER_SENAITE}
+#      EIP_DB_PASSWORD_SENAITE: ${EIP_DB_PASSWORD_SENAITE}
+#    volumes:
+#      - "${SQL_SCRIPTS_PATH}/mysql/eip-openmrs-senaite:/docker-entrypoint-initdb.d/db/eip-openmrs-senaite"
+
+  env-substitution:
+    image: mekomsolutions/env-substitution:1e6fa02
+    environment:
+      - SENAITE_PUBLIC_URL=http://localhost:8081
+    restart: on-failure
+    volumes:
+      - "../distro:/opt/env-substitution/files"
+
+volumes:
+  senaite-blobstorage: ~
+  senaite-filestorage: ~
