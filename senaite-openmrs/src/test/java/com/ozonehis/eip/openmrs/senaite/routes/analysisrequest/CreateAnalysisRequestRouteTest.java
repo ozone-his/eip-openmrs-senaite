@@ -10,10 +10,14 @@ package com.ozonehis.eip.openmrs.senaite.routes.analysisrequest;
 import static org.apache.camel.builder.AdviceWith.adviceWith;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.camel.Endpoint;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
@@ -22,17 +26,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 @UseAdviceWith
 class CreateAnalysisRequestRouteTest extends CamelSpringTestSupport {
     private static final String CREATE_ANALYSIS_REQUEST_ROUTE = "direct:senaite-create-analysis-request-route";
 
-    //    @Override
-    //    protected RoutesBuilder createRouteBuilder() {
-    //        SenaiteClient senaiteClient = new SenaiteClient();
-    //        senaiteClient.setSenaiteBaseUrl("http://localhost:8080/senaite");
-    //        return new CreateAnalysisRequestRoute(senaiteClient);
-    //    }
+    @Override
+    protected RoutesBuilder createRouteBuilder() {
+        SenaiteConfig senaiteConfig = new SenaiteConfig();
+        senaiteConfig.setSenaiteBaseUrl("http://localhost:8080/senaite");
+        senaiteConfig.setSenaiteUsername("admin");
+        senaiteConfig.setSenaitePassword("password");
+        return new CreateAnalysisRequestRoute(senaiteConfig);
+    }
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
@@ -66,10 +73,10 @@ class CreateAnalysisRequestRouteTest extends CamelSpringTestSupport {
         headers.put(Constants.HEADER_CLIENT_UID, "client_uid");
 
         // Expectations
-        MockEndpoint mockCreatePartnerEndpoint = getMockEndpoint("mock:create-analysis-request");
-        mockCreatePartnerEndpoint.expectedMessageCount(1);
-        mockCreatePartnerEndpoint.expectedHeaderReceived(Constants.HEADER_CLIENT_UID, "client_uid");
-        mockCreatePartnerEndpoint.setResultWaitTime(100);
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:create-analysis-request");
+        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.expectedHeaderReceived(Constants.HEADER_CLIENT_UID, "client_uid");
+        mockEndpoint.setResultWaitTime(100);
 
         // Act
         template.send(CREATE_ANALYSIS_REQUEST_ROUTE, exchange -> {
@@ -78,6 +85,6 @@ class CreateAnalysisRequestRouteTest extends CamelSpringTestSupport {
         });
 
         // Verify
-        mockCreatePartnerEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 }

@@ -11,9 +11,14 @@ import static org.apache.camel.builder.AdviceWith.adviceWith;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
+import com.ozonehis.eip.openmrs.senaite.routes.analyses.GetAnalysesRoute;
 import org.apache.camel.Endpoint;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
@@ -26,12 +31,14 @@ class GetAnalysisRequestByClientSampleIDRouteTest extends CamelSpringTestSupport
     private static final String GET_ANALYSIS_REQUEST_ROUTE =
             "direct:senaite-get-analysis-request-by-client-sample-id-route";
 
-    //    @Override
-    //    protected RoutesBuilder createRouteBuilder() {
-    //        SenaiteClient senaiteClient = new SenaiteClient();
-    //        senaiteClient.setSenaiteBaseUrl("http://localhost:8080/senaite");
-    //        return new GetAnalysisRequestByClientSampleIDRoute(senaiteClient);
-    //    }
+    @Override
+    protected RoutesBuilder createRouteBuilder() {
+        SenaiteConfig senaiteConfig = new SenaiteConfig();
+        senaiteConfig.setSenaiteBaseUrl("http://localhost:8080/senaite");
+        senaiteConfig.setSenaiteUsername("admin");
+        senaiteConfig.setSenaitePassword("password");
+        return new GetAnalysisRequestByClientSampleIDRoute(senaiteConfig);
+    }
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
@@ -62,12 +69,12 @@ class GetAnalysisRequestByClientSampleIDRouteTest extends CamelSpringTestSupport
                 "http://localhost:8081/senaite/@@API/senaite/v1/AnalysisRequest?getClientSampleID=client_sample_id&catalog=senaite_catalog_sample&complete=true");
 
         // Expectations
-        MockEndpoint mockCreatePartnerEndpoint = getMockEndpoint("mock:get-analyses-route");
-        mockCreatePartnerEndpoint.expectedMessageCount(1);
-        mockCreatePartnerEndpoint.expectedHeaderReceived(
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:get-analyses-route");
+        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.expectedHeaderReceived(
                 Constants.HEADER_CLIENT_SAMPLE_ID,
                 "http://localhost:8081/senaite/@@API/senaite/v1/AnalysisRequest?getClientSampleID=client_sample_id&catalog=senaite_catalog_sample&complete=true");
-        mockCreatePartnerEndpoint.setResultWaitTime(100);
+        mockEndpoint.setResultWaitTime(100);
 
         // Act
         template.send(GET_ANALYSIS_REQUEST_ROUTE, exchange -> {
@@ -75,6 +82,6 @@ class GetAnalysisRequestByClientSampleIDRouteTest extends CamelSpringTestSupport
         });
 
         // Verify
-        mockCreatePartnerEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 }

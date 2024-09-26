@@ -11,9 +11,14 @@ import static org.apache.camel.builder.AdviceWith.adviceWith;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.CreateAnalysisRequestRoute;
 import org.apache.camel.Endpoint;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
@@ -27,12 +32,14 @@ import org.springframework.context.support.StaticApplicationContext;
 class GetAnalysesRouteTest extends CamelSpringTestSupport {
     private static final String GET_ANALYSES_ROUTE = "direct:senaite-get-analyses-route";
 
-    //    @Override
-    //    protected RoutesBuilder createRouteBuilder() {
-    //        SenaiteClient senaiteClient = new SenaiteClient();
-    //        senaiteClient.setSenaiteBaseUrl("http://localhost:8080/senaite");
-    //        return new GetAnalysesRoute(senaiteClient);
-    //    }
+    @Override
+    protected RoutesBuilder createRouteBuilder() {
+        SenaiteConfig senaiteConfig = new SenaiteConfig();
+        senaiteConfig.setSenaiteBaseUrl("http://localhost:8080/senaite");
+        senaiteConfig.setSenaiteUsername("admin");
+        senaiteConfig.setSenaitePassword("password");
+        return new GetAnalysesRoute(senaiteConfig);
+    }
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
@@ -61,12 +68,12 @@ class GetAnalysesRouteTest extends CamelSpringTestSupport {
                 "http://localhost:8081/senaite/@@API/senaite/v1/analysis/50276c33096c472aa2c2958851c24899");
 
         // Expectations
-        MockEndpoint mockCreatePartnerEndpoint = getMockEndpoint("mock:get-analyses-route");
-        mockCreatePartnerEndpoint.expectedMessageCount(1);
-        mockCreatePartnerEndpoint.expectedHeaderReceived(
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:get-analyses-route");
+        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.expectedHeaderReceived(
                 Constants.HEADER_ANALYSES_GET_ENDPOINT,
                 "http://localhost:8081/senaite/@@API/senaite/v1/analysis/50276c33096c472aa2c2958851c24899");
-        mockCreatePartnerEndpoint.setResultWaitTime(100);
+        mockEndpoint.setResultWaitTime(100);
 
         // Act
         template.send(GET_ANALYSES_ROUTE, exchange -> {
@@ -74,6 +81,6 @@ class GetAnalysesRouteTest extends CamelSpringTestSupport {
         });
 
         // Verify
-        mockCreatePartnerEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 }
