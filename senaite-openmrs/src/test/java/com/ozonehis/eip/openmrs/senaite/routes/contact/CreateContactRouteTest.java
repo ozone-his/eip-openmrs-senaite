@@ -10,8 +10,11 @@ package com.ozonehis.eip.openmrs.senaite.routes.contact;
 import static org.apache.camel.builder.AdviceWith.adviceWith;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.CreateAnalysisRequestRoute;
 import org.apache.camel.Endpoint;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
@@ -25,12 +28,14 @@ import org.springframework.context.support.StaticApplicationContext;
 class CreateContactRouteTest extends CamelSpringTestSupport {
     private static final String CREATE_CONTACT_ROUTE = "direct:senaite-create-contact-route";
 
-    //    @Override
-    //    protected RoutesBuilder createRouteBuilder() {
-    //        SenaiteClient senaiteClient = new SenaiteClient();
-    //        senaiteClient.setSenaiteBaseUrl("http://localhost:8080/senaite");
-    //        return new CreateContactRoute(senaiteClient);
-    //    }
+    @Override
+    protected RoutesBuilder createRouteBuilder() {
+        SenaiteConfig senaiteConfig = new SenaiteConfig();
+        senaiteConfig.setSenaiteBaseUrl("http://localhost:8080/senaite");
+        senaiteConfig.setSenaiteUsername("admin");
+        senaiteConfig.setSenaitePassword("password");
+        return new CreateContactRoute(senaiteConfig);
+    }
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
@@ -60,9 +65,9 @@ class CreateContactRouteTest extends CamelSpringTestSupport {
         contact.setSurname("Doe");
 
         // Expectations
-        MockEndpoint mockCreatePartnerEndpoint = getMockEndpoint("mock:create-contact");
-        mockCreatePartnerEndpoint.expectedMessageCount(1);
-        mockCreatePartnerEndpoint.setResultWaitTime(100);
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:create-contact");
+        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.setResultWaitTime(100);
 
         // Act
         template.send(CREATE_CONTACT_ROUTE, exchange -> {
@@ -70,6 +75,6 @@ class CreateContactRouteTest extends CamelSpringTestSupport {
         });
 
         // Verify
-        mockCreatePartnerEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 }

@@ -10,8 +10,11 @@ package com.ozonehis.eip.openmrs.senaite.routes.client;
 import static org.apache.camel.builder.AdviceWith.adviceWith;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.CreateAnalysisRequestRoute;
 import org.apache.camel.Endpoint;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
@@ -25,12 +28,14 @@ import org.springframework.context.support.StaticApplicationContext;
 class CreateClientRouteTest extends CamelSpringTestSupport {
     private static final String CREATE_CLIENT_ROUTE = "direct:senaite-create-client-route";
 
-    //    @Override
-    //    protected RoutesBuilder createRouteBuilder() {
-    //        SenaiteClient senaiteClient = new SenaiteClient();
-    //        senaiteClient.setSenaiteBaseUrl("http://localhost:8080/senaite");
-    //        return new CreateClientRoute(senaiteClient);
-    //    }
+    @Override
+    protected RoutesBuilder createRouteBuilder() {
+        SenaiteConfig senaiteConfig = new SenaiteConfig();
+        senaiteConfig.setSenaiteBaseUrl("http://localhost:8080/senaite");
+        senaiteConfig.setSenaiteUsername("admin");
+        senaiteConfig.setSenaitePassword("password");
+        return new CreateClientRoute(senaiteConfig);
+    }
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
@@ -60,9 +65,9 @@ class CreateClientRouteTest extends CamelSpringTestSupport {
         client.setClientID("client_id");
 
         // Expectations
-        MockEndpoint mockCreatePartnerEndpoint = getMockEndpoint("mock:create-client");
-        mockCreatePartnerEndpoint.expectedMessageCount(1);
-        mockCreatePartnerEndpoint.setResultWaitTime(100);
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:create-client");
+        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.setResultWaitTime(100);
 
         // Act
         template.send(CREATE_CLIENT_ROUTE, exchange -> {
@@ -70,6 +75,6 @@ class CreateClientRouteTest extends CamelSpringTestSupport {
         });
 
         // Verify
-        mockCreatePartnerEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 }
