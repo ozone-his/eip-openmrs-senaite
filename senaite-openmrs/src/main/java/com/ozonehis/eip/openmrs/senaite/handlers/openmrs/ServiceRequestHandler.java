@@ -30,21 +30,8 @@ public class ServiceRequestHandler {
                 .execute();
 
         // TODO: Check if ServiceRequest is cancelled or deleted
+
         log.debug("ServiceRequestHandler: ServiceRequest getServiceRequestByID {}", serviceRequest.getId());
-        //        Map<String, Object> headers = new HashMap<>();
-        //        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
-        //        String response = producerTemplate.requestBodyAndHeaders(
-        //                "direct:openmrs-get-service-request-route", null, headers, String.class);
-        //        if (response.contains("gone/deleted")) {
-        //            // TODO: Can be moved to route as well
-        //            ServiceRequest deletedServiceRequestResponse = new ServiceRequest();
-        //            deletedServiceRequestResponse.setId((String) headers.get(Constants.HEADER_SERVICE_REQUEST_ID));
-        //            deletedServiceRequestResponse.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
-        //            return deletedServiceRequestResponse;
-        //        }
-        //        FhirContext ctx = FhirContext.forR4();
-        //        ServiceRequest serviceRequestResponse = ctx.newJsonParser().parseResource(ServiceRequest.class,
-        // response);
 
         return serviceRequest;
     }
