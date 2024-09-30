@@ -8,13 +8,15 @@
 package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask;
 
 import static org.apache.camel.builder.AdviceWith.adviceWith;
-import static org.junit.jupiter.api.Assertions.*;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.apache.camel.Endpoint;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
 import org.apache.camel.test.spring.junit5.UseAdviceWith;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,15 +24,13 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 
 @UseAdviceWith
-class CreateOpenmrsFhirTaskRouteTest extends CamelSpringTestSupport {
-    private static final String CREATE_TASK_ROUTE = "direct:openmrs-create-task-route";
+class GetOpenmrsFhirTaskByStatusRouteTest extends CamelSpringTestSupport {
+    private static final String GET_BY_STATUS_TASK_ROUTE = "direct:openmrs-get-task-by-status-route";
 
-    //    @Override
-    //    protected RoutesBuilder createRouteBuilder() {
-    //        OpenmrsFhirClient openmrsFhirClient = new OpenmrsFhirClient();
-    //        openmrsFhirClient.setOpenmrsFhirBaseUrl("http://localhost:8080/openmrs/ws/fhir2/R4");
-    //        return new CreateOpenmrsFhirTaskRoute(openmrsFhirClient);
-    //    }
+    @Override
+    protected RoutesBuilder createRouteBuilder() {
+        return new GetOpenmrsFhirTaskByStatusRoute();
+    }
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
@@ -39,37 +39,41 @@ class CreateOpenmrsFhirTaskRouteTest extends CamelSpringTestSupport {
 
     @BeforeEach
     public void setup() throws Exception {
-        adviceWith("openmrs-create-task-route", context, new AdviceWithRouteBuilder() {
+        adviceWith("openmrs-get-task-by-status-route", context, new AdviceWithRouteBuilder() {
 
             @Override
             public void configure() {
-                weaveByToUri("http://localhost:8080/openmrs/ws/fhir2/R4/Task")
+                weaveByToUri("fhir://search/searchByUrl?url=/Task?status=requested,accepted")
                         .replace()
-                        .to("mock:create-task");
+                        .to("mock:get-task-by-status-route");
             }
         });
 
-        Endpoint defaultEndpoint = context.getEndpoint(CREATE_TASK_ROUTE);
+        Endpoint defaultEndpoint = context.getEndpoint(GET_BY_STATUS_TASK_ROUTE);
         template.setDefaultEndpoint(defaultEndpoint);
     }
 
     @Test
-    public void shouldCreateTask() throws Exception {
+    public void shouldGetTaskWithStatusRequestedOrAccepted() throws Exception {
         Task task = new Task();
         task.setIntent(Task.TaskIntent.ORDER);
         task.addBasedOn().setReference("service_request_id").setType("ServiceRequest");
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(task);
+        String bundleJson = FhirContext.forR4().newJsonParser().encodeResourceToString(bundle);
 
         // Expectations
-        MockEndpoint mockCreatePartnerEndpoint = getMockEndpoint("mock:create-task");
-        mockCreatePartnerEndpoint.expectedMessageCount(1);
-        mockCreatePartnerEndpoint.setResultWaitTime(100);
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:get-task-by-status-route");
+        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.setResultWaitTime(100);
+        mockEndpoint.whenAnyExchangeReceived(exchange -> exchange.getIn().setBody(bundleJson));
 
         // Act
-        template.send(CREATE_TASK_ROUTE, exchange -> {
-            exchange.getMessage().setBody(task);
+        template.send(GET_BY_STATUS_TASK_ROUTE, exchange -> {
+            exchange.getMessage().setBody(null);
         });
 
         // Verify
-        mockCreatePartnerEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 }

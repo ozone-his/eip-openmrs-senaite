@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
-import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.CreateAnalysisRequestRoute;
 import org.apache.camel.Endpoint;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;

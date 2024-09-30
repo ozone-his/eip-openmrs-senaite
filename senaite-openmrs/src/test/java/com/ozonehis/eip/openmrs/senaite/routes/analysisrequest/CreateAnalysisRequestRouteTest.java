@@ -12,10 +12,8 @@ import static org.apache.camel.builder.AdviceWith.adviceWith;
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
@@ -26,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 @UseAdviceWith
 class CreateAnalysisRequestRouteTest extends CamelSpringTestSupport {
