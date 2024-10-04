@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.ServiceRequest;
@@ -23,28 +24,19 @@ public class ServiceRequestHandler {
     private IGenericClient openmrsFhirClient;
 
     public ServiceRequest getServiceRequestByID(String serviceRequestID) {
-        ServiceRequest serviceRequest = openmrsFhirClient
-                .read()
-                .resource(ServiceRequest.class)
-                .withId(serviceRequestID)
-                .execute();
-
-        // TODO: Check if ServiceRequest is cancelled or deleted
-        log.debug("ServiceRequestHandler: ServiceRequest getServiceRequestByID {}", serviceRequest.getId());
-        //        Map<String, Object> headers = new HashMap<>();
-        //        headers.put(Constants.HEADER_SERVICE_REQUEST_ID, serviceRequestID);
-        //        String response = producerTemplate.requestBodyAndHeaders(
-        //                "direct:openmrs-get-service-request-route", null, headers, String.class);
-        //        if (response.contains("gone/deleted")) {
-        //            // TODO: Can be moved to route as well
-        //            ServiceRequest deletedServiceRequestResponse = new ServiceRequest();
-        //            deletedServiceRequestResponse.setId((String) headers.get(Constants.HEADER_SERVICE_REQUEST_ID));
-        //            deletedServiceRequestResponse.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
-        //            return deletedServiceRequestResponse;
-        //        }
-        //        FhirContext ctx = FhirContext.forR4();
-        //        ServiceRequest serviceRequestResponse = ctx.newJsonParser().parseResource(ServiceRequest.class,
-        // response);
+        ServiceRequest serviceRequest;
+        try {
+            serviceRequest = openmrsFhirClient
+                    .read()
+                    .resource(ServiceRequest.class)
+                    .withId(serviceRequestID)
+                    .execute();
+        } catch (ResourceGoneException e) {
+            ServiceRequest deletedServiceRequestResponse = new ServiceRequest();
+            deletedServiceRequestResponse.setId(serviceRequestID);
+            deletedServiceRequestResponse.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+            return deletedServiceRequestResponse;
+        }
 
         return serviceRequest;
     }
