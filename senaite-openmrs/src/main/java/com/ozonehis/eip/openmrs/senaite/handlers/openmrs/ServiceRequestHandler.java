@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.ServiceRequest;
@@ -23,15 +24,19 @@ public class ServiceRequestHandler {
     private IGenericClient openmrsFhirClient;
 
     public ServiceRequest getServiceRequestByID(String serviceRequestID) {
-        ServiceRequest serviceRequest = openmrsFhirClient
-                .read()
-                .resource(ServiceRequest.class)
-                .withId(serviceRequestID)
-                .execute();
-
-        // TODO: Check if ServiceRequest is cancelled or deleted
-
-        log.debug("ServiceRequestHandler: ServiceRequest getServiceRequestByID {}", serviceRequest.getId());
+        ServiceRequest serviceRequest;
+        try {
+            serviceRequest = openmrsFhirClient
+                    .read()
+                    .resource(ServiceRequest.class)
+                    .withId(serviceRequestID)
+                    .execute();
+        } catch (ResourceGoneException e) {
+            ServiceRequest deletedServiceRequestResponse = new ServiceRequest();
+            deletedServiceRequestResponse.setId(serviceRequestID);
+            deletedServiceRequestResponse.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+            return deletedServiceRequestResponse;
+        }
 
         return serviceRequest;
     }
