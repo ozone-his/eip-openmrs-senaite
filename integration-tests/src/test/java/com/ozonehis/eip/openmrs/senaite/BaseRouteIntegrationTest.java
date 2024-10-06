@@ -12,13 +12,11 @@ import com.ozonehis.camel.test.infra.senaite.services.SenaiteService;
 import com.ozonehis.camel.test.infra.senaite.services.SenaiteServiceFactory;
 import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import jakarta.annotation.Nonnull;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.http.HttpComponent;
@@ -61,12 +59,12 @@ public abstract class BaseRouteIntegrationTest {
         return new SenaiteConfig(SENAITE_USERNAME, SENAITE_PASSWORD, SENAITE_SERVER_URL);
     }
 
-        public SenaiteConfig getSenaiteConfig() {
-            if (senaiteConfig == null) {
-                senaiteConfig = createSenaiteClient();
-            }
-            return senaiteConfig;
+    public SenaiteConfig getSenaiteConfig() {
+        if (senaiteConfig == null) {
+            senaiteConfig = createSenaiteClient();
         }
+        return senaiteConfig;
+    }
 
     protected @Nonnull CamelContext getContextWithRouting(CamelContext context) throws Exception {
 

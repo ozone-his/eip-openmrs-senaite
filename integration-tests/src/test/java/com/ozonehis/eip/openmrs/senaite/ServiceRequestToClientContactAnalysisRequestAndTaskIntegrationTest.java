@@ -7,14 +7,14 @@
  */
 package com.ozonehis.eip.openmrs.senaite;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.infra.core.annotations.RouteFixture;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServiceRequestToClientContactAnalysisRequestAndTaskIntegrationTest extends BaseRouteIntegrationTest {
 
@@ -39,5 +39,4 @@ public class ServiceRequestToClientContactAnalysisRequestAndTaskIntegrationTest 
     public void shouldVerifySaleOrderRoutes() {
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-get-analyses-route"));
     }
-
 }
