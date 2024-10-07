@@ -38,7 +38,6 @@ public class AnalysisRequestTemplateHandler {
         TypeReference<SenaiteResponseWrapper<AnalysisRequestTemplateItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestTemplateItem> responseWrapper =
                 objectMapper.readValue(response, typeReference);
-        log.info("getAnalysisRequestTemplateByServiceRequestCode: response {}", response);
         return AnalysisRequestTemplateMapper.map(responseWrapper);
     }
 }

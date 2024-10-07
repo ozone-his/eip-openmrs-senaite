@@ -40,8 +40,6 @@ public class AnalysisRequestHandler {
                 "direct:senaite-create-analysis-request-route", analysisRequest, headers, String.class);
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("sendAnalysisRequest: analysisRequest {}", analysisRequest);
-        log.info("sendAnalysisRequest: response {}", response);
         return AnalysisRequestMapper.map(responseWrapper);
     }
 
@@ -54,7 +52,6 @@ public class AnalysisRequestHandler {
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("getAnalysisRequestByClientIDAndClientSampleID: response {}", response);
         return AnalysisRequestMapper.map(responseWrapper);
     }
 
@@ -66,7 +63,6 @@ public class AnalysisRequestHandler {
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("getAnalysisRequestByClientSampleID: response {}", response);
         return AnalysisRequestMapper.map(responseWrapper);
     }
 
@@ -79,7 +75,6 @@ public class AnalysisRequestHandler {
                 "direct:senaite-update-analysis-request-route", cancelAnalysisRequest, headers, String.class);
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("cancelAnalysisRequest: response {}", response);
         return AnalysisRequestMapper.map(responseWrapper);
     }
 

@@ -34,8 +34,6 @@ public class ContactHandler {
         String response = producerTemplate.requestBody("direct:senaite-create-contact-route", contact, String.class);
         TypeReference<SenaiteResponseWrapper<ContactItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<ContactItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("sendContact: contact {}", contact);
-        log.info("sendContact: response {}", response);
         return ContactMapper.map(responseWrapper);
     }
 
@@ -47,7 +45,6 @@ public class ContactHandler {
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-contact-route", null, headers, String.class);
         TypeReference<SenaiteResponseWrapper<ContactItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<ContactItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("getContactByClientPath: response {}", response);
         return ContactMapper.map(responseWrapper);
     }
 

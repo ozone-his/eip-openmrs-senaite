@@ -34,8 +34,6 @@ public class ClientHandler {
         String response = producerTemplate.requestBody("direct:senaite-create-client-route", client, String.class);
         TypeReference<SenaiteResponseWrapper<ClientItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<ClientItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("sendClient: client {}", client);
-        log.info("sendClient: response {}", response);
         return ClientMapper.map(responseWrapper);
     }
 
@@ -47,7 +45,6 @@ public class ClientHandler {
                 producerTemplate.requestBodyAndHeaders("direct:senaite-get-client-route", null, headers, String.class);
         TypeReference<SenaiteResponseWrapper<ClientItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<ClientItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        log.info("getClientByPatientID: response {}", response);
         return ClientMapper.map(responseWrapper);
     }
 
