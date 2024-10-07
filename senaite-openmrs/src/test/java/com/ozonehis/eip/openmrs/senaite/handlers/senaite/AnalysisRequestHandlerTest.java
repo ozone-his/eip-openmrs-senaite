@@ -21,6 +21,7 @@ import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestItem;
 import java.util.HashMap;
@@ -205,5 +206,54 @@ class AnalysisRequestHandlerTest {
     }
 
     @Test
-    void cancelAnalysisRequest() {}
+    void cancelAnalysisRequest() throws JsonProcessingException {
+        // Setup
+        String responseBody = new Utils().readJSON("senaite/response/cancel-analysis-request.json");
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, "8182d02098ce487086ea207c8f9df5b0");
+
+        CancelAnalysisRequest cancelAnalysisRequest = new CancelAnalysisRequest();
+        cancelAnalysisRequest.setClient("639727d93df24cb0a429484da4fbc71a");
+        cancelAnalysisRequest.setTransition("cancel");
+
+        // Mock
+        when(producerTemplate.requestBodyAndHeaders(
+                        eq("direct:senaite-update-analysis-request-route"),
+                        eq(cancelAnalysisRequest),
+                        eq(headers),
+                        eq(String.class)))
+                .thenReturn(responseBody);
+
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper =
+                objectMapper.readValue(responseBody, typeReference);
+
+        AnalysisRequestDTO analysisRequestDTO = new AnalysisRequestDTO();
+        analysisRequestDTO.setContact("b8c08ae975d549f0ac0aa9dba9b4d929");
+        analysisRequestDTO.setSampleType("db97756c89f143408a18e0d152d0d337");
+        analysisRequestDTO.setDateSampled("2024-10-07T11:21:13+00:00");
+        analysisRequestDTO.setTemplate("7a09878065314fe29f8fc994fd2c8447");
+        analysisRequestDTO.setProfiles(null);
+        analysisRequestDTO.setAnalysesUids(new String[] {"0de6a738adb740bd990d48a8817b93f6"});
+        analysisRequestDTO.setClientSampleID("9bd3a7de-fc0d-4601-8899-dab36bba399a");
+        analysisRequestDTO.setAnalyses(null);
+        analysisRequestDTO.setAnalyses(new Analyses[] {
+            new Analyses(
+                    "http://senaite:8080/senaite/clients/client-1/URI-0001/LAB-030",
+                    "0de6a738adb740bd990d48a8817b93f6",
+                    "http://senaite:8080/senaite/@@API/senaite/v1/analysis/0de6a738adb740bd990d48a8817b93f6")
+        });
+        analysisRequestDTO.setUid("8182d02098ce487086ea207c8f9df5b0");
+        analysisRequestDTO.setClient(null);
+        analysisRequestDTO.setReviewState(null);
+
+        when(AnalysisRequestMapper.map(responseWrapper)).thenReturn(analysisRequestDTO);
+
+        // Act
+        AnalysisRequestDTO result = analysisRequestHandler.cancelAnalysisRequest(
+                producerTemplate, cancelAnalysisRequest, "8182d02098ce487086ea207c8f9df5b0");
+
+        // Verify
+        assertEquals(analysisRequestDTO, result);
+    }
 }
