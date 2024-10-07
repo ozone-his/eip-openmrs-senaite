@@ -19,6 +19,7 @@ public class ContactMapper {
 
             contactDTO.setFirstName(contactItem.getFirstName());
             contactDTO.setSurname(contactItem.getSurname());
+            contactDTO.setTitle(contactItem.getTitle());
             contactDTO.setPortalType(contactItem.getPortalType());
             contactDTO.setParentPath(contactItem.getParentPath());
             contactDTO.setUid(contactItem.getUid());
