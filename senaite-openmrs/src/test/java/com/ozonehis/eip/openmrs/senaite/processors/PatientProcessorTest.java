@@ -1,23 +1,11 @@
+/*
+ * Copyright © 2021, Ozone HIS <info@ozone-his.com>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.ozonehis.eip.openmrs.senaite.processors;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
-import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
-import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
-import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
-import org.apache.camel.Exchange;
-import org.apache.camel.ProducerTemplate;
-import org.hl7.fhir.r4.model.Address;
-import org.hl7.fhir.r4.model.Patient;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Collections;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +15,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
+import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
+import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
+import java.util.Collections;
+import java.util.UUID;
+import org.apache.camel.Exchange;
+import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.Patient;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
 class PatientProcessorTest extends BaseProcessorTest {
 
@@ -65,7 +69,7 @@ class PatientProcessorTest extends BaseProcessorTest {
         address.setUse(Address.AddressUse.HOME);
         patient.setAddress(Collections.singletonList(address));
 
-        Exchange exchange = createExchange(patient, "c");
+        Exchange exchange = createExchange(patient, "u");
 
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setUid(UUID.randomUUID().toString());
@@ -96,7 +100,6 @@ class PatientProcessorTest extends BaseProcessorTest {
         patient.setAddress(Collections.singletonList(address));
 
         Exchange exchange = createExchange(patient, "c");
-
 
         Client client = new Client();
         client.setTitle("John Doe");
