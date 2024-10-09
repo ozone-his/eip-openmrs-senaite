@@ -19,10 +19,18 @@ import ca.uhn.fhir.rest.gclient.ICreateTyped;
 import ca.uhn.fhir.rest.gclient.ICriterion;
 import ca.uhn.fhir.rest.gclient.IQuery;
 import ca.uhn.fhir.rest.gclient.IUntypedQuery;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Quantity;
+import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,8 +121,33 @@ class ObservationHandlerTest {
     }
 
     @Test
-    void buildResultObservation() {}
+    void buildResultObservation() {
+        // Setup
+        Encounter savedResultEncounter = new Encounter();
+        savedResultEncounter.setId("encounter-123");
+        savedResultEncounter.setSubject(new Reference("Patient/456"));
 
-    @Test
-    void doesObservationExists() {}
+        String conceptUuid = "concept-uuid-123";
+        String analysesResult = "23";
+        String analysesResultCaptureDate = "2024-09-30T11:21:36+00:00";
+
+        // Act
+        Observation observation = observationHandler.buildResultObservation(
+                savedResultEncounter, conceptUuid, analysesResult, analysesResultCaptureDate);
+
+        // Verify
+        assertNotNull(observation);
+        assertEquals(Observation.ObservationStatus.FINAL, observation.getStatus());
+
+        CodeableConcept code = observation.getCode();
+        assertNotNull(code);
+        Coding coding = code.getCodingFirstRep();
+        assertEquals(conceptUuid, coding.getCode());
+        assertEquals(savedResultEncounter.getSubject(), observation.getSubject());
+        assertEquals(
+                Date.from(Instant.parse(analysesResultCaptureDate)),
+                ((DateTimeType) observation.getEffective()).getValue());
+        assertEquals(Quantity.class, observation.getValue().getClass());
+        assertEquals("Encounter/encounter-123", observation.getEncounter().getReference());
+    }
 }

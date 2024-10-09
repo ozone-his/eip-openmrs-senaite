@@ -15,8 +15,13 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.ICreate;
 import ca.uhn.fhir.rest.gclient.ICreateTyped;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.DiagnosticReport;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.ServiceRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,5 +76,37 @@ class DiagnosticReportHandlerTest {
     }
 
     @Test
-    void buildDiagnosticReport() {}
+    void buildDiagnosticReport() {
+        // Setup
+        ArrayList<String> observationUuids = new ArrayList<>();
+        observationUuids.add("obs-uuid-1");
+        observationUuids.add("obs-uuid-2");
+
+        ServiceRequest serviceRequest = new ServiceRequest();
+        serviceRequest.setCode(new CodeableConcept().setText("Blood Test"));
+        serviceRequest.setSubject(new Reference().setReference("Patient/123").setType("Patient"));
+
+        String labResultsEncounterID = "encounter-123";
+
+        // Act
+        DiagnosticReport report =
+                diagnosticReportHandler.buildDiagnosticReport(observationUuids, serviceRequest, labResultsEncounterID);
+
+        // Verify
+        assertNotNull(report);
+        assertEquals(DiagnosticReport.DiagnosticReportStatus.FINAL, report.getStatus());
+        assertEquals("Blood Test", report.getCode().getText());
+        assertEquals("Patient/123", report.getSubject().getReference());
+        assertEquals("Encounter/encounter-123", report.getEncounter().getReference());
+        assertEquals("Encounter", report.getEncounter().getType());
+
+        List<Reference> resultReferences = report.getResult();
+        assertEquals(2, resultReferences.size());
+
+        assertEquals("Observation/obs-uuid-1", resultReferences.get(0).getReference());
+        assertEquals("Observation", resultReferences.get(0).getType());
+
+        assertEquals("Observation/obs-uuid-2", resultReferences.get(1).getReference());
+        assertEquals("Observation", resultReferences.get(1).getType());
+    }
 }

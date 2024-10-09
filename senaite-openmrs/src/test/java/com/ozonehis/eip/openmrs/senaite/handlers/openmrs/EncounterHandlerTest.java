@@ -23,9 +23,13 @@ import ca.uhn.fhir.rest.gclient.IReadExecutable;
 import ca.uhn.fhir.rest.gclient.IReadTyped;
 import ca.uhn.fhir.rest.gclient.IUntypedQuery;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.Period;
+import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,5 +148,33 @@ class EncounterHandlerTest {
     }
 
     @Test
-    void buildLabResultEncounter() {}
+    void buildLabResultEncounter() {
+        // Setup
+        Encounter orderEncounter = new Encounter();
+        orderEncounter.setLocation(Collections.singletonList(
+                new Encounter.EncounterLocationComponent().setLocation(new Reference().setReference("Location/123"))));
+        orderEncounter.setPeriod(new Period().setStart(new Date()).setEnd(new Date()));
+        orderEncounter.setSubject(new Reference().setReference("Patient/123").setType("Patient"));
+        orderEncounter.setPartOf(new Reference().setReference("Encounter/parent-encounter"));
+        orderEncounter.setParticipant(Collections.singletonList(
+                new Encounter.EncounterParticipantComponent().setIndividual(new Reference("Practitioner/456"))));
+
+        // Act
+        Encounter resultEncounter = encounterHandler.buildLabResultEncounter(orderEncounter);
+
+        // Verify
+        assertNotNull(resultEncounter);
+        assertEquals(orderEncounter.getLocation(), resultEncounter.getLocation());
+
+        assertNotNull(resultEncounter.getType());
+        assertEquals(1, resultEncounter.getType().size());
+        Coding coding = resultEncounter.getType().get(0).getCodingFirstRep();
+        assertEquals("http://fhir.openmrs.org/code-system/encounter-type", coding.getSystem());
+        assertEquals("Lab Results", coding.getDisplay());
+
+        assertEquals(orderEncounter.getPeriod(), resultEncounter.getPeriod());
+        assertEquals(orderEncounter.getSubject(), resultEncounter.getSubject());
+        assertEquals(orderEncounter.getPartOf(), resultEncounter.getPartOf());
+        assertEquals(orderEncounter.getParticipant(), resultEncounter.getParticipant());
+    }
 }
