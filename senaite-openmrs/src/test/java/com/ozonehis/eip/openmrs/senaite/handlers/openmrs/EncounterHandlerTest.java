@@ -38,6 +38,10 @@ import org.mockito.Mock;
 
 class EncounterHandlerTest {
 
+    private static final String TYPE_ID = "type-id-1";
+
+    private static final String SUBJECT_ID = "subject-id-1";
+
     @Mock
     private IGenericClient openmrsFhirClient;
 
@@ -78,7 +82,7 @@ class EncounterHandlerTest {
     }
 
     @Test
-    void getEncounterByTypeAndSubject() {
+    void shouldReturnEncounterGivenTypeAndSubject() {
         // Setup
         String encounterID = UUID.randomUUID().toString();
         Encounter encounter = new Encounter();
@@ -98,7 +102,7 @@ class EncounterHandlerTest {
         when(iQuery.execute()).thenReturn(bundle);
 
         // Act
-        Encounter result = encounterHandler.getEncounterByTypeAndSubject("type-id", "subject-id");
+        Encounter result = encounterHandler.getEncounterByTypeAndSubject(TYPE_ID, SUBJECT_ID);
 
         // Verify
         assertNotNull(result);
@@ -106,7 +110,7 @@ class EncounterHandlerTest {
     }
 
     @Test
-    void getEncounterByEncounterID() {
+    void shouldReturnEncounterGivenEncounterID() {
         // Setup
         String encounterID = UUID.randomUUID().toString();
         Encounter encounter = new Encounter();
@@ -127,7 +131,7 @@ class EncounterHandlerTest {
     }
 
     @Test
-    void sendEncounter() {
+    void shouldSaveEncounter() {
         // Setup
         String encounterID = UUID.randomUUID().toString();
         Encounter encounter = new Encounter();
@@ -148,14 +152,14 @@ class EncounterHandlerTest {
     }
 
     @Test
-    void buildLabResultEncounter() {
+    void shouldReturnLabResultEncounterGivenEncounter() {
         // Setup
         Encounter orderEncounter = new Encounter();
         orderEncounter.setLocation(Collections.singletonList(
                 new Encounter.EncounterLocationComponent().setLocation(new Reference().setReference("Location/123"))));
         orderEncounter.setPeriod(new Period().setStart(new Date()).setEnd(new Date()));
         orderEncounter.setSubject(new Reference().setReference("Patient/123").setType("Patient"));
-        orderEncounter.setPartOf(new Reference().setReference("Encounter/parent-encounter"));
+        orderEncounter.setPartOf(new Reference().setReference("Encounter/345"));
         orderEncounter.setParticipant(Collections.singletonList(
                 new Encounter.EncounterParticipantComponent().setIndividual(new Reference("Practitioner/456"))));
 

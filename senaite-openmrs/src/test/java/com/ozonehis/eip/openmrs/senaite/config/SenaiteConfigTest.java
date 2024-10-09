@@ -19,6 +19,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 class SenaiteConfigTest {
 
+    private static final String senaiteUsername = "senaiteUsername";
+
+    private static final String senaitePassword = "senaitePassword";
+
+    private static final String senaiteBaseUrl = "senaiteBaseUrl";
+
     @InjectMocks
     private SenaiteConfig senaiteConfig;
 
@@ -27,9 +33,9 @@ class SenaiteConfigTest {
     @BeforeEach
     void setUp() {
         mocksCloser = openMocks(this);
-        ReflectionTestUtils.setField(senaiteConfig, "senaiteUsername", "testUser");
-        ReflectionTestUtils.setField(senaiteConfig, "senaitePassword", "testPass");
-        ReflectionTestUtils.setField(senaiteConfig, "senaiteBaseUrl", "http://localhost:8080");
+        ReflectionTestUtils.setField(senaiteConfig, senaiteUsername, "testUser");
+        ReflectionTestUtils.setField(senaiteConfig, senaitePassword, "testPass");
+        ReflectionTestUtils.setField(senaiteConfig, senaiteBaseUrl, "http://localhost:8080");
     }
 
     @AfterAll
@@ -48,7 +54,7 @@ class SenaiteConfigTest {
 
     @Test
     void shouldThrowsExceptionWhenUsernameIsEmpty() {
-        ReflectionTestUtils.setField(senaiteConfig, "senaiteUsername", "");
+        ReflectionTestUtils.setField(senaiteConfig, senaiteUsername, "");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             senaiteConfig.authHeader();
@@ -59,7 +65,7 @@ class SenaiteConfigTest {
 
     @Test
     void shouldThrowsExceptionWhenPasswordIsEmpty() {
-        ReflectionTestUtils.setField(senaiteConfig, "senaitePassword", "");
+        ReflectionTestUtils.setField(senaiteConfig, senaitePassword, "");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             senaiteConfig.authHeader();

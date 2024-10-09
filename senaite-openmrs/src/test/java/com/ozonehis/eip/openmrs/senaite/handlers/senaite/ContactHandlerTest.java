@@ -32,6 +32,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 class ContactHandlerTest {
+
+    private static final String TITLE = "Super User";
+
+    private static final String UID = "1baac45668fc49cbbd5c4fd35d804b72";
+
+    private static final String PORTAL_TYPE = "Contact";
+
+    private static final String PARENT_PATH = "/senaite/clients/client-1";
+
+    private static final String FIRST_NAME = "Super";
+
+    private static final String SURNAME = "User";
+
     @Mock
     private ProducerTemplate producerTemplate;
 
@@ -54,15 +67,15 @@ class ContactHandlerTest {
     }
 
     @Test
-    void sendContact() throws JsonProcessingException {
+    void shouldSaveAndReturnSavedContact() throws JsonProcessingException {
         // Setup
         String responseBody = new Utils().readJSON("senaite/response/create-contact.json");
 
         Contact contact = new Contact();
-        contact.setPortalType("Contact");
-        contact.setParentPath("/senaite/clients/client-1");
-        contact.setFirstName("Super");
-        contact.setSurname("User");
+        contact.setPortalType(PORTAL_TYPE);
+        contact.setParentPath(PARENT_PATH);
+        contact.setFirstName(FIRST_NAME);
+        contact.setSurname(SURNAME);
 
         // Mock
         when(producerTemplate.requestBody(eq("direct:senaite-create-contact-route"), eq(contact), eq(String.class)))
@@ -72,12 +85,12 @@ class ContactHandlerTest {
         SenaiteResponseWrapper<ContactItem> responseWrapper = objectMapper.readValue(responseBody, typeReference);
 
         ContactDTO contactDTO = new ContactDTO();
-        contactDTO.setPortalType("Contact");
-        contactDTO.setParentPath("/senaite/clients/client-1");
-        contactDTO.setFirstName("Super");
-        contactDTO.setSurname("User");
-        contactDTO.setTitle("Super User");
-        contactDTO.setUid("1baac45668fc49cbbd5c4fd35d804b72");
+        contactDTO.setPortalType(PORTAL_TYPE);
+        contactDTO.setParentPath(PARENT_PATH);
+        contactDTO.setFirstName(FIRST_NAME);
+        contactDTO.setSurname(SURNAME);
+        contactDTO.setTitle(TITLE);
+        contactDTO.setUid(UID);
 
         when(ContactMapper.map(responseWrapper)).thenReturn(contactDTO);
 
@@ -89,11 +102,11 @@ class ContactHandlerTest {
     }
 
     @Test
-    void getContactByClientPath() throws JsonProcessingException {
+    void shouldReturnContactGivenClientPath() throws JsonProcessingException {
         // Setup
         String responseBody = new Utils().readJSON("senaite/response/get-contact.json");
         Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_PATH, "/senaite/clients/client-1");
+        headers.put(Constants.HEADER_PATH, PARENT_PATH);
 
         // Mock
         when(producerTemplate.requestBodyAndHeaders(
@@ -104,15 +117,15 @@ class ContactHandlerTest {
         SenaiteResponseWrapper<ContactItem> responseWrapper = objectMapper.readValue(responseBody, typeReference);
 
         ContactDTO contactDTO = new ContactDTO();
-        contactDTO.setPortalType("Contact");
-        contactDTO.setParentPath("/senaite/clients/client-1");
-        contactDTO.setUid("1baac45668fc49cbbd5c4fd35d804b72");
-        contactDTO.setTitle("Super User");
+        contactDTO.setPortalType(PORTAL_TYPE);
+        contactDTO.setParentPath(PARENT_PATH);
+        contactDTO.setUid(UID);
+        contactDTO.setTitle(TITLE);
 
         when(ContactMapper.map(responseWrapper)).thenReturn(contactDTO);
 
         // Act
-        ContactDTO result = contactHandler.getContactByClientPath(producerTemplate, "/senaite/clients/client-1");
+        ContactDTO result = contactHandler.getContactByClientPath(producerTemplate, PARENT_PATH);
 
         // Verify
         assertEquals(contactDTO, result);

@@ -39,6 +39,14 @@ import org.mockito.Mock;
 
 class ObservationHandlerTest {
 
+    private static final String CODE_ID = "code-id-1";
+
+    private static final String SUBJECT_ID = "subject-id-1";
+
+    private static final String ENCOUNTER_ID = "encounter-id-1";
+
+    private static final String DATE = "2024-09-30T11:21:36+00:00";
+
     @Mock
     private IGenericClient openmrsFhirClient;
 
@@ -70,7 +78,7 @@ class ObservationHandlerTest {
     }
 
     @Test
-    void getObservationByCodeSubjectEncounterAndDate() {
+    void shouldReturnObservationGivenCodeSubjectEncounterIDAndDate() {
         // Setup
         String observationID = UUID.randomUUID().toString();
         Observation observation = new Observation();
@@ -91,8 +99,8 @@ class ObservationHandlerTest {
         when(iQuery.execute()).thenReturn(bundle);
 
         // Act
-        Observation result = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                "code-id", "subject-id", "encounter-id", "2024-01-12");
+        Observation result =
+                observationHandler.getObservationByCodeSubjectEncounterAndDate(CODE_ID, SUBJECT_ID, ENCOUNTER_ID, DATE);
 
         // Verify
         assertNotNull(result);
@@ -100,7 +108,7 @@ class ObservationHandlerTest {
     }
 
     @Test
-    void sendObservation() {
+    void shouldSaveObservation() {
         // Setup
         String observationID = UUID.randomUUID().toString();
         Observation observation = new Observation();
@@ -121,19 +129,17 @@ class ObservationHandlerTest {
     }
 
     @Test
-    void buildResultObservation() {
+    void shouldReturnObservationGivenEncounterConceptUidAnalysesResultAndCaptureDate() {
         // Setup
         Encounter savedResultEncounter = new Encounter();
-        savedResultEncounter.setId("encounter-123");
+        savedResultEncounter.setId(ENCOUNTER_ID);
         savedResultEncounter.setSubject(new Reference("Patient/456"));
 
-        String conceptUuid = "concept-uuid-123";
         String analysesResult = "23";
-        String analysesResultCaptureDate = "2024-09-30T11:21:36+00:00";
 
         // Act
-        Observation observation = observationHandler.buildResultObservation(
-                savedResultEncounter, conceptUuid, analysesResult, analysesResultCaptureDate);
+        Observation observation =
+                observationHandler.buildResultObservation(savedResultEncounter, CODE_ID, analysesResult, DATE);
 
         // Verify
         assertNotNull(observation);
@@ -142,12 +148,10 @@ class ObservationHandlerTest {
         CodeableConcept code = observation.getCode();
         assertNotNull(code);
         Coding coding = code.getCodingFirstRep();
-        assertEquals(conceptUuid, coding.getCode());
+        assertEquals(CODE_ID, coding.getCode());
         assertEquals(savedResultEncounter.getSubject(), observation.getSubject());
-        assertEquals(
-                Date.from(Instant.parse(analysesResultCaptureDate)),
-                ((DateTimeType) observation.getEffective()).getValue());
+        assertEquals(Date.from(Instant.parse(DATE)), ((DateTimeType) observation.getEffective()).getValue());
         assertEquals(Quantity.class, observation.getValue().getClass());
-        assertEquals("Encounter/encounter-123", observation.getEncounter().getReference());
+        assertEquals("Encounter/" + ENCOUNTER_ID, observation.getEncounter().getReference());
     }
 }

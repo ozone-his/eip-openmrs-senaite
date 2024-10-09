@@ -72,7 +72,7 @@ class TaskHandlerTest {
     }
 
     @Test
-    void sendTask() {
+    void shouldSaveTask() {
         // Setup
         String taskID = UUID.randomUUID().toString();
         Task task = new Task();
@@ -96,7 +96,7 @@ class TaskHandlerTest {
     }
 
     @Test
-    void getTaskByServiceRequestID() {
+    void shouldReturnTaskGivenServiceRequestID() {
         // Setup
         String serviceRequestID = UUID.randomUUID().toString();
         String taskID = UUID.randomUUID().toString();
@@ -125,7 +125,7 @@ class TaskHandlerTest {
     }
 
     @Test
-    void updateTask() {
+    void shouldReturnUpdatedTask() {
         // Setup
         String taskID = UUID.randomUUID().toString();
         Task task = new Task();
@@ -150,7 +150,7 @@ class TaskHandlerTest {
     }
 
     @Test
-    void markTaskRejected() {
+    void shouldReturnRejectedTask() {
         // Setup
         String taskID = UUID.randomUUID().toString();
         Task task = new Task();
@@ -167,7 +167,7 @@ class TaskHandlerTest {
     }
 
     @Test
-    void updateTaskStatus() {
+    void shouldReturnUpdatedTaskGivenTaskAndStatus() {
         // Setup
         String taskID = UUID.randomUUID().toString();
         Task task = new Task();

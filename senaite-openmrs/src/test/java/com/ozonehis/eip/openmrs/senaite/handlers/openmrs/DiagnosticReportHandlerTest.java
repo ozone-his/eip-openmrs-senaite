@@ -30,6 +30,12 @@ import org.mockito.Mock;
 
 class DiagnosticReportHandlerTest {
 
+    private static final String OBSERVATION_ID_1 = "obs-uuid-1";
+
+    private static final String OBSERVATION_ID_2 = "obs-uuid-2";
+
+    private static final String LAB_RESULT_ENCOUNTER_ID = "encounter-123";
+
     @Mock
     private IGenericClient openmrsFhirClient;
 
@@ -55,7 +61,7 @@ class DiagnosticReportHandlerTest {
     }
 
     @Test
-    void sendDiagnosticReport() {
+    void shouldSaveDiagnosticReport() {
         // Setup
         String diagnosticReportID = UUID.randomUUID().toString();
         DiagnosticReport diagnosticReport = new DiagnosticReport();
@@ -76,37 +82,36 @@ class DiagnosticReportHandlerTest {
     }
 
     @Test
-    void buildDiagnosticReport() {
+    void shouldReturnDiagnosticReportGivenObservationUidsServiceRequestAndLabResultEncounterID() {
         // Setup
         ArrayList<String> observationUuids = new ArrayList<>();
-        observationUuids.add("obs-uuid-1");
-        observationUuids.add("obs-uuid-2");
+        observationUuids.add(OBSERVATION_ID_1);
+        observationUuids.add(OBSERVATION_ID_2);
 
         ServiceRequest serviceRequest = new ServiceRequest();
         serviceRequest.setCode(new CodeableConcept().setText("Blood Test"));
         serviceRequest.setSubject(new Reference().setReference("Patient/123").setType("Patient"));
 
-        String labResultsEncounterID = "encounter-123";
-
         // Act
-        DiagnosticReport report =
-                diagnosticReportHandler.buildDiagnosticReport(observationUuids, serviceRequest, labResultsEncounterID);
+        DiagnosticReport report = diagnosticReportHandler.buildDiagnosticReport(
+                observationUuids, serviceRequest, LAB_RESULT_ENCOUNTER_ID);
 
         // Verify
         assertNotNull(report);
         assertEquals(DiagnosticReport.DiagnosticReportStatus.FINAL, report.getStatus());
         assertEquals("Blood Test", report.getCode().getText());
         assertEquals("Patient/123", report.getSubject().getReference());
-        assertEquals("Encounter/encounter-123", report.getEncounter().getReference());
+        assertEquals(
+                "Encounter/" + LAB_RESULT_ENCOUNTER_ID, report.getEncounter().getReference());
         assertEquals("Encounter", report.getEncounter().getType());
 
         List<Reference> resultReferences = report.getResult();
         assertEquals(2, resultReferences.size());
 
-        assertEquals("Observation/obs-uuid-1", resultReferences.get(0).getReference());
+        assertEquals("Observation/" + OBSERVATION_ID_1, resultReferences.get(0).getReference());
         assertEquals("Observation", resultReferences.get(0).getType());
 
-        assertEquals("Observation/obs-uuid-2", resultReferences.get(1).getReference());
+        assertEquals("Observation/" + OBSERVATION_ID_2, resultReferences.get(1).getReference());
         assertEquals("Observation", resultReferences.get(1).getType());
     }
 }

@@ -53,7 +53,7 @@ class ServiceRequestHandlerTest {
     }
 
     @Test
-    void getServiceRequestByID() {
+    void shouldReturnServiceRequestGivenServiceRequestID() {
         // Setup
         String serviceRequestID = UUID.randomUUID().toString();
         ServiceRequest serviceRequest = new ServiceRequest();

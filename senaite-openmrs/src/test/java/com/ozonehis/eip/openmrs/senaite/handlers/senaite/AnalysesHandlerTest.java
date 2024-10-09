@@ -52,7 +52,7 @@ class AnalysesHandlerTest {
     }
 
     @Test
-    void getAnalysesByAnalysesApiUrl() throws JsonProcessingException {
+    void shouldReturnAnalysesGivenAnalysesApiUrl() throws JsonProcessingException {
         // Setup
         String analysesApiUrl = "http://test.com/api/analyses";
         String responseBody = new Utils().readJSON("senaite/response/get-analyses.json");

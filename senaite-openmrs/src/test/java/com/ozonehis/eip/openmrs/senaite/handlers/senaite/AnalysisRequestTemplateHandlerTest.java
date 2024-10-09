@@ -56,7 +56,7 @@ class AnalysisRequestTemplateHandlerTest {
     }
 
     @Test
-    void getAnalysisRequestTemplateByServiceRequestCode() throws JsonProcessingException {
+    void shouldReturnAnalysisRequestTemplateGivenServiceRequestCode() throws JsonProcessingException {
         // Setup
         String responseBody = new Utils().readJSON("senaite/response/get-analysis-request-template.json");
         Map<String, Object> headers = new HashMap<>();

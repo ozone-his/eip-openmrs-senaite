@@ -33,6 +33,18 @@ import org.mockito.Mock;
 
 class ClientHandlerTest {
 
+    private static final String CLIENT_ID = "467aca2c-d069-40fc-90f4-17216fab0454";
+
+    private static final String TITLE = "Siddharth Vaish (100000Y)";
+
+    private static final String UID = "7f4aebaf3d4a4a2f8e8ebb5881d4ce73";
+
+    private static final String PORTAL_TYPE = "Client";
+
+    private static final String PARENT_PATH = "/senaite/clients";
+
+    private static final String PATH = "/senaite/clients/client-1";
+
     @Mock
     private ProducerTemplate producerTemplate;
 
@@ -55,15 +67,15 @@ class ClientHandlerTest {
     }
 
     @Test
-    void sendClient() throws JsonProcessingException {
+    void shouldSaveAndReturnSavedClient() throws JsonProcessingException {
         // Setup
         String responseBody = new Utils().readJSON("senaite/response/create-client.json");
 
         Client client = new Client();
-        client.setPortalType("Client");
-        client.setTitle("Siddharth Vaish (100000Y)");
-        client.setClientID("467aca2c-d069-40fc-90f4-17216fab0454");
-        client.setParentPath("/senaite/clients");
+        client.setPortalType(PORTAL_TYPE);
+        client.setTitle(TITLE);
+        client.setClientID(CLIENT_ID);
+        client.setParentPath(PARENT_PATH);
 
         // Mock
         when(producerTemplate.requestBody(eq("direct:senaite-create-client-route"), eq(client), eq(String.class)))
@@ -73,11 +85,11 @@ class ClientHandlerTest {
         SenaiteResponseWrapper<ClientItem> responseWrapper = objectMapper.readValue(responseBody, typeReference);
 
         ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setPortalType("Client");
-        clientDTO.setTitle("Siddharth Vaish (100000Y)");
-        clientDTO.setParentPath("/senaite/clients");
-        clientDTO.setUid("7f4aebaf3d4a4a2f8e8ebb5881d4ce73");
-        clientDTO.setPath("/senaite/clients/client-1");
+        clientDTO.setPortalType(PORTAL_TYPE);
+        clientDTO.setTitle(TITLE);
+        clientDTO.setParentPath(PARENT_PATH);
+        clientDTO.setUid(UID);
+        clientDTO.setPath(PATH);
 
         when(ClientMapper.map(responseWrapper)).thenReturn(clientDTO);
 
@@ -89,11 +101,11 @@ class ClientHandlerTest {
     }
 
     @Test
-    void getClientByPatientID() throws JsonProcessingException {
+    void shouldReturnClientGivenPatientID() throws JsonProcessingException {
         // Setup
         String responseBody = new Utils().readJSON("senaite/response/get-client.json");
         Map<String, Object> headers = new HashMap<>();
-        headers.put(Constants.HEADER_CLIENT_ID, "467aca2c-d069-40fc-90f4-17216fab0454");
+        headers.put(Constants.HEADER_CLIENT_ID, CLIENT_ID);
 
         // Mock
         when(producerTemplate.requestBodyAndHeaders(
@@ -104,17 +116,17 @@ class ClientHandlerTest {
         SenaiteResponseWrapper<ClientItem> responseWrapper = objectMapper.readValue(responseBody, typeReference);
 
         ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setPortalType("Client");
-        clientDTO.setTitle("Siddharth Vaish (100000Y)");
-        clientDTO.setParentPath("/senaite/clients");
-        clientDTO.setUid("7f4aebaf3d4a4a2f8e8ebb5881d4ce73");
-        clientDTO.setPath("/senaite/clients/client-1");
-        clientDTO.setClientID("467aca2c-d069-40fc-90f4-17216fab0454");
+        clientDTO.setPortalType(PORTAL_TYPE);
+        clientDTO.setTitle(TITLE);
+        clientDTO.setParentPath(PARENT_PATH);
+        clientDTO.setUid(UID);
+        clientDTO.setPath(PATH);
+        clientDTO.setClientID(CLIENT_ID);
 
         when(ClientMapper.map(responseWrapper)).thenReturn(clientDTO);
 
         // Act
-        ClientDTO result = clientHandler.getClientByPatientID(producerTemplate, "467aca2c-d069-40fc-90f4-17216fab0454");
+        ClientDTO result = clientHandler.getClientByPatientID(producerTemplate, CLIENT_ID);
 
         // Verify
         assertEquals(clientDTO, result);
