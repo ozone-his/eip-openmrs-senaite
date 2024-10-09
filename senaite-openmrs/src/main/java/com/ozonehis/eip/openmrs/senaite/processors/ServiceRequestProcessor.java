@@ -74,9 +74,6 @@ public class ServiceRequestProcessor implements Processor {
     @Autowired
     private TaskMapper taskMapper;
 
-    @Autowired
-    private ServiceRequestHandler serviceRequestHandler;
-
     @Override
     public void process(Exchange exchange) {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
@@ -183,7 +180,7 @@ public class ServiceRequestProcessor implements Processor {
                     producerTemplate, cancelAnalysisRequest, analysisRequestDTO.getUid());
         } else {
             log.debug(
-                    "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
+                    "ServiceRequestProcessor: AnalysisRequest {} is cannot be cancelled for ServiceRequest id {}",
                     analysisRequestDTO,
                     serviceRequestUuid);
         }

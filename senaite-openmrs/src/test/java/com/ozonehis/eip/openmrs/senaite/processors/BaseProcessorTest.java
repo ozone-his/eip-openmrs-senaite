@@ -18,6 +18,7 @@ import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
 import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
 import com.ozonehis.eip.openmrs.senaite.model.contact.request.Contact;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.camel.Exchange;
@@ -26,12 +27,20 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.support.DefaultMessage;
 import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 
 public abstract class BaseProcessorTest extends CamelSpringTestSupport {
+
+    protected static final String ENCOUNTER_REFERENCE_ID = "Encounter/1234";
 
     protected Exchange createExchange(Resource resource, String eventType) {
         Message message = new DefaultMessage(new DefaultCamelContext());
@@ -146,5 +155,26 @@ public abstract class BaseProcessorTest extends CamelSpringTestSupport {
         task.setId("zzaea498-e046-12c6-bf9c-dbbc7d39f42c");
         task.setStatus(Task.TaskStatus.RECEIVED);
         return task;
+    }
+
+    protected Patient buildPatient() {
+        Patient patient = new Patient();
+        return patient;
+    }
+
+    protected ServiceRequest buildServiceRequest() {
+        ServiceRequest serviceRequest = new ServiceRequest();
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.ACTIVE);
+        serviceRequest.setIntent(ServiceRequest.ServiceRequestIntent.ORDER);
+        serviceRequest.setCode(
+                new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode("123ABC"))));
+
+        return serviceRequest;
+    }
+
+    protected Encounter buildEncounter() {
+        Encounter encounter = new Encounter();
+        encounter.setPartOf(new Reference(ENCOUNTER_REFERENCE_ID));
+        return encounter;
     }
 }
