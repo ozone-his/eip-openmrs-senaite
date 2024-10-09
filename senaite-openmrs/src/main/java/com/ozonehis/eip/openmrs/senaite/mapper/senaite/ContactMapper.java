@@ -27,9 +27,14 @@ public class ContactMapper {
             contact.setParentPath(clientDTO.getPath());
         }
 
-        String[] nameSplit = serviceRequest.getRequester().getDisplay().split(" ");
-        contact.setFirstName(nameSplit[0]);
-        contact.setSurname(nameSplit[1]);
+        String[] nameSplit = serviceRequest.getRequester().getDisplay().split(" ", 2);
+        if (nameSplit.length >= 2) {
+            contact.setFirstName(nameSplit[0]);
+            contact.setSurname(nameSplit[1]);
+        } else {
+            contact.setFirstName(nameSplit[0]);
+            contact.setSurname("");
+        }
 
         return contact;
     }
