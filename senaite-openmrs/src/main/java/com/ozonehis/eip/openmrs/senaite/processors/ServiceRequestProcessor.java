@@ -8,7 +8,6 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
