@@ -1,0 +1,75 @@
+{
+  "resourceType": "Patient",
+  "id": "d238321f-40ba-4dea-b307-3fa95336bc9f",
+  "meta": {
+    "versionId": "1712219324000",
+    "lastUpdated": "2024-04-04T08:28:44.000+00:00",
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+        "code": "SUBSETTED",
+        "display": "Resource encoded in summary mode"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "id": "4f572b6f-63eb-44d2-816e-cb654125489f",
+      "extension": [
+        {
+          "url": "http://fhir.openmrs.org/ext/patient/identifier#location",
+          "valueReference": {
+            "reference": "Location/736b08f9-94d6-4b50-ad58-6bc69b9cbfb8",
+            "type": "Location",
+            "display": "Ward 50"
+          }
+        }
+      ],
+      "use": "official",
+      "type": {
+        "coding": [
+          {
+            "code": "05a29f94-c0ed-11e2-94be-8c13b969e334"
+          }
+        ],
+        "text": "OpenMRS ID"
+      },
+      "value": "100008E"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "id": "0a437d55-4947-4b28-9e14-7c603cf52af8",
+      "family": "Johnson",
+      "given": [
+        "Joshua"
+      ],
+      "text": "Joshua Johnson"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "2019-09-25",
+  "deceasedBoolean": false,
+  "address": [
+    {
+      "id": "c09315e5-a8d0-4325-98ea-cd6730cb9944",
+      "extension": [
+        {
+          "url": "http://fhir.openmrs.org/ext/address",
+          "extension": [
+            {
+              "url": "http://fhir.openmrs.org/ext/address#address1",
+              "valueString": "Address16442"
+            }
+          ]
+        }
+      ],
+      "use": "home",
+      "city": "City6442",
+      "state": "State6442",
+      "postalCode": "20839",
+      "country": "Country6442"
+    }
+  ]
+}

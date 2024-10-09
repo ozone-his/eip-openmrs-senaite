@@ -1,0 +1,34 @@
+{
+  "@openmrs/esm-primary-navigation-app": {
+    "externalRefLinks": [
+      {
+        "title": "Pharmacy, Billing & Inventory",
+        "redirect": "https://localhost:8069"
+      },
+      {
+        "title": "Laboratory",
+        "redirect": "https://localhost:8081"
+      },
+      {
+        "title": "Reporting & Analytics",
+        "redirect": "https://localhost:8088"
+      }
+    ],
+    "logo": {
+      "src": "ozone/ozone_logo_white.svg",
+      "alt": "ozone-logo"
+    }
+  },
+  "@openmrs/esm-login-app": {
+    "logo": {
+      "src": "ozone/ozone_logo_color.svg",
+      "alt": "ozone-logo"
+    }
+  },
+  "@openmrs/esm-patient-chart-app": {
+    "logo": {
+      "src": "ozone/ozone_logo_white.svg",
+      "alt": "ozone-logo"
+    }
+  }
+}

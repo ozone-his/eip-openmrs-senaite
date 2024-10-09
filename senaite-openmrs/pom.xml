@@ -27,7 +27,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <camel.version>4.0.1</camel.version>
     <camel.openmrs.fhir.version>4.1.0-SNAPSHOT</camel.openmrs.fhir.version>
-    <camel.version>4.6.0</camel.version>
 
     <!-- Classifier for the dependency report artifact -->
     <dependencyReportClassifier>dependencies</dependencyReportClassifier>
