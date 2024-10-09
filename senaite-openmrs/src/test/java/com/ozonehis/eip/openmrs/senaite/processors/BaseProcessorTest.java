@@ -35,6 +35,8 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Period;
@@ -168,6 +170,12 @@ public abstract class BaseProcessorTest extends CamelSpringTestSupport {
 
     protected Patient buildPatient() {
         Patient patient = new Patient();
+        patient.setId("ioaea498-e146-98c6-bf1c-dccc7d39f30d");
+        patient.setActive(true);
+        patient.setName(Collections.singletonList(
+                new HumanName().setFamily("Doe").addGiven("John").setText("John Doe")));
+        patient.setIdentifier(Collections.singletonList(
+                new Identifier().setUse(Identifier.IdentifierUse.OFFICIAL).setValue("10IDH12H")));
         return patient;
     }
 
@@ -178,7 +186,7 @@ public abstract class BaseProcessorTest extends CamelSpringTestSupport {
         serviceRequest.setSubject(new Reference("Patient/iiaea498-e046-09c6-bf9c-dbbc7d39f54c"));
         serviceRequest.setCode(
                 new CodeableConcept().setCoding(Collections.singletonList(new Coding().setCode("123ABC"))));
-        serviceRequest.setOccurrence(new Period().setStart(new Date(1628468672)));
+        serviceRequest.setOccurrence(new Period().setStart(new Date(1628468672000L)));
         serviceRequest.setEncounter(new Reference(ENCOUNTER_REFERENCE_ID));
         return serviceRequest;
     }
@@ -186,7 +194,7 @@ public abstract class BaseProcessorTest extends CamelSpringTestSupport {
     protected Encounter buildEncounter() {
         Encounter encounter = new Encounter();
         encounter.setPartOf(new Reference(ENCOUNTER_REFERENCE_ID));
-        encounter.setPeriod(new Period().setStart(new Date(1728468672)));
+        encounter.setPeriod(new Period().setStart(new Date(1728468672000L)));
         return encounter;
     }
 
