@@ -32,7 +32,7 @@ public class ResourceConverter {
     }
 
     @Converter
-    public static InputStream toInputStream(Bundle bundle) throws Exception {
+    public static InputStream toInputStream(Bundle bundle) {
         FhirContext ctx = FhirContext.forR4();
         String json = ctx.newJsonParser().encodeResourceToString(bundle);
         return new ByteArrayInputStream(json.getBytes());

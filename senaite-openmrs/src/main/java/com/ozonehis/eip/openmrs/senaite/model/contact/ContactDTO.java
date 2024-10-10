@@ -24,5 +24,7 @@ public class ContactDTO {
 
     private String surname;
 
+    private String title;
+
     private String uid;
 }

@@ -38,8 +38,6 @@ public class TaskHandler {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        log.info("TaskHandler: Task getTaskByServiceRequestID {}", bundle.getId());
-
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Task.class::isInstance)
