@@ -12,6 +12,7 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Bundle;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Setter
+@AllArgsConstructor
 @Component
 public class ObservationHandler {
 

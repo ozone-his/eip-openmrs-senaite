@@ -8,7 +8,11 @@
 package com.ozonehis.eip.openmrs.senaite;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
+import com.ozonehis.eip.openmrs.senaite.routes.analyses.GetAnalysesRoute;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.infra.core.annotations.RouteFixture;
 import org.hl7.fhir.r4.model.Bundle;
@@ -32,11 +36,26 @@ public class ServiceRequestToClientContactAnalysisRequestAndTaskIntegrationTest 
     @RouteFixture
     public void createRouteBuilder(CamelContext context) throws Exception {
         context = getContextWithRouting(context);
+
+        context.addRoutes(new GetAnalysesRoute(getSenaiteConfig()));
     }
 
     @Test
     @DisplayName("Should verify has sale order routes.")
     public void shouldVerifySaleOrderRoutes() {
+        assertTrue(hasRoute(contextExtension.getContext(), "service-request-to-analysis-request-router"));
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-get-analyses-route"));
+    }
+
+    @Test
+    @DisplayName("Should create serviceRequest in Senaite give ServiceRequest Bundle.")
+    public void shouldCreateAnalysisRequestInSenaiteGivenServiceRequest() {
+        // Act
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+        sendBodyAndHeaders("direct:service-request-to-analysis-request-processor", serviceRequestBundle, headers);
+
+        // Verify
+
     }
 }

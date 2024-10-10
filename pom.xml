@@ -34,7 +34,7 @@
   <modules>
     <module>senaite-openmrs</module>
     <module>integration-tests</module>
-    <module>test-infra-senaite</module>
+    <!--    <module>test-infra-senaite</module>-->
   </modules>
 
   <distributionManagement>

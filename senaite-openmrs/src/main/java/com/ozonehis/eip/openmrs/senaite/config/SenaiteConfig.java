@@ -7,13 +7,15 @@
  */
 package com.ozonehis.eip.openmrs.senaite.config;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Getter
+@Data
+@AllArgsConstructor
 @Component
 public class SenaiteConfig {
     @Value("${senaite.username}")

@@ -8,9 +8,42 @@
 package com.ozonehis.eip.openmrs.senaite;
 
 import ca.uhn.fhir.context.FhirContext;
-import com.ozonehis.camel.test.infra.senaite.services.SenaiteService;
-import com.ozonehis.camel.test.infra.senaite.services.SenaiteServiceFactory;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
 import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
+import com.ozonehis.eip.openmrs.senaite.converters.ResourceConverter;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysesHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ClientHandler;
+import com.ozonehis.eip.openmrs.senaite.handlers.senaite.ContactHandler;
+import com.ozonehis.eip.openmrs.senaite.mapper.fhir.TaskMapper;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.AnalysisRequestMapper;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ClientMapper;
+import com.ozonehis.eip.openmrs.senaite.mapper.senaite.ContactMapper;
+import com.ozonehis.eip.openmrs.senaite.processors.PatientProcessor;
+import com.ozonehis.eip.openmrs.senaite.processors.ServiceRequestProcessor;
+import com.ozonehis.eip.openmrs.senaite.processors.TaskProcessor;
+import com.ozonehis.eip.openmrs.senaite.routes.PatientRouting;
+import com.ozonehis.eip.openmrs.senaite.routes.ServiceRequestRouting;
+import com.ozonehis.eip.openmrs.senaite.routes.TaskRouting;
+import com.ozonehis.eip.openmrs.senaite.routes.analyses.GetAnalysesRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisRequestTemplate.GetAnalysisRequestTemplateRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.CreateAnalysisRequestRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.GetAnalysisRequestByClientSampleIDRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.GetAnalysisRequestRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.UpdateAnalysisRequestRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.client.CreateClientRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.client.GetClientRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.client.UpdateClientRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.contact.CreateContactRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.contact.GetContactRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask.GetOpenmrsFhirTaskByStatusRoute;
 import jakarta.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -46,9 +79,9 @@ public abstract class BaseRouteIntegrationTest {
 
     @RegisterExtension
     protected static CamelContextExtension contextExtension = new DefaultCamelContextExtension();
-
-    @RegisterExtension
-    protected static final SenaiteService service = SenaiteServiceFactory.createSingletonService();
+    //
+    //    @RegisterExtension
+    //    protected static final SenaiteService service = SenaiteServiceFactory.createSingletonService();
 
     @ContextFixture
     public void configureContext(CamelContext context) {
@@ -67,6 +100,101 @@ public abstract class BaseRouteIntegrationTest {
     }
 
     protected @Nonnull CamelContext getContextWithRouting(CamelContext context) throws Exception {
+        FhirContext fhirContext = FhirContext.forR4();
+        String serverBase = "http://localhost/openmrs/ws/fhir2/R4";
+        IGenericClient client = fhirContext.newRestfulGenericClient(serverBase);
+
+        String username = "admin";
+        String password = "Admin123";
+        BasicAuthInterceptor authInterceptor = new BasicAuthInterceptor(username, password);
+        client.registerInterceptor(authInterceptor);
+
+        ClientHandler clientHandler = new ClientHandler();
+        ClientMapper clientMapper = new ClientMapper();
+        ContactMapper contactMapper = new ContactMapper();
+        AnalysisRequestMapper analysisRequestMapper = new AnalysisRequestMapper();
+        AnalysisRequestHandler analysisRequestHandler = new AnalysisRequestHandler();
+        ContactHandler contactHandler = new ContactHandler();
+        AnalysisRequestTemplateHandler analysisRequestTemplateHandler = new AnalysisRequestTemplateHandler();
+        AnalysesHandler analysesHandler = new AnalysesHandler();
+
+        TaskMapper taskMapper = new TaskMapper();
+
+        TaskHandler taskHandler = new TaskHandler(client);
+        ServiceRequestHandler serviceRequestHandler = new ServiceRequestHandler(client);
+        EncounterHandler encounterHandler = new EncounterHandler("7aa974b5-7523-11eb-8077-0242ac120009", client);
+        ObservationHandler observationHandler = new ObservationHandler(client);
+        DiagnosticReportHandler diagnosticReportHandler = new DiagnosticReportHandler(client);
+
+        PatientProcessor patientProcessor = new PatientProcessor();
+        patientProcessor.setClientHandler(clientHandler);
+        patientProcessor.setClientMapper(clientMapper);
+
+        ServiceRequestProcessor serviceRequestProcessor = new ServiceRequestProcessor();
+        serviceRequestProcessor.setClientMapper(clientMapper);
+        serviceRequestProcessor.setContactMapper(contactMapper);
+        serviceRequestProcessor.setAnalysisRequestMapper(analysisRequestMapper);
+        serviceRequestProcessor.setClientHandler(clientHandler);
+        serviceRequestProcessor.setAnalysisRequestHandler(analysisRequestHandler);
+        serviceRequestProcessor.setContactHandler(contactHandler);
+        serviceRequestProcessor.setAnalysisRequestTemplateHandler(analysisRequestTemplateHandler);
+        serviceRequestProcessor.setTaskHandler(taskHandler);
+        serviceRequestProcessor.setTaskMapper(taskMapper);
+        serviceRequestProcessor.setServiceRequestHandler(serviceRequestHandler);
+
+        TaskProcessor taskProcessor = new TaskProcessor();
+        taskProcessor.setServiceRequestHandler(serviceRequestHandler);
+        taskProcessor.setTaskHandler(taskHandler);
+        taskProcessor.setAnalysisRequestHandler(analysisRequestHandler);
+        taskProcessor.setEncounterHandler(encounterHandler);
+        taskProcessor.setAnalysesHandler(analysesHandler);
+        taskProcessor.setObservationHandler(observationHandler);
+        taskProcessor.setDiagnosticReportHandler(diagnosticReportHandler);
+
+        ResourceConverter resourceConverter = new ResourceConverter();
+
+        PatientRouting patientRouting = new PatientRouting();
+        patientRouting.setPatientProcessor(patientProcessor);
+        patientRouting.setResourceConverter(resourceConverter);
+
+        ServiceRequestRouting serviceRequestRouting = new ServiceRequestRouting();
+        serviceRequestRouting.setServiceRequestProcessor(serviceRequestProcessor);
+        serviceRequestRouting.setResourceConverter(resourceConverter);
+
+        TaskRouting taskRouting = new TaskRouting();
+        taskRouting.setTaskProcessor(taskProcessor);
+        taskRouting.setResourceConverter(resourceConverter);
+
+        GetAnalysesRoute getAnalysesRoute = new GetAnalysesRoute(getSenaiteConfig());
+        CreateAnalysisRequestRoute createAnalysisRequestRoute = new CreateAnalysisRequestRoute(getSenaiteConfig());
+        GetAnalysisRequestByClientSampleIDRoute getAnalysisRequestByClientSampleIDRoute =
+                new GetAnalysisRequestByClientSampleIDRoute(getSenaiteConfig());
+        GetAnalysisRequestRoute getAnalysisRequestRoute = new GetAnalysisRequestRoute(getSenaiteConfig());
+        UpdateAnalysisRequestRoute updateAnalysisRequestRoute = new UpdateAnalysisRequestRoute(getSenaiteConfig());
+        GetAnalysisRequestTemplateRoute getAnalysisRequestTemplateRoute =
+                new GetAnalysisRequestTemplateRoute(getSenaiteConfig());
+        CreateClientRoute createClientRoute = new CreateClientRoute(getSenaiteConfig());
+        GetClientRoute getClientRoute = new GetClientRoute(getSenaiteConfig());
+        UpdateClientRoute updateClientRoute = new UpdateClientRoute(getSenaiteConfig());
+        CreateContactRoute createContactRoute = new CreateContactRoute(getSenaiteConfig());
+        GetContactRoute getContactRoute = new GetContactRoute(getSenaiteConfig());
+        GetOpenmrsFhirTaskByStatusRoute getOpenmrsFhirTaskByStatusRoute = new GetOpenmrsFhirTaskByStatusRoute();
+
+        context.addRoutes(patientRouting);
+        context.addRoutes(serviceRequestRouting);
+        context.addRoutes(taskRouting);
+        context.addRoutes(getAnalysesRoute);
+        context.addRoutes(createAnalysisRequestRoute);
+        context.addRoutes(getAnalysisRequestByClientSampleIDRoute);
+        context.addRoutes(getAnalysisRequestRoute);
+        context.addRoutes(updateAnalysisRequestRoute);
+        context.addRoutes(getAnalysisRequestTemplateRoute);
+        context.addRoutes(createClientRoute);
+        context.addRoutes(getClientRoute);
+        context.addRoutes(updateClientRoute);
+        context.addRoutes(createContactRoute);
+        context.addRoutes(getContactRoute);
+        context.addRoutes(getOpenmrsFhirTaskByStatusRoute);
 
         return context;
     }
