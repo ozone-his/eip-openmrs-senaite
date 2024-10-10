@@ -1,0 +1,75 @@
+{
+  "resourceType": "Patient",
+  "id": "df7182cb-eb6e-4160-9f70-2efb0b6d5d74",
+  "meta": {
+    "versionId": "1712219326000",
+    "lastUpdated": "2024-04-04T08:28:46.000+00:00",
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
+        "code": "SUBSETTED",
+        "display": "Resource encoded in summary mode"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "id": "fc7964d7-9654-4b14-8d8c-a986258612d5",
+      "extension": [
+        {
+          "url": "http://fhir.openmrs.org/ext/patient/identifier#location",
+          "valueReference": {
+            "reference": "Location/736b08f9-94d6-4b50-ad58-6bc69b9cbfb8",
+            "type": "Location",
+            "display": "Ward 50"
+          }
+        }
+      ],
+      "use": "official",
+      "type": {
+        "coding": [
+          {
+            "code": "05a29f94-c0ed-11e2-94be-8c13b969e334"
+          }
+        ],
+        "text": "OpenMRS ID"
+      },
+      "value": "10000GX"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "id": "5a313a3b-cc4c-4b25-bc1c-5c29b9615962",
+      "family": "Jones",
+      "given": [
+        "Richard"
+      ],
+      "text": "Richard Jones"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1939-02-14",
+  "deceasedBoolean": false,
+  "address": [
+    {
+      "id": "50c6b3fd-65aa-4628-aa56-6b02287f77ca",
+      "extension": [
+        {
+          "url": "http://fhir.openmrs.org/ext/address",
+          "extension": [
+            {
+              "url": "http://fhir.openmrs.org/ext/address#address1",
+              "valueString": "Address12062"
+            }
+          ]
+        }
+      ],
+      "use": "home",
+      "city": "City2062",
+      "state": "State2062",
+      "postalCode": "55338",
+      "country": "Country2062"
+    }
+  ]
+}
