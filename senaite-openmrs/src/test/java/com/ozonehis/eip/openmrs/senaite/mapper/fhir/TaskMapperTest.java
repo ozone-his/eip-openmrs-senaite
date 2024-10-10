@@ -7,7 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.fhir;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;

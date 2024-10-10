@@ -7,7 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.ozonehis.eip.openmrs.senaite.model.client.ClientDTO;
@@ -66,11 +67,8 @@ class ContactMapperTest {
 
     @Test
     void shouldReturnNullWhenServiceRequestIsNull() {
-        // Setup
-        ServiceRequest serviceRequest = null;
-
         // Act
-        Contact result = contactMapper.toSenaite(serviceRequest, new ClientDTO());
+        Contact result = contactMapper.toSenaite(null, new ClientDTO());
 
         // Verify
         assertNull(result);

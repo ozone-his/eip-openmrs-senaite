@@ -7,7 +7,10 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -79,6 +82,12 @@ class DiagnosticReportHandlerTest {
 
         // Act
         diagnosticReportHandler.sendDiagnosticReport(diagnosticReport);
+
+        // Verify
+        verify(openmrsFhirClient, times(1)).create();
+        verify(iCreate, times(1)).resource(diagnosticReport);
+        verify(iCreateTyped, times(1)).encodedJson();
+        verify(iCreateTyped, times(1)).execute();
     }
 
     @Test

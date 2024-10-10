@@ -7,7 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.ozonehis.eip.openmrs.senaite.model.client.request.Client;
@@ -63,11 +64,8 @@ class ClientMapperTest {
 
     @Test
     void shouldReturnNullWhenPatientIsNull() {
-        // Setup
-        Patient patient = null;
-
         // Act
-        Client result = clientMapper.toSenaite(patient);
+        Client result = clientMapper.toSenaite(null);
 
         // Verify
         assertNull(result);

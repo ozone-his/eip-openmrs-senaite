@@ -8,7 +8,6 @@
 package com.ozonehis.eip.openmrs.senaite.routes.analysisrequest;
 
 import static org.apache.camel.builder.AdviceWith.adviceWith;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;

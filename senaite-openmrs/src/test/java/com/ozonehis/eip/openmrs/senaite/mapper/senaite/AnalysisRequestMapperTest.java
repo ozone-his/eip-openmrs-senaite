@@ -7,7 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.senaite;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
@@ -101,11 +102,8 @@ class AnalysisRequestMapperTest {
 
         AnalysisRequestTemplateDTO analysisRequestTemplateDTO = getAnalysisRequestTemplate();
 
-        ServiceRequest serviceRequest = null;
-
         // Act
-        AnalysisRequest result =
-                analysisRequestMapper.toSenaite(contactDTO, analysisRequestTemplateDTO, serviceRequest);
+        AnalysisRequest result = analysisRequestMapper.toSenaite(contactDTO, analysisRequestTemplateDTO, null);
 
         // Verify
         assertNull(result);

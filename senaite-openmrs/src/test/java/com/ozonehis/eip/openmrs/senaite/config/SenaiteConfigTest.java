@@ -7,7 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.config;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import org.apache.hc.client5.http.utils.Base64;
@@ -56,21 +57,13 @@ class SenaiteConfigTest {
     void shouldThrowsExceptionWhenUsernameIsEmpty() {
         ReflectionTestUtils.setField(senaiteConfig, senaiteUsername, "");
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            senaiteConfig.authHeader();
-        });
-
-        assertEquals("SENAITE username is empty", exception.getMessage());
+        assertThrows("SENAITE username is empty", IllegalArgumentException.class, () -> senaiteConfig.authHeader());
     }
 
     @Test
     void shouldThrowsExceptionWhenPasswordIsEmpty() {
         ReflectionTestUtils.setField(senaiteConfig, senaitePassword, "");
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            senaiteConfig.authHeader();
-        });
-
-        assertEquals("SENAITE password is empty", exception.getMessage());
+        assertThrows("SENAITE password is empty", IllegalArgumentException.class, () -> senaiteConfig.authHeader());
     }
 }
