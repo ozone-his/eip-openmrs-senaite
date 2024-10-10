@@ -1,78 +1,68 @@
 {
   "resourceType": "Bundle",
-  "id": "2976b234-e33c-4623-a9bb-951689626d2d",
+  "id": "845bd3b3-7857-4bf4-8fb4-79e9da6a9f61",
   "meta": {
-    "lastUpdated": "2024-04-12T11:15:50.945+00:00",
-    "tag": [
-      {
-        "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
-        "code": "SUBSETTED",
-        "display": "Resource encoded in summary mode"
-      }
-    ]
+    "lastUpdated": "2024-10-10T18:30:11.902+00:00"
   },
   "type": "searchset",
   "total": 1,
   "link": [
     {
       "relation": "self",
-      "url": "http://localhost/openmrs/ws/fhir2/R4/ServiceRequest?_include=ServiceRequest%3Apatient&_include=ServiceRequest%3Aencounter&_summary=data"
+      "url": "http://openmrs:8080/openmrs/ws/fhir2/R4/ServiceRequest?_id=5a92fd97-89ed-48df-aea5-907f42810709&_include=ServiceRequest%3Aencounter&_include=ServiceRequest%3Apatient"
     }
   ],
   "entry": [
     {
-      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/ServiceRequest/5be506b6-4250-4672-9808-20428786963e",
+      "fullUrl": "http://openmrs:8080/openmrs/ws/fhir2/R4/ServiceRequest/5a92fd97-89ed-48df-aea5-907f42810709",
       "resource": {
         "resourceType": "ServiceRequest",
-        "id": "5be506b6-4250-4672-9808-20428786963e",
+        "id": "5a92fd97-89ed-48df-aea5-907f42810709",
         "meta": {
-          "versionId": "1712920114000",
-          "lastUpdated": "2024-04-12T11:08:34.000+00:00",
-          "tag": [
-            {
-              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
-              "code": "SUBSETTED",
-              "display": "Resource encoded in summary mode"
-            }
-          ]
+          "versionId": "1728585011000",
+          "lastUpdated": "2024-10-10T18:30:11.000+00:00"
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Id:</td><td>5a92fd97-89ed-48df-aea5-907f42810709</td></tr><tr><td>Status:</td><td>ACTIVE</td></tr><tr><td>Intent:</td><td>ORDER</td></tr><tr><td>Code:</td><td>Blood urea nitrogen</td></tr><tr><td>Subject:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/Patient/487b174a-8f7a-475f-899b-752cf419edba\">Siddharth Vaish (OpenMRS ID: 100000Y)</a></td></tr><tr><td>Encounter:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/Encounter/2a0d7092-4b8b-45bc-8ad5-2d187f7e1843\">Encounter/2a0d7092-4b8b-45bc-8ad5-2d187f7e1843</a></td></tr><tr><td>Occurrence:</td><td>2024-10-10 18:30:11.0 - ?</td></tr><tr><td>Requester:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/Practitioner/8e84a8d4-c8c5-43a0-bb89-f4bc46f976c1\">Super User (Identifier: admin)</a></td></tr></tbody></table></div>"
         },
         "status": "active",
         "intent": "order",
         "code": {
           "coding": [
             {
-              "code": "1325AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "display": "Hepatitis C test - qualitative"
+              "code": "857AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "display": "Blood urea nitrogen"
             },
             {
               "system": "http://loinc.org",
-              "code": "16128-1"
+              "code": "14937-7"
             },
             {
               "system": "https://cielterminology.org",
-              "code": "1325"
+              "code": "857"
             },
             {
               "system": "http://snomed.info/sct/",
-              "code": "313612007"
+              "code": "72341003"
             }
           ],
-          "text": "Hepatitis C test - qualitative"
+          "text": "Blood urea nitrogen"
         },
         "subject": {
-          "reference": "Patient/79355a93-3a4f-4490-98aa-278f922fa87c",
+          "reference": "Patient/487b174a-8f7a-475f-899b-752cf419edba",
           "type": "Patient",
-          "display": "Jane Doe (OpenMRS ID: 100000Y)"
+          "display": "Siddharth Vaish (OpenMRS ID: 100000Y)"
         },
         "encounter": {
-          "reference": "Encounter/a97199c8-b0a5-4f9e-8c9d-5569235b97f4",
+          "reference": "Encounter/2a0d7092-4b8b-45bc-8ad5-2d187f7e1843",
           "type": "Encounter"
         },
         "occurrencePeriod": {
-          "start": "2024-04-12T11:08:34+00:00"
+          "start": "2024-10-10T18:30:11+00:00"
         },
         "requester": {
-          "reference": "Practitioner/16decb1a-f439-405c-83df-ef09089eafa8",
+          "reference": "Practitioner/8e84a8d4-c8c5-43a0-bb89-f4bc46f976c1",
           "type": "Practitioner",
           "identifier": {
             "value": "admin"
@@ -82,91 +72,28 @@
       }
     },
     {
-      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/Encounter/a97199c8-b0a5-4f9e-8c9d-5569235b97f4",
-      "resource": {
-        "resourceType": "Encounter",
-        "id": "a97199c8-b0a5-4f9e-8c9d-5569235b97f4",
-        "meta": {
-          "versionId": "1712920114000",
-          "lastUpdated": "2024-04-12T11:08:34.000+00:00",
-          "tag": [
-            {
-              "system": "http://fhir.openmrs.org/ext/encounter-tag",
-              "code": "encounter",
-              "display": "Encounter"
-            },
-            {
-              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
-              "code": "SUBSETTED",
-              "display": "Resource encoded in summary mode"
-            }
-          ]
-        },
-        "status": "unknown",
-        "class": {
-          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-          "code": "AMB"
-        },
-        "type": [
-          {
-            "coding": [
-              {
-                "system": "http://fhir.openmrs.org/code-system/encounter-type",
-                "code": "dd528487-82a5-4082-9c72-ed246bd49591",
-                "display": "Consultation"
-              }
-            ]
-          }
-        ],
-        "subject": {
-          "reference": "Patient/79355a93-3a4f-4490-98aa-278f922fa87c",
-          "type": "Patient",
-          "display": "Jane Doe (OpenMRS ID: 100000Y)"
-        },
-        "period": {
-          "start": "2024-04-12T11:08:34+00:00"
-        },
-        "location": [
-          {
-            "location": {
-              "reference": "Location/8d9045ad-50f0-45b8-93c8-3ed4bce19dbf",
-              "type": "Location",
-              "display": "Mobile Clinic"
-            }
-          }
-        ],
-        "partOf": {
-          "reference": "Encounter/7c164b93-83fa-41a9-95fe-4630231a8ff1",
-          "type": "Encounter"
-        }
-      }
-    },
-    {
-      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/Patient/79355a93-3a4f-4490-98aa-278f922fa87c",
+      "fullUrl": "http://openmrs:8080/openmrs/ws/fhir2/R4/Patient/487b174a-8f7a-475f-899b-752cf419edba",
       "resource": {
         "resourceType": "Patient",
-        "id": "79355a93-3a4f-4490-98aa-278f922fa87c",
+        "id": "487b174a-8f7a-475f-899b-752cf419edba",
         "meta": {
-          "versionId": "1712919975000",
-          "lastUpdated": "2024-04-12T11:06:15.000+00:00",
-          "tag": [
-            {
-              "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue",
-              "code": "SUBSETTED",
-              "display": "Resource encoded in summary mode"
-            }
-          ]
+          "versionId": "1728584942000",
+          "lastUpdated": "2024-10-10T18:29:02.000+00:00"
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Id:</td><td>487b174a-8f7a-475f-899b-752cf419edba</td></tr><tr><td>Identifier:</td><td><div>100000Y</div></td></tr><tr><td>Active:</td><td>true</td></tr><tr><td>Name:</td><td> Siddharth <b>VAISH </b></td></tr><tr><td>Telecom:</td><td> 09149386335 </td></tr><tr><td>Gender:</td><td>MALE</td></tr><tr><td>Birth Date:</td><td>30/12/1997</td></tr><tr><td>Deceased:</td><td>false</td></tr><tr><td>Address:</td><td><span>Dehradun </span><span>Uttarakhand </span><span>India </span></td></tr></tbody></table></div>"
         },
         "identifier": [
           {
-            "id": "850ced82-7397-4534-b9b3-7c091d822228",
+            "id": "ea97e52a-57b4-4b3f-8eb9-64df0d3026cf",
             "extension": [
               {
                 "url": "http://fhir.openmrs.org/ext/patient/identifier#location",
                 "valueReference": {
-                  "reference": "Location/8d9045ad-50f0-45b8-93c8-3ed4bce19dbf",
+                  "reference": "Location/44c3efb0-2583-4c80-a79e-1f756a03c0a1",
                   "type": "Location",
-                  "display": "Mobile Clinic"
+                  "display": "Outpatient Clinic"
                 }
               }
             ],
@@ -185,41 +112,92 @@
         "active": true,
         "name": [
           {
-            "id": "c794204e-3654-4411-9260-910dffce1212",
-            "family": "Doe",
+            "id": "5281af28-5906-4082-84a8-48222055c087",
+            "text": "Siddharth Vaish",
+            "family": "Vaish",
             "given": [
-              "Jane"
+              "Siddharth"
             ]
           }
         ],
-        "gender": "female",
-        "birthDate": "1984",
+        "telecom": [
+          {
+            "id": "9f241f46-c2de-465e-b7ad-b476929aa3d7",
+            "value": "09149386335"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1997-12-30",
         "deceasedBoolean": false,
         "address": [
           {
-            "id": "9586b468-cd0c-474e-b83e-7caf1c05d504",
-            "extension": [
-              {
-                "url": "http://fhir.openmrs.org/ext/address",
-                "extension": [
-                  {
-                    "url": "http://fhir.openmrs.org/ext/address#address1",
-                    "valueString": "Kericho"
-                  },
-                  {
-                    "url": "http://fhir.openmrs.org/ext/address#address2",
-                    "valueString": "Tea Land"
-                  }
-                ]
-              }
-            ],
+            "id": "af3e6826-6265-451c-9566-9faefa1a207a",
             "use": "home",
-            "city": "Tororo",
-            "state": "Rift Valley",
-            "postalCode": "00390",
-            "country": "Kenya"
+            "city": "Dehradun",
+            "state": "Uttarakhand",
+            "postalCode": "248001",
+            "country": "India"
           }
         ]
+      }
+    },
+    {
+      "fullUrl": "http://openmrs:8080/openmrs/ws/fhir2/R4/Encounter/2a0d7092-4b8b-45bc-8ad5-2d187f7e1843",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "2a0d7092-4b8b-45bc-8ad5-2d187f7e1843",
+        "meta": {
+          "versionId": "1728585011000",
+          "lastUpdated": "2024-10-10T18:30:11.000+00:00",
+          "tag": [
+            {
+              "system": "http://fhir.openmrs.org/ext/encounter-tag",
+              "code": "encounter",
+              "display": "Encounter"
+            }
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Id:</td><td>2a0d7092-4b8b-45bc-8ad5-2d187f7e1843</td></tr><tr><td>Status:</td><td>UNKNOWN</td></tr><tr><td>Class:</td><td> (Details: http://terminology.hl7.org/CodeSystem/v3-ActCode ) </td></tr><tr><td>Type:</td><td> Order </td></tr><tr><td>Subject:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/Patient/487b174a-8f7a-475f-899b-752cf419edba\">Siddharth Vaish (OpenMRS ID: 100000Y)</a></td></tr><tr><td>Period:</td><td>2024-10-10 18:29:00.0 - ?</td></tr><tr><td>Location:</td><td><table class=\"subPropertyTable\"><tbody><tr><th>-</th><th>Location</th><th>Status</th><th>Physical Type</th><th>Period</th></tr><tr><td>1</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/Location/44c3efb0-2583-4c80-a79e-1f756a03c0a1\">Outpatient Clinic</a></td><td/><td/><td/></tr></tbody></table></td></tr><tr><td>Part Of:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/Encounter/a67ac579-45f0-42d5-af33-8c7b1f2334fb\">Encounter/a67ac579-45f0-42d5-af33-8c7b1f2334fb</a></td></tr></tbody></table></div>"
+        },
+        "status": "unknown",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://fhir.openmrs.org/code-system/encounter-type",
+                "code": "39da3525-afe4-45ff-8977-c53b7b359158",
+                "display": "Order"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/487b174a-8f7a-475f-899b-752cf419edba",
+          "type": "Patient",
+          "display": "Siddharth Vaish (OpenMRS ID: 100000Y)"
+        },
+        "period": {
+          "start": "2024-10-10T18:29:00+00:00"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/44c3efb0-2583-4c80-a79e-1f756a03c0a1",
+              "type": "Location",
+              "display": "Outpatient Clinic"
+            }
+          }
+        ],
+        "partOf": {
+          "reference": "Encounter/a67ac579-45f0-42d5-af33-8c7b1f2334fb",
+          "type": "Encounter"
+        }
       }
     }
   ]

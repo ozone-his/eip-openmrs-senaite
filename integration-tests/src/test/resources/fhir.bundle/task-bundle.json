@@ -1,0 +1,48 @@
+{
+  "resourceType": "Bundle",
+  "id": "4dabf63c-ebb8-4f06-8b0f-dc279286e1fc",
+  "meta": {
+    "lastUpdated": "2024-10-10T18:30:22.179+00:00"
+  },
+  "type": "searchset",
+  "total": 1,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://openmrs:8080/openmrs/ws/fhir2/R4/Task?status=requested%2Caccepted"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "http://openmrs:8080/openmrs/ws/fhir2/R4/Task/7b6f3484-ec3e-4fcd-b5dd-13d04c2003f6",
+      "resource": {
+        "resourceType": "Task",
+        "id": "7b6f3484-ec3e-4fcd-b5dd-13d04c2003f6",
+        "meta": {
+          "versionId": "1728585012000",
+          "lastUpdated": "2024-10-10T18:30:12.000+00:00"
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Id:</td><td>7b6f3484-ec3e-4fcd-b5dd-13d04c2003f6</td></tr><tr><td>Identifier:</td><td><div>7b6f3484-ec3e-4fcd-b5dd-13d04c2003f6</div></td></tr><tr><td>Based On:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/5a92fd97-89ed-48df-aea5-907f42810709\">5a92fd97-89ed-48df-aea5-907f42810709</a></td></tr><tr><td>Status:</td><td>REQUESTED</td></tr><tr><td>Intent:</td><td>ORDER</td></tr><tr><td>Authored On:</td><td>10/10/2024</td></tr><tr><td>Last Modified:</td><td>10/10/2024</td></tr></tbody></table></div>"
+        },
+        "identifier": [
+          {
+            "system": "http://fhir.openmrs.org/ext/task/identifier",
+            "value": "7b6f3484-ec3e-4fcd-b5dd-13d04c2003f6"
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "5a92fd97-89ed-48df-aea5-907f42810709",
+            "type": "ServiceRequest"
+          }
+        ],
+        "status": "requested",
+        "intent": "order",
+        "authoredOn": "2024-10-10T18:30:12+00:00",
+        "lastModified": "2024-10-10T18:30:12+00:00"
+      }
+    }
+  ]
+}
