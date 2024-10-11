@@ -8,7 +8,6 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ServiceRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestTemplateHandler;
@@ -73,9 +72,6 @@ public class ServiceRequestProcessor implements Processor {
 
     @Autowired
     private TaskMapper taskMapper;
-
-    @Autowired
-    private ServiceRequestHandler serviceRequestHandler;
 
     @Override
     public void process(Exchange exchange) {
@@ -183,7 +179,7 @@ public class ServiceRequestProcessor implements Processor {
                     producerTemplate, cancelAnalysisRequest, analysisRequestDTO.getUid());
         } else {
             log.debug(
-                    "ServiceRequestProcessor: AnalysisRequest {} is already cancelled for ServiceRequest id {}",
+                    "ServiceRequestProcessor: AnalysisRequest {} is cannot be cancelled for ServiceRequest id {}",
                     analysisRequestDTO,
                     serviceRequestUuid);
         }

@@ -32,6 +32,9 @@ public class ContactItem implements SenaiteResource {
     @JsonProperty("Surname")
     private String surname;
 
+    @JsonProperty("title")
+    private String title;
+
     @JsonProperty("uid")
     private String uid;
 

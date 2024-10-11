@@ -1,0 +1,79 @@
+{
+  "count": 1,
+  "pagesize": 25,
+  "items": [
+    {
+      "uid": "7a09878065314fe29f8fc994fd2c8447",
+      "getCategoryTitle": null,
+      "SamplePoint": null,
+      "creation_date": "2022-10-18T07:42:33+00:00",
+      "expirationDate": null,
+      "rights": null,
+      "AnalysisProfile": null,
+      "id": "artemplate-8",
+      "subject": null,
+      "state_title": null,
+      "api_url": "http://senaite:8080/senaite/@@API/senaite/v1/artemplate/7a09878065314fe29f8fc994fd2c8447",
+      "modification_date": "2024-10-07T08:15:12+00:00",
+      "title": "Blood urea nitrogen Template",
+      "Composite": null,
+      "Analyses": [
+        {
+          "service_uid": "8c057c866cf4439ca2c78e2bfc89f6a0",
+          "partition": "part-1"
+        }
+      ],
+      "effectiveDate": null,
+      "parent_id": "bika_artemplates",
+      "location": null,
+      "contributors": null,
+      "parent_url": "http://senaite:8080/senaite/@@API/senaite/v1/artemplates/18ef8774147a45d987906fa7335c9aa3",
+      "review_state": "active",
+      "Partitions": [
+        {
+          "container": "",
+          "preservation": "",
+          "part_id": "part-1"
+        }
+      ],
+      "SamplePointUID": null,
+      "description": "857AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "tags": [],
+      "language": "en",
+      "portal_type": "ARTemplate",
+      "SampleType": {
+        "url": "http://senaite:8080/senaite/bika_setup/bika_sampletypes/sampletype-2",
+        "uid": "db97756c89f143408a18e0d152d0d337",
+        "api_url": "http://senaite:8080/senaite/@@API/senaite/v1/sampletype/db97756c89f143408a18e0d152d0d337"
+      },
+      "Remarks": null,
+      "allowedRolesAndUsers": [
+        "Authenticated"
+      ],
+      "getKeyword": null,
+      "path": "/senaite/bika_setup/bika_artemplates/artemplate-8",
+      "AnalysisServicesSettings": null,
+      "AutoPartition": true,
+      "parent_uid": "18ef8774147a45d987906fa7335c9aa3",
+      "SamplingRequired": null,
+      "getClientUID": "",
+      "getCategoryUID": null,
+      "parent_path": "/senaite/bika_setup/bika_artemplates",
+      "effective": "1000-01-01T00:00:00+00:00",
+      "created": "2022-10-18T07:42:33+00:00",
+      "url": "http://senaite:8080/senaite/bika_setup/bika_artemplates/artemplate-8",
+      "author": "admin",
+      "modified": "2024-10-07T08:15:12+00:00",
+      "sortable_title": "blood urea nitrogen template",
+      "allowDiscussion": null,
+      "creators": [
+        "admin"
+      ]
+    }
+  ],
+  "page": 1,
+  "_runtime": 0.007215023040771484,
+  "next": null,
+  "pages": 1,
+  "previous": null
+}
