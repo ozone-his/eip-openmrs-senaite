@@ -28,13 +28,8 @@ public class ContactMapper {
         }
 
         String[] nameSplit = serviceRequest.getRequester().getDisplay().split(" ", 2);
-        if (nameSplit.length >= 2) {
-            contact.setFirstName(nameSplit[0]);
-            contact.setSurname(nameSplit[1]);
-        } else {
-            contact.setFirstName(nameSplit[0]);
-            contact.setSurname("");
-        }
+        contact.setFirstName(nameSplit[0]);
+        contact.setSurname(nameSplit.length > 1 ? nameSplit[1] : "");
 
         return contact;
     }
