@@ -43,7 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class ServiceRequestToClientContactAnalysisRequestAndTaskIntegrationTest extends BaseRouteIntegrationTest {
+public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteIntegrationTest {
 
     private static final String GET_ANALYSIS_REQUEST_BY_PATIENT_ID =
             "http://localhost:8081/senaite/@@API/senaite/v1/AnalysisRequest?catalog=senaite_catalog_sample&complete=true&getClientID=%s";
@@ -96,8 +96,8 @@ public class ServiceRequestToClientContactAnalysisRequestAndTaskIntegrationTest 
     }
 
     @Test
-    @DisplayName("Should create AnalysisRequest in Senaite given ServiceRequest Bundle.")
-    public void shouldCreateAnalysisRequestInSenaiteGivenServiceRequest() throws IOException {
+    @DisplayName("Should create AnalysisRequest in Senaite when Lab Order is created in OpenMRS")
+    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs() throws IOException {
         // Act
         Map<String, Object> headers = new HashMap<>();
         headers.put(HEADER_FHIR_EVENT_TYPE, "c");
@@ -153,6 +153,39 @@ public class ServiceRequestToClientContactAnalysisRequestAndTaskIntegrationTest 
         assertNotNull(task);
         assertEquals(SERVICE_REQUEST_ID, task.getBasedOn().get(0).getReference());
         assertEquals("REQUESTED", task.getStatus().toString());
+    }
+
+    @Test
+    @DisplayName("Should mark AnalysisRequest as cancelled when Lab Order is marked DISCONTINUE in OpenMRS")
+    public void shouldCancelAnalysisRequestInSenaiteWhenLabOrderIsDiscontinuedInOpenmrs() throws IOException {
+        // Act
+        // Create AnalysisRequest
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+        sendBodyAndHeaders("direct:service-request-to-analysis-request-processor", serviceRequestBundle, headers);
+
+        // Cancel ServiceRequest
+        headers.put(HEADER_FHIR_EVENT_TYPE, "d");
+        sendBodyAndHeaders("direct:service-request-to-analysis-request-processor", serviceRequestBundle, headers);
+
+        // Verify
+        // AnalysisRequest should be marked cancelled
+        String response = fetchFromSenaite(String.format(GET_ANALYSIS_REQUEST_BY_PATIENT_ID, PATIENT_ID));
+
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> analysisRequestItemTypeReference =
+                new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> analysisRequestItemResponseWrapper =
+                objectMapper.readValue(response, analysisRequestItemTypeReference);
+        AnalysisRequestDTO analysisRequestDTO = AnalysisRequestMapper.map(analysisRequestItemResponseWrapper);
+
+        assertNotNull(analysisRequestDTO);
+        assertEquals("cancelled", analysisRequestDTO.getReviewState());
+    }
+
+    @Test
+    @DisplayName("Should create Lab Results in OpenMRS when Senaite has results")
+    public void shouldCreateLabResultsInOpenmrsWhenSenaiteHasResults() {
+        // TODO
     }
 
     private String fetchFromSenaite(String url) {
