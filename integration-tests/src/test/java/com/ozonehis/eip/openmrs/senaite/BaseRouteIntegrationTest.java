@@ -140,7 +140,6 @@ public abstract class BaseRouteIntegrationTest {
         serviceRequestProcessor.setAnalysisRequestTemplateHandler(analysisRequestTemplateHandler);
         serviceRequestProcessor.setTaskHandler(taskHandler);
         serviceRequestProcessor.setTaskMapper(taskMapper);
-        serviceRequestProcessor.setServiceRequestHandler(serviceRequestHandler);
 
         TaskProcessor taskProcessor = new TaskProcessor();
         taskProcessor.setServiceRequestHandler(serviceRequestHandler);
