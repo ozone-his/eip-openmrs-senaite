@@ -33,10 +33,7 @@ public class AnalysisRequestMapper {
         if (serviceRequest == null) {
             return null;
         }
-        serviceRequest.getCode().getCodingFirstRep().getCode();
-
         AnalysisRequest analysisRequest = new AnalysisRequest();
-
         analysisRequest.setContact(contactDTO.getUid());
         analysisRequest.setDateSampled(convertOpenmrsDateToSenaiteDate(
                 serviceRequest.getOccurrencePeriod().getStart()));
