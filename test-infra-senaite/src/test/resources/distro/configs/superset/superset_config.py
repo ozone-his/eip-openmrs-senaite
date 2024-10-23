@@ -8,11 +8,16 @@
 
 import logging
 import os
+from dotenv import load_dotenv
 from cachelib import RedisCache
 
-
+from cachelib.file import FileSystemCache
 logger = logging.getLogger()
 
+def password_from_env(url):
+    return os.getenv("ANALYTICS_DB_PASSWORD")
+
+SQLALCHEMY_CUSTOM_PASSWORD_STORE = password_from_env
 
 def get_env_variable(var_name, default=None):
     """Get the environment variable or raise exception."""
@@ -37,8 +42,7 @@ DATABASE_HOST = get_env_variable("DATABASE_HOST", "postgres")
 DATABASE_PORT = get_env_variable("DATABASE_PORT", 5432)
 DATABASE_DB = get_env_variable("DATABASE_DB", "superset")
 
-SQLALCHEMY_TRACK_MODIFICATIONS = get_env_variable(
-    "SQLALCHEMY_TRACK_MODIFICATIONS", True)
+SQLALCHEMY_TRACK_MODIFICATIONS = get_env_variable("SQLALCHEMY_TRACK_MODIFICATIONS", True)
 SECRET_KEY = get_env_variable("SECRET_KEY", 'thisISaSECRET_1234')
 
 # The SQLAlchemy connection string.
@@ -56,10 +60,8 @@ REDIS_PORT = get_env_variable("REDIS_PORT", 6379)
 REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", 0)
 REDIS_RESULTS_DB = get_env_variable("REDIS_CELERY_DB", 1)
 
-RESULTS_BACKEND = RedisCache(
-    host=REDIS_HOST, port=REDIS_PORT, key_prefix='superset_results')
+RESULTS_BACKEND = RedisCache(host=REDIS_HOST, port=REDIS_PORT, key_prefix='superset_results')
 # RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
-
 
 class CeleryConfig(object):
     BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
@@ -68,7 +70,6 @@ class CeleryConfig(object):
     CELERY_ANNOTATIONS = {"tasks.add": {"rate_limit": "10/s"}}
     CELERY_TASK_PROTOCOL = 1
 
-
 CACHE_CONFIG = {
     'CACHE_TYPE': 'redis',
     'CACHE_DEFAULT_TIMEOUT': 300,
@@ -76,38 +77,12 @@ CACHE_CONFIG = {
     'CACHE_REDIS_HOST': 'redis',
     'CACHE_REDIS_PORT': 6379,
     'CACHE_REDIS_DB': 1,
-    'CACHE_REDIS_URL': f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
-}
-
-FILTER_STATE_CACHE_CONFIG = {
-    'CACHE_TYPE': 'RedisCache',
-    'CACHE_DEFAULT_TIMEOUT': 300,
-    'CACHE_KEY_PREFIX': 'superset_filter_',
-    'CACHE_REDIS_PORT': 6379,
-    'CACHE_REDIS_DB': 2,
-    'CACHE_REDIS_URL': f"redis://{REDIS_HOST}:{REDIS_PORT}/2"
-}
-
-EXPLORE_FORM_DATA_CACHE_CONFIG = {
-    'CACHE_TYPE': 'RedisCache',
-    'CACHE_DEFAULT_TIMEOUT': 300,
-    'CACHE_KEY_PREFIX': 'superset_form_date_',
-    'CACHE_REDIS_PORT': 6379,
-    'CACHE_REDIS_DB': 3,
-    'CACHE_REDIS_URL': f"redis://{REDIS_HOST}:{REDIS_PORT}/3"
+    'CACHE_REDIS_URL': 'redis://redis:6379/1'
 }
 
 CELERY_CONFIG = CeleryConfig
 SQLLAB_CTAS_NO_LIMIT = True
 PERMANENT_SESSION_LIFETIME = 86400
-
-
-def password_from_env(url):
-    return os.getenv("ANALYTICS_DB_PASSWORD")
-
-
-SQLALCHEMY_CUSTOM_PASSWORD_STORE = password_from_env
-
 
 class ReverseProxied(object):
 
@@ -130,3 +105,33 @@ class ReverseProxied(object):
 
 ADDITIONAL_MIDDLEWARE = [ReverseProxied, ]
 ENABLE_PROXY_FIX = True
+
+# Enable the security manager API.
+FAB_ADD_SECURITY_API = True
+
+if os.getenv("ENABLE_OAUTH") == "true":
+    from flask_appbuilder.security.manager import AUTH_OAUTH
+    from security import CustomSecurityManager
+    AUTH_ROLES_SYNC_AT_LOGIN = True
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = "Admin"
+    CUSTOM_SECURITY_MANAGER = CustomSecurityManager
+    LOGOUT_REDIRECT_URL = os.environ.get("SUPERSET_URL")
+    AUTH_TYPE = AUTH_OAUTH
+    OAUTH_PROVIDERS = [
+        {
+            'name': 'keycloak',
+            'token_key': 'access_token',  # Name of the token in the response of access_token_url
+            'icon': 'fa-key',   # Icon for the provider
+            'remote_app': {
+                'client_id': os.environ.get("SUPERSET_CLIENT_ID","superset"),  # Client Id (Identify Superset application)
+                'client_secret': os.environ.get("SUPERSET_CLIENT_SECRET"),  # Secret for this Client Id (Identify Superset application)
+                'api_base_url': os.environ.get("ISSUER_URL").rstrip('/') + "/protocol/openid-connect/",
+                'client_kwargs': {
+                    'scope': 'openid profile email',
+                },
+                'logout_redirect_uri': os.environ.get("SUPERSET_URL"),
+                'server_metadata_url': os.environ.get("ISSUER_URL").rstrip('/') + '/.well-known/openid-configuration',  # URL to get metadata from
+            }
+        }
+    ]

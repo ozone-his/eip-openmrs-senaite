@@ -1,0 +1,11 @@
+#
+# Copyright © 2021, Ozone HIS <info@ozone-his.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+version: 1.0.0
+type: SqlaTable
+timestamp: '2024-06-11T03:56:43.263292+00:00'

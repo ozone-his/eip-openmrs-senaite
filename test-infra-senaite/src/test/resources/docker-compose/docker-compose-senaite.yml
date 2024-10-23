@@ -26,14 +26,6 @@ services:
       - senaite-filestorage:/data/filestorage
       - senaite-blobstorage:/data/blobstorage
 
-#  mysql:
-#    environment:
-#      EIP_DB_NAME_SENAITE: ${EIP_DB_NAME_SENAITE}
-#      EIP_DB_USER_SENAITE: ${EIP_DB_USER_SENAITE}
-#      EIP_DB_PASSWORD_SENAITE: ${EIP_DB_PASSWORD_SENAITE}
-#    volumes:
-#      - "${SQL_SCRIPTS_PATH}/mysql/eip-openmrs-senaite:/docker-entrypoint-initdb.d/db/eip-openmrs-senaite"
-
   env-substitution:
     image: mekomsolutions/env-substitution:1e6fa02
     environment:
@@ -42,6 +34,74 @@ services:
     volumes:
       - "../distro:/opt/env-substitution/files"
 
+  openmrs:
+    depends_on:
+      mysql:
+        condition: service_started
+      env-substitution:
+        condition: service_completed_successfully
+    ports:
+      - '80:8080'
+    environment:
+      OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
+      OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CONFIG_CREATE_TABLES: "true"
+      OMRS_CONFIG_CONNECTION_SERVER: mysql
+      OMRS_CONFIG_CONNECTION_DATABASE: openmrs
+      OMRS_CONFIG_CONNECTION_USERNAME: openmrs
+      OMRS_CONFIG_CONNECTION_PASSWORD: password
+      HOST_URL: http://localhost
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/openmrs/health/started" ]
+      interval: 10s
+      timeout: 5s
+      retries: 48
+      start_period: 120s
+    image: openmrs/openmrs-reference-application-3-backend:nightly
+    restart: unless-stopped
+    volumes:
+      - "openmrs-data:/openmrs/data"
+      - "openmrs-owas:/openmrs/distribution/openmrs_owas/"
+      - "openmrs-core:/openmrs/distribution/openmrs_core/"
+      - "../distro/binaries/openmrs/modules:/openmrs/distribution/openmrs_modules/"
+      - "openmrs-config:/openmrs/distribution/openmrs_config/"
+      - "openmrs-config-checksums:/openmrs/data/configuration_checksums"
+      - "../distro/properties/:/etc/properties/"
+
+  mysql:
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+      - --log-bin=mysqld-bin
+      - --binlog-format=ROW
+      - --server-id=2
+      - --sync-binlog=1
+      - --binlog-annotate-row-events=0
+    healthcheck:
+      test: "exit 0"
+    image: mariadb:10.8
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    environment:
+      OPENMRS_DB_NAME: openmrs
+      OPENMRS_DB_USER: openmrs
+      OPENMRS_DB_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: 3cY8Kve4lGey
+    volumes:
+      - "../distro/data/mysql/openmrs:/docker-entrypoint-initdb.d/db/openmrs"
+      - "mysql-data:/var/lib/mysql"
+      - "../distro/data/mysql/create_db.sh:/docker-entrypoint-initdb.d/create_db.sh"
+
 volumes:
   senaite-blobstorage: ~
   senaite-filestorage: ~
+  openmrs-core: ~
+  openmrs-config: ~
+  openmrs-config-checksums: ~
+  openmrs-data: ~
+  openmrs-modules: ~
+  openmrs-owas: ~
+  mysql-data: ~

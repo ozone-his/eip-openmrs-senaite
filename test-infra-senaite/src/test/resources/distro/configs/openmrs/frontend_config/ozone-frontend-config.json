@@ -3,15 +3,15 @@
     "externalRefLinks": [
       {
         "title": "Pharmacy, Billing & Inventory",
-        "redirect": "https://localhost:8069"
+        "redirect": "http://localhost:8069"
       },
       {
         "title": "Laboratory",
-        "redirect": "https://localhost:8081"
+        "redirect": "http://localhost:8081"
       },
       {
         "title": "Reporting & Analytics",
-        "redirect": "https://localhost:8088"
+        "redirect": "${SUPERSET_PUBLIC_URL}"
       }
     ],
     "logo": {

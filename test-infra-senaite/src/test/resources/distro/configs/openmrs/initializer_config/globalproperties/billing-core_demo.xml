@@ -1,0 +1,18 @@
+<!--
+
+    Copyright © 2021, Ozone HIS <info@ozone-his.com>
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<config>
+    <globalProperties>
+        <globalProperty>
+            <property>cashier.systemReceiptNumberGenerator</property>
+            <value>org.openmrs.module.cashier.api.SequentialReceiptNumberGenerator</value>
+            <description>The fully qualified class name of the component responsible for generating sequential receipt numbers within the cashier system. This class contains functions and methods tailored to efficiently generate unique receipt numbers in sequential order. </description>
+        </globalProperty>
+    </globalProperties>
+</config>

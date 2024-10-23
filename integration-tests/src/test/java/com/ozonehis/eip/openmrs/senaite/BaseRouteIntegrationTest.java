@@ -10,6 +10,8 @@ package com.ozonehis.eip.openmrs.senaite;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
+import com.ozonehis.camel.test.infra.senaite.services.SenaiteService;
+import com.ozonehis.camel.test.infra.senaite.services.SenaiteServiceFactory;
 import com.ozonehis.eip.openmrs.senaite.config.SenaiteConfig;
 import com.ozonehis.eip.openmrs.senaite.converters.ResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
@@ -45,11 +47,13 @@ import com.ozonehis.eip.openmrs.senaite.routes.contact.CreateContactRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.contact.GetContactRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask.GetOpenmrsFhirTaskByStatusRoute;
 import jakarta.annotation.Nonnull;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.Getter;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.http.HttpComponent;
@@ -79,9 +83,9 @@ public abstract class BaseRouteIntegrationTest {
 
     @RegisterExtension
     protected static CamelContextExtension contextExtension = new DefaultCamelContextExtension();
-    //
-    //    @RegisterExtension
-    //    protected static final SenaiteService service = SenaiteServiceFactory.createSingletonService();
+
+    @RegisterExtension
+    protected static final SenaiteService service = SenaiteServiceFactory.createSingletonService();
 
     @ContextFixture
     public void configureContext(CamelContext context) {
