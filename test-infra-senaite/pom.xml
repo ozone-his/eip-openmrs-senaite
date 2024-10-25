@@ -70,10 +70,15 @@
               <includeGroupIds>com.ozonehis</includeGroupIds>
               <includeArtifactIds>ozone</includeArtifactIds>
               <includeTypes>zip</includeTypes>
-              <!--              <includes>distro/binaries/senaite/**,-->
-              <!--                                distro/configs/senaite/**,-->
-              <!--                                distro/data/postgresql/senaite/,-->
-              <!--                                distro/data/postgresql/**.sh,</includes>-->
+              <includes>distro/binaries/odoo/**,
+                distro/configs/odoo/**,
+                distro/data/postgresql/odoo/,
+                distro/data/postgresql/**.sh,distro/binaries/senaite/**,
+                distro/configs/senaite/**,
+                distro/data/**,
+                distro/binaries/openmrs/modules/fhir2-*,
+                distro/binaries/openmrs/modules/webservices.rest-*,
+                distro/configs/openmrs/**,</includes>
               <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>

@@ -16,5 +16,5 @@ public final class SenaiteProperties {
 
     public static final String SENAITE_PORT = "senaite.port";
 
-    public static final int DEFAULT_SERVICE_PORT = 8081;
+    public static final int DEFAULT_SERVICE_PORT = 8080;
 }

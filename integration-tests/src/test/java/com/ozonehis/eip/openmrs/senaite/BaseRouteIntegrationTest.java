@@ -47,13 +47,11 @@ import com.ozonehis.eip.openmrs.senaite.routes.contact.CreateContactRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.contact.GetContactRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask.GetOpenmrsFhirTaskByStatusRoute;
 import jakarta.annotation.Nonnull;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.http.HttpComponent;
@@ -75,7 +73,7 @@ public abstract class BaseRouteIntegrationTest {
 
     private SenaiteConfig senaiteConfig;
 
-    private static final String SENAITE_SERVER_URL = "http://localhost:8081/senaite";
+    private static final String SENAITE_SERVER_URL = "http://localhost:8080/senaite";
 
     private static final String SENAITE_USERNAME = "admin";
 

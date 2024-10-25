@@ -10,36 +10,34 @@ services:
 
   # SENAITE
   senaite:
-    depends_on:
-      env-substitution:
-        condition: service_completed_successfully
+#    depends_on:
+#      env-substitution:
+#        condition: service_completed_successfully
     environment:
       - SITE=senaite
       - ADMIN_USER=admin
       - ADMIN_PASSWORD=password
     image: mekomsolutions/senaite:2.3.0-1.0.0
     ports:
-      - '8081:8080'
+      - '8080:8080'
     restart: unless-stopped
     volumes:
       - "../distro/configs/senaite/initializer_config:/data/importdata/senaite"
       - senaite-filestorage:/data/filestorage
       - senaite-blobstorage:/data/blobstorage
 
-  env-substitution:
-    image: mekomsolutions/env-substitution:1e6fa02
-    environment:
-      - SENAITE_PUBLIC_URL=http://localhost:8081
-    restart: on-failure
-    volumes:
-      - "../distro:/opt/env-substitution/files"
+  #  env-substitution:
+  #    image: mekomsolutions/env-substitution:1e6fa02
+  #    environment:
+  #      - SENAITE_PUBLIC_URL=http://localhost:8081
+  #    restart: on-failure
+  #    volumes:
+  #      - "../distro:/opt/env-substitution/files"
 
   openmrs:
     depends_on:
       mysql:
         condition: service_started
-      env-substitution:
-        condition: service_completed_successfully
     ports:
       - '80:8080'
     environment:

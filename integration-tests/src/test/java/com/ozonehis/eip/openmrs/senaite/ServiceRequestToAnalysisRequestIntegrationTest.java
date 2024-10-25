@@ -46,13 +46,13 @@ import org.junit.jupiter.api.Test;
 public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteIntegrationTest {
 
     private static final String GET_ANALYSIS_REQUEST_BY_PATIENT_ID =
-            "http://localhost:8081/senaite/@@API/senaite/v1/AnalysisRequest?catalog=senaite_catalog_sample&complete=true&getClientID=%s";
+            "http://localhost:8080/senaite/@@API/senaite/v1/AnalysisRequest?catalog=senaite_catalog_sample&complete=true&getClientID=%s";
 
     private static final String GET_CLIENT_BY_PATIENT_ID =
-            "http://localhost:8081/senaite/@@API/senaite/v1/client?getClientID=%s";
+            "http://localhost:8080/senaite/@@API/senaite/v1/client?getClientID=%s";
 
     private static final String GET_CONTACT_BY_FIRSTNAME =
-            "http://localhost:8081/senaite/@@API/senaite/v1/Contact?firstname=%s";
+            "http://localhost:8080/senaite/@@API/senaite/v1/Contact?firstname=%s";
 
     private static final String GET_TASK_BY_SERVICE_REQUEST =
             "http://localhost/openmrs/ws/fhir2/R4/Task?based-on:ServiceRequest=%s";
@@ -97,7 +97,8 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
 
     @Test
     @DisplayName("Should create AnalysisRequest in Senaite when Lab Order is created in OpenMRS")
-    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs() throws IOException {
+    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs() throws IOException, InterruptedException {
+        Thread.sleep(60000);
         // Act
         Map<String, Object> headers = new HashMap<>();
         headers.put(HEADER_FHIR_EVENT_TYPE, "c");
@@ -198,7 +199,9 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
             } else {
-                return response.body().string();
+                String res = response.body().string();
+                System.out.println("Response fetchFromSenaite " + res);
+                return res;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

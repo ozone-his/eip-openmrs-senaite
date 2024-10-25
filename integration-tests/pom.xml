@@ -108,13 +108,24 @@
               <goal>run</goal>
             </goals>
             <phase>process-test-classes</phase>
+
             <configuration>
               <target>
-                <!--                <chmod perm="755">-->
-                <!--                  <fileset dir="target/test-classes/distro/data/postgresql">-->
-                <!--                    <include name="**/*.sh"/>-->
-                <!--                  </fileset>-->
-                <!--                </chmod>-->
+                <chmod perm="755">
+                  <fileset dir="target/test-classes/distro/data/postgresql">
+                    <include name="**/*.sh"/>
+                  </fileset>
+                </chmod>
+                <chmod perm="755">
+                  <fileset dir="target/test-classes/distro/data/mysql/openmrs">
+                    <include name="**/*.sh"/>
+                  </fileset>
+                </chmod>
+                <chmod perm="755">
+                  <fileset dir="target/test-classes/distro/data/mysql">
+                    <include name="**/*.sh"/>
+                  </fileset>
+                </chmod>
               </target>
             </configuration>
           </execution>
