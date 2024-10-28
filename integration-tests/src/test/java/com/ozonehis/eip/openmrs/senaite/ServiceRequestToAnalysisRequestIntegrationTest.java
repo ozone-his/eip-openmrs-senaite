@@ -97,8 +97,9 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
 
     @Test
     @DisplayName("Should create AnalysisRequest in Senaite when Lab Order is created in OpenMRS")
-    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs() throws IOException, InterruptedException {
-        Thread.sleep(60000);
+    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs()
+            throws IOException, InterruptedException {
+        Thread.sleep(60000); // TODO: testcontainers should wait until OpenMRS Service initialization is completed
         // Act
         Map<String, Object> headers = new HashMap<>();
         headers.put(HEADER_FHIR_EVENT_TYPE, "c");
@@ -200,7 +201,6 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
                 throw new IOException("Unexpected code " + response);
             } else {
                 String res = response.body().string();
-                System.out.println("Response fetchFromSenaite " + res);
                 return res;
             }
         } catch (IOException e) {
