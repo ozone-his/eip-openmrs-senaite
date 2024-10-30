@@ -1,0 +1,1871 @@
+{
+  "resourceType": "CapabilityStatement",
+  "id": "077f6f3d-18b3-4516-a611-0b8921fec81e",
+  "name": "RestServer",
+  "status": "active",
+  "date": "2024-10-25T06:48:02.297+00:00",
+  "publisher": "Not provided",
+  "kind": "instance",
+  "software": {
+    "name": "HAPI FHIR Server",
+    "version": "5.7.9"
+  },
+  "implementation": {
+    "description": "HAPI FHIR",
+    "url": "http://openmrs:8080/openmrs/ws/fhir2/R4"
+  },
+  "fhirVersion": "4.0.1",
+  "format": [
+    "application/fhir+xml",
+    "xml",
+    "application/fhir+json",
+    "json"
+  ],
+  "rest": [
+    {
+      "mode": "server",
+      "resource": [
+        {
+          "type": "AllergyIntolerance",
+          "profile": "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "AllergyIntolerance:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "category",
+              "type": "token",
+              "documentation": "food | medication | environment | biologic"
+            },
+            {
+              "name": "clinical-status",
+              "type": "token",
+              "documentation": "active | inactive | resolved"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "Code that identifies the allergy or intolerance"
+            },
+            {
+              "name": "manifestation",
+              "type": "token",
+              "documentation": "Clinical symptoms/signs associated with the Event"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "Who the sensitivity is for"
+            },
+            {
+              "name": "severity",
+              "type": "token",
+              "documentation": "mild | moderate | severe (of event as a whole)"
+            },
+            {
+              "name": "subject",
+              "type": "reference"
+            }
+          ]
+        },
+        {
+          "type": "Condition",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Condition",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "Condition:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "clinical-status",
+              "type": "token",
+              "documentation": "The clinical status of the condition"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "Code for the condition"
+            },
+            {
+              "name": "onset-age",
+              "type": "quantity",
+              "documentation": "Onsets as age or age range"
+            },
+            {
+              "name": "onset-date",
+              "type": "date",
+              "documentation": "Date related onsets (dateTime and Period)"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "Who has the condition?"
+            },
+            {
+              "name": "recorded-date",
+              "type": "date",
+              "documentation": "Date record was first recorded"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "Who has the condition?"
+            }
+          ]
+        },
+        {
+          "type": "DiagnosticReport",
+          "profile": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "The code for the report, as opposed to codes for the atomic results, which are the names on the observation resource referred to from the result"
+            },
+            {
+              "name": "encounter",
+              "type": "reference",
+              "documentation": "The Encounter when the order was made"
+            },
+            {
+              "name": "issued",
+              "type": "date",
+              "documentation": "When the report was issued"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "The subject of the report if a patient"
+            },
+            {
+              "name": "result",
+              "type": "reference",
+              "documentation": "Link to an atomic result (observation resource)"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "The subject of the report"
+            }
+          ]
+        },
+        {
+          "type": "Encounter",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Encounter",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient"
+          ],
+          "searchRevInclude": [
+            "DiagnosticReport:encounter",
+            "MedicationDispense:prescription",
+            "MedicationRequest:encounter",
+            "Observation:encounter",
+            "ServiceRequest:encounter"
+          ],
+          "searchParam": [
+            {
+              "name": "_has",
+              "type": "string"
+            },
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "_tag",
+              "type": "token"
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "documentation": "A date within the period the Encounter lasted"
+            },
+            {
+              "name": "location",
+              "type": "reference",
+              "documentation": "Location the encounter takes place"
+            },
+            {
+              "name": "participant",
+              "type": "reference",
+              "documentation": "Persons involved in the encounter other than the patient"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "The patient or group present at the encounter"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "The patient or group present at the encounter"
+            },
+            {
+              "name": "type",
+              "type": "token",
+              "documentation": "Specific type of encounter"
+            }
+          ],
+          "operation": [
+            {
+              "name": "everything",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/EncounterPatient-it-everything"
+            },
+            {
+              "name": "encountersWithMedicationRequests",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/Encounter-query-encountersWithMedicationRequests"
+            }
+          ]
+        },
+        {
+          "type": "EpisodeOfCare",
+          "profile": "http://hl7.org/fhir/StructureDefinition/EpisodeOfCare",
+          "interaction": [
+            {
+              "code": "read"
+            }
+          ],
+          "searchInclude": [
+            "*"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ]
+        },
+        {
+          "type": "Flag",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Flag",
+          "interaction": [
+            {
+              "code": "read"
+            },
+            {
+              "code": "search-type"
+            }
+          ],
+          "searchInclude": [
+            "*",
+            "Flag:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "category",
+              "type": "token"
+            },
+            {
+              "name": "code",
+              "type": "token"
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "documentation": "Time period when flag is active"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "The identity of a subject to list flags for"
+            }
+          ]
+        },
+        {
+          "type": "Group",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Group",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "*",
+            "Group:managing-entity"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "managing-entity",
+              "type": "reference",
+              "documentation": "Entity that is the custodian of the Group's definition"
+            }
+          ],
+          "operation": [
+            {
+              "name": "members",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/Group-i-members"
+            }
+          ]
+        },
+        {
+          "type": "Immunization",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Immunization",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "*",
+            "Immunization:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "The patient for the vaccination record"
+            }
+          ]
+        },
+        {
+          "type": "Location",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Location",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "Location:partof"
+          ],
+          "searchRevInclude": [
+            "Encounter:location",
+            "Location:partof"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "_tag",
+              "type": "token"
+            },
+            {
+              "name": "address-city",
+              "type": "string",
+              "documentation": "A city specified in an address"
+            },
+            {
+              "name": "address-country",
+              "type": "string",
+              "documentation": "A country specified in an address"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string",
+              "documentation": "A postal code specified in an address"
+            },
+            {
+              "name": "address-state",
+              "type": "string",
+              "documentation": "A state specified in an address"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "documentation": "A portion of the location's name or alias"
+            },
+            {
+              "name": "partof",
+              "type": "reference",
+              "documentation": "A location of which this location is a part"
+            }
+          ]
+        },
+        {
+          "type": "Medication",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Medication",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "*"
+          ],
+          "searchRevInclude": [
+            "MedicationDispense:prescription",
+            "MedicationRequest:medication"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "Returns medications for a specific code"
+            },
+            {
+              "name": "form",
+              "type": "token",
+              "documentation": "Returns medications for a specific dose form"
+            },
+            {
+              "name": "ingredient-code",
+              "type": "token",
+              "documentation": "Returns medications for this ingredient code"
+            }
+          ]
+        },
+        {
+          "type": "MedicationDispense",
+          "profile": "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "MedicationDispense:context",
+            "MedicationDispense:medication",
+            "MedicationDispense:patient",
+            "MedicationDispense:performer",
+            "MedicationDispense:prescription"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "context",
+              "type": "reference",
+              "documentation": "Returns dispenses with a specific context (episode or episode of care)"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "The identity of a patient to list dispenses  for"
+            },
+            {
+              "name": "prescription",
+              "type": "reference",
+              "documentation": "The identity of a prescription to list dispenses from"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "The identity of a patient for whom to list dispenses"
+            }
+          ]
+        },
+        {
+          "type": "MedicationRequest",
+          "profile": "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
+          "interaction": [
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            }
+          ],
+          "searchInclude": [
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester"
+          ],
+          "searchRevInclude": [
+            "MedicationDispense:prescription"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "Return prescriptions of this medication code"
+            },
+            {
+              "name": "encounter",
+              "type": "reference",
+              "documentation": "Return prescriptions with this encounter identifier"
+            },
+            {
+              "name": "fulfillerStatus",
+              "type": "token"
+            },
+            {
+              "name": "medication",
+              "type": "reference",
+              "documentation": "Return prescriptions for this medication reference"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "Returns prescriptions for a specific patient"
+            },
+            {
+              "name": "requester",
+              "type": "reference",
+              "documentation": "Returns prescriptions prescribed by this prescriber"
+            },
+            {
+              "name": "status",
+              "type": "token",
+              "documentation": "Status of the prescription"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "The identity of a patient to list orders  for"
+            }
+          ]
+        },
+        {
+          "type": "Observation",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Observation",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient"
+          ],
+          "searchRevInclude": [
+            "DiagnosticReport:result",
+            "Observation:has-member"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "category",
+              "type": "token",
+              "documentation": "The classification of the type of observation"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "The code of the observation type"
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "documentation": "Obtained date/time. If the obtained element is a period, a date that falls in the period"
+            },
+            {
+              "name": "encounter",
+              "type": "reference",
+              "documentation": "Encounter related to the observation"
+            },
+            {
+              "name": "has-member",
+              "type": "reference",
+              "documentation": "Related resource that belongs to the Observation group"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "The subject that the observation is about (if patient)"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "The subject that the observation is about"
+            },
+            {
+              "name": "value-concept",
+              "type": "token",
+              "documentation": "The value of the observation, if the value is a CodeableConcept"
+            },
+            {
+              "name": "value-date",
+              "type": "date",
+              "documentation": "The value of the observation, if the value is a date or period of time"
+            },
+            {
+              "name": "value-quantity",
+              "type": "quantity",
+              "documentation": "The value of the observation, if the value is a Quantity, or a SampledData (just search on the bounds of the values in sampled data)"
+            },
+            {
+              "name": "value-string",
+              "type": "string",
+              "documentation": "The value of the observation, if the value is a string, and also searches in CodeableConcept.text"
+            }
+          ],
+          "operation": [
+            {
+              "name": "lastn-encounters",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/Observation-t-lastn-encounters"
+            },
+            {
+              "name": "lastn",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/Observation-t-lastn"
+            }
+          ]
+        },
+        {
+          "type": "OperationDefinition",
+          "profile": "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
+          "interaction": [
+            {
+              "code": "read"
+            }
+          ],
+          "searchInclude": [
+            "*"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ]
+        },
+        {
+          "type": "Patient",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Patient",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "*"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "DiagnosticReport:patient",
+            "Encounter:patient",
+            "MedicationDispense:prescription",
+            "MedicationRequest:patient",
+            "Observation:patient",
+            "ServiceRequest:patient"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "address-city",
+              "type": "string",
+              "documentation": "A city specified in an address"
+            },
+            {
+              "name": "address-country",
+              "type": "string",
+              "documentation": "A country specified in an address"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string",
+              "documentation": "A postalCode specified in an address"
+            },
+            {
+              "name": "address-state",
+              "type": "string",
+              "documentation": "A state specified in an address"
+            },
+            {
+              "name": "birthdate",
+              "type": "date",
+              "documentation": "The patient's date of birth"
+            },
+            {
+              "name": "death-date",
+              "type": "date",
+              "documentation": "The date of death has been provided and satisfies this search value"
+            },
+            {
+              "name": "deceased",
+              "type": "token",
+              "documentation": "This patient has been marked as deceased, or as a death date entered"
+            },
+            {
+              "name": "family",
+              "type": "string",
+              "documentation": "A portion of the family name of the patient"
+            },
+            {
+              "name": "gender",
+              "type": "token",
+              "documentation": "Gender of the patient"
+            },
+            {
+              "name": "given",
+              "type": "string",
+              "documentation": "A portion of the given name of the patient"
+            },
+            {
+              "name": "identifier",
+              "type": "token",
+              "documentation": "A patient identifier"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "documentation": "A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text"
+            }
+          ],
+          "operation": [
+            {
+              "name": "everything",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/EncounterPatient-it-everything"
+            },
+            {
+              "name": "openmrsPatients",
+              "definition": "http://openmrs:8080/openmrs/ws/fhir2/R4/OperationDefinition/Patient-query-openmrsPatients"
+            }
+          ]
+        },
+        {
+          "type": "Person",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Person",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "Person:link:Patient",
+            "Person:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "address-city",
+              "type": "string",
+              "documentation": "A city specified in an address"
+            },
+            {
+              "name": "address-country",
+              "type": "string",
+              "documentation": "A country specified in an address"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string",
+              "documentation": "A postal code specified in an address"
+            },
+            {
+              "name": "address-state",
+              "type": "string",
+              "documentation": "A state specified in an address"
+            },
+            {
+              "name": "birthdate",
+              "type": "date",
+              "documentation": "The person's date of birth"
+            },
+            {
+              "name": "gender",
+              "type": "token",
+              "documentation": "The gender of the person"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "documentation": "A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text"
+            }
+          ]
+        },
+        {
+          "type": "Practitioner",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Practitioner",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "*"
+          ],
+          "searchRevInclude": [
+            "Encounter:participant",
+            "MedicationDispense:prescription",
+            "MedicationRequest:requester",
+            "ServiceRequest:requester"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "address-city",
+              "type": "string",
+              "documentation": "A city specified in an address"
+            },
+            {
+              "name": "address-country",
+              "type": "string",
+              "documentation": "A country specified in an address"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string",
+              "documentation": "A postalCode specified in an address"
+            },
+            {
+              "name": "address-state",
+              "type": "string",
+              "documentation": "A state specified in an address"
+            },
+            {
+              "name": "family",
+              "type": "string",
+              "documentation": "A portion of the family name"
+            },
+            {
+              "name": "given",
+              "type": "string",
+              "documentation": "A portion of the given name"
+            },
+            {
+              "name": "identifier",
+              "type": "token",
+              "documentation": "A practitioner's Identifier"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "documentation": "A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text"
+            }
+          ]
+        },
+        {
+          "type": "RelatedPerson",
+          "profile": "http://hl7.org/fhir/StructureDefinition/RelatedPerson",
+          "interaction": [
+            {
+              "code": "read"
+            },
+            {
+              "code": "search-type"
+            }
+          ],
+          "searchInclude": [
+            "RelatedPerson:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "address-city",
+              "type": "string",
+              "documentation": "A city specified in an address"
+            },
+            {
+              "name": "address-country",
+              "type": "string",
+              "documentation": "A country specified in an address"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string",
+              "documentation": "A postal code specified in an address"
+            },
+            {
+              "name": "address-state",
+              "type": "string",
+              "documentation": "A state specified in an address"
+            },
+            {
+              "name": "birthdate",
+              "type": "date",
+              "documentation": "The Related Person's date of birth"
+            },
+            {
+              "name": "gender",
+              "type": "token",
+              "documentation": "Gender of the related person"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "documentation": "A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text"
+            }
+          ]
+        },
+        {
+          "type": "ServiceRequest",
+          "profile": "http://hl7.org/fhir/StructureDefinition/ServiceRequest",
+          "interaction": [
+            {
+              "code": "read"
+            },
+            {
+              "code": "search-type"
+            }
+          ],
+          "searchInclude": [
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "What is being requested/ordered"
+            },
+            {
+              "name": "encounter",
+              "type": "reference",
+              "documentation": "An encounter in which this request is made"
+            },
+            {
+              "name": "occurrence",
+              "type": "date",
+              "documentation": "When service should occur"
+            },
+            {
+              "name": "patient",
+              "type": "reference",
+              "documentation": "Search by subject - a patient"
+            },
+            {
+              "name": "requester",
+              "type": "reference",
+              "documentation": "Who/what is requesting service"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "Search by subject"
+            }
+          ]
+        },
+        {
+          "type": "Task",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Task",
+          "interaction": [
+            {
+              "code": "create"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "patch"
+            },
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "update"
+            }
+          ],
+          "searchInclude": [
+            "Task:based-on",
+            "Task:encounter",
+            "Task:owner",
+            "Task:patient"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "The ID of the resource"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "based-on",
+              "type": "reference",
+              "documentation": "Search by requests this task is based on"
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "Search by task code"
+            },
+            {
+              "name": "owner",
+              "type": "reference",
+              "documentation": "Search by task owner"
+            },
+            {
+              "name": "status",
+              "type": "token",
+              "documentation": "Search by task status"
+            },
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "Search by subject"
+            }
+          ]
+        },
+        {
+          "type": "ValueSet",
+          "profile": "http://hl7.org/fhir/StructureDefinition/ValueSet",
+          "interaction": [
+            {
+              "code": "read"
+            },
+            {
+              "code": "search-type"
+            }
+          ],
+          "searchInclude": [
+            "*"
+          ],
+          "searchRevInclude": [
+            "AllergyIntolerance:patient",
+            "AllergyIntolerance:subject",
+            "Condition:patient",
+            "Condition:subject",
+            "DiagnosticReport:encounter",
+            "DiagnosticReport:patient",
+            "DiagnosticReport:result",
+            "DiagnosticReport:subject",
+            "Encounter:location",
+            "Encounter:participant",
+            "Encounter:patient",
+            "Encounter:subject",
+            "Flag:patient",
+            "Group:managing-entity",
+            "Immunization:patient",
+            "Location:partof",
+            "MedicationDispense:context",
+            "MedicationDispense:patient",
+            "MedicationDispense:prescription",
+            "MedicationDispense:subject",
+            "MedicationRequest:encounter",
+            "MedicationRequest:medication",
+            "MedicationRequest:patient",
+            "MedicationRequest:requester",
+            "MedicationRequest:subject",
+            "Observation:encounter",
+            "Observation:has-member",
+            "Observation:patient",
+            "Observation:subject",
+            "ServiceRequest:encounter",
+            "ServiceRequest:patient",
+            "ServiceRequest:requester",
+            "ServiceRequest:subject",
+            "Task:based-on",
+            "Task:owner",
+            "Task:subject"
+          ],
+          "searchParam": [
+            {
+              "name": "title",
+              "type": "string",
+              "documentation": "The human-friendly name of the value set"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

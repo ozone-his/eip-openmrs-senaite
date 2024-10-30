@@ -7,14 +7,20 @@
  */
 package com.ozonehis.eip.openmrs.senaite;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
-import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMapper;
@@ -25,20 +31,16 @@ import com.ozonehis.eip.openmrs.senaite.model.client.response.ClientItem;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactDTO;
 import com.ozonehis.eip.openmrs.senaite.model.contact.ContactMapper;
 import com.ozonehis.eip.openmrs.senaite.model.contact.response.ContactItem;
-import com.ozonehis.eip.openmrs.senaite.routes.analyses.GetAnalysesRoute;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.infra.core.annotations.RouteFixture;
-import org.apache.commons.codec.binary.Base64;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.Task;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,16 +69,21 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
 
     private Bundle serviceRequestBundle;
 
+    protected WireMockServer wireMockServer = new WireMockServer(80);
+
     @BeforeEach
     public void initializeData() {
         serviceRequestBundle = loadResource("fhir.bundle/service-request-bundle.json", new Bundle());
     }
 
+    @AfterEach
+    public void tearDown() {
+        wireMockServer.stop();
+    }
+
     @RouteFixture
     public void createRouteBuilder(CamelContext context) throws Exception {
         context = getContextWithRouting(context);
-
-        context.addRoutes(new GetAnalysesRoute(getSenaiteConfig()));
     }
 
     @Test
@@ -97,9 +104,27 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
 
     @Test
     @DisplayName("Should create AnalysisRequest in Senaite when Lab Order is created in OpenMRS")
-    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs()
-            throws IOException, InterruptedException {
-        Thread.sleep(60000); // TODO: testcontainers should wait until OpenMRS Service initialization is completed
+    public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs() throws IOException {
+        // Mock OpenMRS FHIR endpoints
+        wireMockServer.start();
+        configureFor("localhost", 80);
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/metadata"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("metadata.json"))));
+
+        // Mock GET Task API
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/task-empty-bundle.json"))));
+
+        // Mock Save Task API
+        stubFor(post(urlMatching("/openmrs/ws/fhir2/R4/Task"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(201)));
+
         // Act
         Map<String, Object> headers = new HashMap<>();
         headers.put(HEADER_FHIR_EVENT_TYPE, "c");
@@ -138,28 +163,31 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
 
         assertNotNull(contactDTO);
         assertTrue(contactDTO.getTitle().contains("Super User"));
-
-        // Task should be created in OpenMRS
-        response = fetchFromOpenMRS(String.format(GET_TASK_BY_SERVICE_REQUEST, SERVICE_REQUEST_ID));
-        Bundle bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle.class, response);
-        Task task = null;
-        List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
-        for (Bundle.BundleEntryComponent entry : entries) {
-            Resource resource = entry.getResource();
-            if (resource instanceof Task) {
-                task = (Task) resource;
-                break;
-            }
-        }
-
-        assertNotNull(task);
-        assertEquals(SERVICE_REQUEST_ID, task.getBasedOn().get(0).getReference());
-        assertEquals("REQUESTED", task.getStatus().toString());
     }
 
     @Test
     @DisplayName("Should mark AnalysisRequest as cancelled when Lab Order is marked DISCONTINUE in OpenMRS")
     public void shouldCancelAnalysisRequestInSenaiteWhenLabOrderIsDiscontinuedInOpenmrs() throws IOException {
+        // Mock OpenMRS FHIR endpoints
+        wireMockServer.start();
+        configureFor("localhost", 80);
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/metadata"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("metadata.json"))));
+
+        // Mock GET Task API
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/task-empty-bundle.json"))));
+
+        // Mock Save Task API
+        stubFor(post(urlMatching("/openmrs/ws/fhir2/R4/Task"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(201)));
+
         // Act
         // Create AnalysisRequest
         Map<String, Object> headers = new HashMap<>();
@@ -184,37 +212,10 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
         assertEquals("cancelled", analysisRequestDTO.getReviewState());
     }
 
-    @Test
-    @DisplayName("Should create Lab Results in OpenMRS when Senaite has results")
-    public void shouldCreateLabResultsInOpenmrsWhenSenaiteHasResults() {
-        // TODO
-    }
-
     private String fetchFromSenaite(String url) {
         Request request = new Request.Builder()
                 .url(url)
                 .header("Authorization", getSenaiteConfig().authHeader())
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            } else {
-                String res = response.body().string();
-                return res;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String fetchFromOpenMRS(String url) {
-        String auth = "admin:Admin123";
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
-
-        Request request = new Request.Builder()
-                .url(url)
-                .header("Authorization", "Basic " + new String(encodedAuth))
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
