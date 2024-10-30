@@ -104,7 +104,7 @@ public abstract class BaseRouteIntegrationTest {
     protected @Nonnull CamelContext getContextWithRouting(CamelContext context) throws Exception {
         // Setup IGenericClient
         FhirContext fhirContext = FhirContext.forR4();
-        String serverBase = "http://localhost/openmrs/ws/fhir2/R4";
+        String serverBase = "http://localhost:8089/openmrs/ws/fhir2/R4";
         IGenericClient client = fhirContext.newRestfulGenericClient(serverBase);
 
         String username = "admin";

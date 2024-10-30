@@ -69,7 +69,7 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
 
     private Bundle serviceRequestBundle;
 
-    protected WireMockServer wireMockServer = new WireMockServer(80);
+    protected WireMockServer wireMockServer = new WireMockServer(8089);
 
     @BeforeEach
     public void initializeData() {
@@ -107,7 +107,7 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
     public void shouldCreateAnalysisRequestInSenaiteWhenLabOrderIsCreatedInOpenmrs() throws IOException {
         // Mock OpenMRS FHIR endpoints
         wireMockServer.start();
-        configureFor("localhost", 80);
+        configureFor("localhost", 8089);
         stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/metadata"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -170,7 +170,7 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
     public void shouldCancelAnalysisRequestInSenaiteWhenLabOrderIsDiscontinuedInOpenmrs() throws IOException {
         // Mock OpenMRS FHIR endpoints
         wireMockServer.start();
-        configureFor("localhost", 80);
+        configureFor("localhost", 8089);
         stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/metadata"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
