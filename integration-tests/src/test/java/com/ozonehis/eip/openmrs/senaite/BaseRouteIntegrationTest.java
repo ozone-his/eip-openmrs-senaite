@@ -62,13 +62,11 @@ import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.hl7.fhir.r4.model.Resource;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @Getter
 @ActiveProfiles("test")
 @CamelSpringBootTest
-@SpringBootTest(classes = {TestSpringConfiguration.class})
 public abstract class BaseRouteIntegrationTest {
 
     private SenaiteConfig senaiteConfig;
