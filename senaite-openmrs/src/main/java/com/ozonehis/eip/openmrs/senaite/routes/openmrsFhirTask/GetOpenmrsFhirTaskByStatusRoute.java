@@ -7,11 +7,13 @@
  */
 package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask;
 
+import lombok.AllArgsConstructor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
+@AllArgsConstructor
 @Component
 public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
 

@@ -24,14 +24,48 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jackson.core.version>2.16.1</jackson.core.version>
+    <okhttp.version>4.12.0</okhttp.version>
+    <wiremock.version>3.9.1</wiremock.version>
+    <jakarta.activation.api.version>2.1.3</jakarta.activation.api.version>
+    <jackson.core.version>2.16.1</jackson.core.version>
+    <jakarta.xml.bind.api.version>4.0.2</jakarta.xml.bind.api.version>
+    <jaxb.impl.version>4.0.0</jaxb.impl.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+      <version>${jakarta.activation.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jakarta.xml.bind.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>${jaxb.impl.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.ozonehis</groupId>
       <artifactId>eip-openmrs-senaite</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.ozonehis.camel</groupId>
@@ -49,8 +83,13 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.16.1</version>
+      <version>${jackson.core.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${okhttp.version}</version>
     </dependency>
   </dependencies>
 
@@ -88,29 +127,6 @@
               <includeArtifactIds>test-infra-senaite</includeArtifactIds>
               <includes>**/*</includes>
               <outputDirectory>${project.build.directory}/test-classes/</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>process-test-classes</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>process-test-classes</phase>
-            <configuration>
-              <target>
-                <!--                <chmod perm="755">-->
-                <!--                  <fileset dir="target/test-classes/distro/data/postgresql">-->
-                <!--                    <include name="**/*.sh"/>-->
-                <!--                  </fileset>-->
-                <!--                </chmod>-->
-              </target>
             </configuration>
           </execution>
         </executions>

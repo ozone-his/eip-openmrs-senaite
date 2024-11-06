@@ -70,10 +70,7 @@
               <includeGroupIds>com.ozonehis</includeGroupIds>
               <includeArtifactIds>ozone</includeArtifactIds>
               <includeTypes>zip</includeTypes>
-              <!--              <includes>distro/binaries/odoo/**,-->
-              <!--                                distro/configs/odoo/**,-->
-              <!--                                distro/data/postgresql/odoo/,-->
-              <!--                                distro/data/postgresql/**.sh,</includes>-->
+              <includes>distro/configs/**</includes>
               <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>

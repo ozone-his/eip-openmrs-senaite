@@ -11,6 +11,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.DiagnosticReport;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Setter
+@AllArgsConstructor
 @Component
 public class DiagnosticReportHandler {
 
