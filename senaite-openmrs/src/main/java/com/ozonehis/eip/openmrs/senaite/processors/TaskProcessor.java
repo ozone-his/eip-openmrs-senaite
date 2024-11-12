@@ -21,6 +21,7 @@ import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Setter
 @Getter
+@NoArgsConstructor
 @Component
 public class TaskProcessor implements Processor {
 

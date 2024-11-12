@@ -11,6 +11,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Bundle;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Component
 public class EncounterHandler {
 
