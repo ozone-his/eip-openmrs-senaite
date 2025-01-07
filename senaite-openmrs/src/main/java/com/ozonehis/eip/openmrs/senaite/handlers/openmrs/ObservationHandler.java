@@ -28,6 +28,9 @@ import org.hl7.fhir.r4.model.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.Resource;
+
 @Slf4j
 @Setter
 @AllArgsConstructor
@@ -104,11 +107,17 @@ public class ObservationHandler {
         
         Reference refResultsObs1 = firstLevelObsGroup.addHasMember();
         refResultsObs1.setType("Observation").setReference("Observation/" + resultObservation.getIdPart());
-		
+        
+        // Create a FhirContext instance (for FHIR R4 in this case)
+        FhirContext ctx = FhirContext.forR4();
+        
+        // Convert the Observation to a JSON string
+        String firstLevelObsGroupString = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(firstLevelObsGroup);
+        
+        
+        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", firstLevelObsGroupString);
+        
         firstLevelObsGroup = sendObservation(firstLevelObsGroup);
-        
-        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", firstLevelObsGroup);
-        
         
         Observation secondLevelObsGroup = new Observation();
         secondLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
