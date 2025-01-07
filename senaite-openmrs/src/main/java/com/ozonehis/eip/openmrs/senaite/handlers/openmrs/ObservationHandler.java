@@ -67,7 +67,7 @@ public class ObservationHandler {
         return (Observation) methodOutcome.getResource();
     }
 
-    public Observation buildResultObservation(
+    public Observation  buildBahmniResultObservation(
             Encounter savedResultEncounter,
             String conceptUuid,
             String analysesResult,
@@ -80,6 +80,41 @@ public class ObservationHandler {
         observation.setValue(getObservationValueBySenaiteResult(analysesResult));
         observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
         return observation;
+    }
+    
+    public Observation buildResultObservation(
+            Encounter savedResultEncounter,
+            String conceptUuid,
+            String analysesResult,
+            String analysesResultCaptureDate) {
+    	
+        Observation resultObservation = new Observation();
+        resultObservation.setStatus(Observation.ObservationStatus.FINAL);
+        resultObservation.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
+        resultObservation.setSubject(savedResultEncounter.getSubject());
+        resultObservation.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
+        resultObservation.setValue(getObservationValueBySenaiteResult(analysesResult));
+        sendObservation(resultObservation);
+        
+        Observation firstLevelObsGroup = new Observation();
+        firstLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
+        firstLevelObsGroup.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
+        firstLevelObsGroup.setSubject(savedResultEncounter.getSubject());
+        firstLevelObsGroup.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
+        firstLevelObsGroup.addHasMember(new Reference("Observation/" + resultObservation.getIdPart()));
+        sendObservation(firstLevelObsGroup);
+        
+        
+        Observation secondLevelObsGroup = new Observation();
+        secondLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
+        secondLevelObsGroup.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
+        secondLevelObsGroup.setSubject(savedResultEncounter.getSubject());
+        secondLevelObsGroup.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
+        secondLevelObsGroup.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
+        
+        secondLevelObsGroup.addHasMember(new Reference("Observation/" + firstLevelObsGroup.getIdPart()));
+        
+        return secondLevelObsGroup;
     }
 
     private Type getObservationValueBySenaiteResult(String senaiteResult) {
