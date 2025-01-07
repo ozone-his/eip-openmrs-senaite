@@ -96,13 +96,20 @@ public class ObservationHandler {
         resultObservation.setValue(getObservationValueBySenaiteResult(analysesResult));
         sendObservation(resultObservation);
         
+        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", resultObservation);
+        
         Observation firstLevelObsGroup = new Observation();
         firstLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
         firstLevelObsGroup.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
         firstLevelObsGroup.setSubject(savedResultEncounter.getSubject());
         firstLevelObsGroup.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
-        firstLevelObsGroup.addHasMember(new Reference("Observation/" + resultObservation.getIdPart()));
+        
+        Reference refResultsObs1 = firstLevelObsGroup.addHasMember();
+        refResultsObs1.setType("Observation").setReference("Observation/" + resultObservation.getIdPart());
+		
         sendObservation(firstLevelObsGroup);
+        
+        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", firstLevelObsGroup);
         
         
         Observation secondLevelObsGroup = new Observation();
@@ -112,7 +119,10 @@ public class ObservationHandler {
         secondLevelObsGroup.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
         secondLevelObsGroup.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
         
-        secondLevelObsGroup.addHasMember(new Reference("Observation/" + firstLevelObsGroup.getIdPart()));
+        Reference refFirstGroupObs2 = secondLevelObsGroup.addHasMember();
+        refFirstGroupObs2.setType("Observation").setReference("Observation/" + firstLevelObsGroup.getIdPart());
+        
+        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", secondLevelObsGroup);
         
         return secondLevelObsGroup;
     }
