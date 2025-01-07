@@ -123,7 +123,7 @@ public class TaskProcessor implements Processor {
                 }
             }
         } catch (Exception e) {
-            throw new EIPException(e);
+        	throw new RuntimeException("An error occurred aaaaaaaaaa : ", e);
         }
     }
 
