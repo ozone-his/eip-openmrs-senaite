@@ -94,9 +94,7 @@ public class ObservationHandler {
         resultObservation.setSubject(savedResultEncounter.getSubject());
         resultObservation.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
         resultObservation.setValue(getObservationValueBySenaiteResult(analysesResult));
-        sendObservation(resultObservation);
-        
-        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", resultObservation);
+        resultObservation = sendObservation(resultObservation);
         
         Observation firstLevelObsGroup = new Observation();
         firstLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
@@ -107,7 +105,7 @@ public class ObservationHandler {
         Reference refResultsObs1 = firstLevelObsGroup.addHasMember();
         refResultsObs1.setType("Observation").setReference("Observation/" + resultObservation.getIdPart());
 		
-        sendObservation(firstLevelObsGroup);
+        firstLevelObsGroup = sendObservation(firstLevelObsGroup);
         
         log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", firstLevelObsGroup);
         
