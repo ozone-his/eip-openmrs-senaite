@@ -98,7 +98,7 @@ public class BahmniResultsHandler {
         String jsonString = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultMap);
+            jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultMap);
         } catch (Exception e) {
         	throw new RuntimeException("Could not generate Bahmni ENR results payload : ", e);
         }
