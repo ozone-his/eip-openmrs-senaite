@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.handlers.bahmni.BahmniResultsHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
@@ -68,6 +69,9 @@ public class TaskProcessor implements Processor {
 
     @Autowired
     private DiagnosticReportHandler diagnosticReportHandler;
+    
+    @Autowired
+    private BahmniResultsHandler bahmniResultsHandler;
 
     @Override
     public void process(Exchange exchange) {
@@ -180,11 +184,12 @@ public class TaskProcessor implements Processor {
                     conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
             if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create result Observation
-                savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
+                savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                		producerTemplate,
                         savedResultEncounter,
                         conceptUuid,
                         resultAnalysesDTO.getResult(),
-                        resultAnalysesDTO.getResultCaptureDate()));
+                        resultAnalysesDTO.getResultCaptureDate());
             }
             observationUuids.add(savedObservation.getIdPart());
         }
