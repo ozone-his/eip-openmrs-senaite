@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Setter
-@AllArgsConstructor
 @Component
 public class BahmniResultsHandler {
 
