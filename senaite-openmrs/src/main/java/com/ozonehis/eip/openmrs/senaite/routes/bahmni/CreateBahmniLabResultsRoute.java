@@ -24,9 +24,6 @@ public class CreateBahmniLabResultsRoute extends RouteBuilder {
         from("direct:create-bahmni-lab-results-route")
                 .log(LoggingLevel.INFO, "Creating Bahmni lab results ...")
                 .routeId("create-bahmni-lab-results-route")
-                .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
-                .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
-                .setHeader(Constants.AUTHORIZATION, constant("${header.Authorization}"))
                 .toD("${header.obsEndpointUrl}")
                 .end();
         // spotless:on
