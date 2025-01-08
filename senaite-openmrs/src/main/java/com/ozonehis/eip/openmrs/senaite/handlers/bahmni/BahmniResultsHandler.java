@@ -7,6 +7,7 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
