@@ -109,9 +109,10 @@ public class BahmniResultsHandler {
         headers.put("Authorization", "Basic " + encodeBasicAuth(openmrsUsername, openmrsPassword));
 
         String obsEndpointUrl = openmrsBaseUrl + "/ws/rest/v1/obs";
+        headers.put("obsEndpointUrl", obsEndpointUrl);
 
         String response = producerTemplate.requestBodyAndHeaders(
-                "direct:" + obsEndpointUrl, payload, headers, String.class);
+                "direct:create-bahmni-lab-results-route", payload, headers, String.class);
         
         String observationUuid = null;
         try {
