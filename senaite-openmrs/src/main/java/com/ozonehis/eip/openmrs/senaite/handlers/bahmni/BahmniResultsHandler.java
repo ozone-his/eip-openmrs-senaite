@@ -84,7 +84,7 @@ public class BahmniResultsHandler {
         groupMember2.put("order", "");
         groupMember2.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         groupMember2.put("obsDatetime", analysesResultCaptureDate);
-        groupMember2.put("concept", "conceptUuid");
+        groupMember2.put("concept", conceptUuid);
 
         groupMembersLevel2.add(groupMember2);
 
