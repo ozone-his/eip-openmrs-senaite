@@ -50,7 +50,7 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
-        
+
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
         return AnalysisRequestMapper.map(responseWrapper);
@@ -62,7 +62,7 @@ public class AnalysisRequestHandler {
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
-        
+
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
         return AnalysisRequestMapper.map(responseWrapper);

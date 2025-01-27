@@ -34,7 +34,6 @@ import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Task;
-import org.openmrs.eip.EIPException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -48,7 +47,7 @@ public class TaskProcessor implements Processor {
 
     @Value("${results.encounterType.uuid}")
     private String resultEncounterTypeUUID;
-    
+
     @Value("${run.with.bahmni.emr}")
     private String runWithBahmniEmr;
 
@@ -72,7 +71,7 @@ public class TaskProcessor implements Processor {
 
     @Autowired
     private DiagnosticReportHandler diagnosticReportHandler;
-    
+
     @Autowired
     private BahmniResultsHandler bahmniResultsHandler;
 
@@ -109,7 +108,8 @@ public class TaskProcessor implements Processor {
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            createResultsInOpenMRS(producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
+                            createResultsInOpenMRS(
+                                    producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
@@ -130,7 +130,7 @@ public class TaskProcessor implements Processor {
                 }
             }
         } catch (Exception e) {
-        	throw new RuntimeException("An error occurred aaaaaaaaaa : ", e);
+            throw new RuntimeException("An error occurred aaaaaaaaaa : ", e);
         }
     }
 
@@ -158,13 +158,15 @@ public class TaskProcessor implements Processor {
                 && resultEncounter.getPeriod().getStart().getTime()
                         == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
             // Result Encounter exists
-            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
+            saveObservationAndDiagnosticReport(
+                    producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
             Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(encounterID);
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
-            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
+            saveObservationAndDiagnosticReport(
+                    producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
         }
     }
 
@@ -177,36 +179,38 @@ public class TaskProcessor implements Processor {
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
-        
+
         ArrayList<AnalysesDTO> analysesDTOs = new ArrayList<>();
         for (Analyses analysis : analyses) {
             AnalysesDTO resultAnalysesDTO =
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
             analysesDTOs.add(resultAnalysesDTO);
         }
-        
-    	if (Boolean.parseBoolean(runWithBahmniEmr)) {
-    		Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-    				bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest), subjectID, savedResultEncounter.getIdPart(), datePublished);
-    		if (!observationHandler.doesObservationExists(savedObservation)) {
+
+        if (Boolean.parseBoolean(runWithBahmniEmr)) {
+            Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+                    bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest),
+                    subjectID,
+                    savedResultEncounter.getIdPart(),
+                    datePublished);
+            if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create Bahmni result Observation
                 savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                		producerTemplate,
-                        savedResultEncounter,
-                        serviceRequest,
-                        analysesDTOs,
-                        datePublished);
+                        producerTemplate, savedResultEncounter, serviceRequest, analysesDTOs, datePublished);
             }
             observationUuids.add(savedObservation.getIdPart());
         } else {
-        	for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
-            	
+            for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
+
                 String analysesDescription = resultAnalysesDTO.getDescription();
                 String conceptUuid = analysesDescription.substring(
                         analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
                 Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                        conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
+                        conceptUuid,
+                        subjectID,
+                        savedResultEncounter.getIdPart(),
+                        resultAnalysesDTO.getResultCaptureDate());
                 if (!observationHandler.doesObservationExists(savedObservation)) {
                     // Create result Observation
                     savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
@@ -218,7 +222,7 @@ public class TaskProcessor implements Processor {
                 observationUuids.add(savedObservation.getIdPart());
             }
         }
-        
+
         diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
                 observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
     }

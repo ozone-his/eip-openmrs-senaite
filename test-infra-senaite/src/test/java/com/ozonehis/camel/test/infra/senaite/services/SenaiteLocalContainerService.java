@@ -10,6 +10,7 @@ package com.ozonehis.camel.test.infra.senaite.services;
 import com.ozonehis.camel.test.infra.senaite.common.SenaiteProperties;
 import java.io.File;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.containers.ComposeContainer;
@@ -62,7 +63,10 @@ public class SenaiteLocalContainerService implements SenaiteService {
         try (var container = new ComposeContainer(getFile("docker-compose/docker-compose-senaite.yml"))
                 .withLocalCompose(true)
                 .withStartupTimeout(java.time.Duration.ofMinutes(5))
-                .withExposedService(SERVICE_NAME, SenaiteProperties.DEFAULT_SERVICE_PORT, Wait.forListeningPort())) {
+                .withExposedService(
+                        SERVICE_NAME,
+                        SenaiteProperties.DEFAULT_SERVICE_PORT,
+                        Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)))) {
 
             return container;
         } catch (Exception e) {

@@ -7,31 +7,24 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
-import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.camel.ProducerTemplate;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeableConcept;
-
 import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.ServiceRequest;
-import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,36 +33,37 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 public class BahmniResultsHandler {
-	
-	private static final String UUID_REGEX = "^[0-9a-fA-F]{36}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-    
-	private static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
-    
-	@Value("${openmrs.baseUrl}")
+
+    private static final String UUID_REGEX =
+            "^[0-9a-fA-F]{36}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+
+    private static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
+
+    @Value("${openmrs.baseUrl}")
     private String openmrsBaseUrl;
-	
-	@Value("${openmrs.username}")
+
+    @Value("${openmrs.username}")
     private String openmrsUsername;
 
     @Value("${openmrs.password}")
     private String openmrsPassword;
-    
+
     @Autowired
     private IGenericClient openmrsFhirClient;
-    
+
     @Autowired
     private ObservationHandler observationHandler;
 
-    public Observation  buildAndSendBahmniResultObservation(
-    		ProducerTemplate producerTemplate,
+    public Observation buildAndSendBahmniResultObservation(
+            ProducerTemplate producerTemplate,
             Encounter savedResultEncounter,
             ServiceRequest serviceRequest,
-            ArrayList<AnalysesDTO> analysesDTOs, 
+            ArrayList<AnalysesDTO> analysesDTOs,
             String datePublished) {
-        
-    	String panelConceptUuid = serviceRequest.getIdPart();
-    	
-    	// Create the top-level map
+
+        String panelConceptUuid = serviceRequest.getIdPart();
+
+        // Create the top-level map
         Map<String, Object> resultMap = new HashMap<>();
 
         resultMap.put("encounter", savedResultEncounter.getIdPart());
@@ -80,21 +74,22 @@ public class BahmniResultsHandler {
 
         // Create the groupMembers list for the first level
         List<Map<String, Object>> groupMembersLevel1 = new ArrayList<>();
-        
+
         for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
-        	
-        	String analysesDescription = resultAnalysesDTO.getDescription();
-        	
+
+            String analysesDescription = resultAnalysesDTO.getDescription();
+
             String testConceptUuid = analysesDescription.substring(
                     analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
             String analysesResult = resultAnalysesDTO.getResult();
             String analysesResultCaptureDate = resultAnalysesDTO.getResultCaptureDate();
-            
-        	// Create a nested map for the first group member
+
+            // Create a nested map for the first group member
             Map<String, Object> groupMember1 = new HashMap<>();
             groupMember1.put("concept", testConceptUuid);
             groupMember1.put("order", serviceRequest.getIdPart());
-            groupMember1.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
+            groupMember1.put(
+                    "person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
             groupMember1.put("obsDatetime", analysesResultCaptureDate);
 
             // Create the groupMembers list for the second level (nested inside groupMember1)
@@ -104,7 +99,8 @@ public class BahmniResultsHandler {
             Map<String, Object> groupMember2 = new HashMap<>();
             groupMember2.put("value", analysesResult);
             groupMember2.put("order", serviceRequest.getIdPart());
-            groupMember2.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
+            groupMember2.put(
+                    "person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
             groupMember2.put("obsDatetime", analysesResultCaptureDate);
             groupMember2.put("concept", testConceptUuid);
 
@@ -122,9 +118,9 @@ public class BahmniResultsHandler {
             ObjectMapper objectMapper = new ObjectMapper();
             jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultMap);
         } catch (Exception e) {
-        	throw new RuntimeException("Could not generate Bahmni ENR results payload : ", e);
+            throw new RuntimeException("Could not generate Bahmni ENR results payload : ", e);
         }
-        
+
         String payload = jsonString;
 
         Map<String, Object> headers = new HashMap<>();
@@ -136,16 +132,16 @@ public class BahmniResultsHandler {
 
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:create-bahmni-lab-results-route", payload, headers, String.class);
-        
+
         String observationUuid = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response);
             observationUuid = rootNode.get("uuid").asText();
         } catch (Exception e) {
-        	throw new RuntimeException("Could not extract Bahmni EMR results observation uuid : ", e);
+            throw new RuntimeException("Could not extract Bahmni EMR results observation uuid : ", e);
         }
-        
+
         Bundle bundle = openmrsFhirClient
                 .search()
                 .forResource(Observation.class)
@@ -160,12 +156,12 @@ public class BahmniResultsHandler {
                 .findFirst()
                 .orElse(null);
     }
-    
+
     private String encodeBasicAuth(String username, String password) {
         String credentials = username + ":" + password;
         return new String(java.util.Base64.getEncoder().encode(credentials.getBytes()));
     }
-    
+
     public String getServiceRequestCodingIdentifier(ServiceRequest serviceRequest) {
         List<Coding> codings = serviceRequest.getCode().getCoding();
         for (Coding coding : codings) {
@@ -193,6 +189,6 @@ public class BahmniResultsHandler {
 
     // Helper method to check if the code is a valid UUID
     private boolean isValidUUID(String code) {
-    	return UUID_PATTERN.matcher(code).matches();
+        return UUID_PATTERN.matcher(code).matches();
     }
 }
