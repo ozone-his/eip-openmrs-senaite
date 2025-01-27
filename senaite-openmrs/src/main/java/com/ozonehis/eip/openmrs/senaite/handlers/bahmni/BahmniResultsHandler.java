@@ -131,6 +131,9 @@ public class BahmniResultsHandler {
         headers.put("obsEndpointUrl", obsEndpointUrl);
 
         String response = producerTemplate.requestBodyAndHeaders(
+                "direct:write-bahmniOrder-as-openmrs-testOrder", payload, headers, String.class);
+        
+        String response = producerTemplate.requestBodyAndHeaders(
                 "direct:create-bahmni-lab-results-route", payload, headers, String.class);
 
         String observationUuid = null;
