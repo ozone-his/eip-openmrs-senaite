@@ -28,7 +28,7 @@ public class BahmniOrderToOpenmrsTestOrderRoute extends RouteBuilder {
     public void configure() throws Exception {
 
     	// spotless:off
-    	from("direct:debezium-event-listener")
+    	from("direct-vm:debezium-event-listener")
             .routeId("write-bahmniOrder-as-testOrder")
             .setHeader("bahmniTestOrderTypeUuid", constant(bahmniTestOrderTypeUuid))
             .log(LoggingLevel.INFO, "Processing Test Order from Order ::::::  ${exchangeProperty.event.tableName}")
