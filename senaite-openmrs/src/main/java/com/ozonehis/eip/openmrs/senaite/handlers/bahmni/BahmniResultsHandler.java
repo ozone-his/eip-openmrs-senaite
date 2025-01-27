@@ -64,7 +64,8 @@ public class BahmniResultsHandler {
     		ProducerTemplate producerTemplate,
             Encounter savedResultEncounter,
             ServiceRequest serviceRequest,
-            ArrayList<AnalysesDTO> analysesDTOs) {
+            ArrayList<AnalysesDTO> analysesDTOs, 
+            String datePublished) {
         
     	String panelConceptUuid = serviceRequest.getIdPart();
     	
@@ -75,6 +76,7 @@ public class BahmniResultsHandler {
         resultMap.put("concept", getServiceRequestCodingIdentifier(serviceRequest));
         resultMap.put("order", panelConceptUuid);
         resultMap.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
+        resultMap.put("obsDatetime", datePublished);
 
         // Create the groupMembers list for the first level
         List<Map<String, Object>> groupMembersLevel1 = new ArrayList<>();
@@ -111,8 +113,6 @@ public class BahmniResultsHandler {
             groupMember1.put("groupMembers", groupMembersLevel2);
 
             groupMembersLevel1.add(groupMember1);
-            
-            resultMap.put("obsDatetime", analysesResultCaptureDate);
         }
 
         resultMap.put("groupMembers", groupMembersLevel1);

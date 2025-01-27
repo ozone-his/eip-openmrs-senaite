@@ -106,7 +106,7 @@ public class TaskProcessor implements Processor {
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            createResultsInOpenMRS(producerTemplate, serviceRequest, analyses);
+                            createResultsInOpenMRS(producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
@@ -146,7 +146,7 @@ public class TaskProcessor implements Processor {
     }
 
     private void createResultsInOpenMRS(
-            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses)
+            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String datePublished)
             throws JsonProcessingException {
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
                 resultEncounterTypeUUID,
@@ -155,13 +155,13 @@ public class TaskProcessor implements Processor {
                 && resultEncounter.getPeriod().getStart().getTime()
                         == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
             // Result Encounter exists
-            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter);
+            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
             Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(encounterID);
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
-            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter);
+            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
         }
     }
 
@@ -169,7 +169,8 @@ public class TaskProcessor implements Processor {
             ProducerTemplate producerTemplate,
             ServiceRequest serviceRequest,
             Analyses[] analyses,
-            Encounter savedResultEncounter)
+            Encounter savedResultEncounter,
+            String datePublished)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
@@ -183,14 +184,15 @@ public class TaskProcessor implements Processor {
         {
         	if (analysesDTOs.size() >= 1) {
         		Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-        				bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest), subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
+        				bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest), subjectID, savedResultEncounter.getIdPart(), datePublished);
         		if (!observationHandler.doesObservationExists(savedObservation)) {
                     // Create Bahmni result Observation
                     savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
                     		producerTemplate,
                             savedResultEncounter,
                             serviceRequest,
-                            analysesDTOs);
+                            analysesDTOs,
+                            datePublished);
                 }
                 observationUuids.add(savedObservation.getIdPart());
             }
