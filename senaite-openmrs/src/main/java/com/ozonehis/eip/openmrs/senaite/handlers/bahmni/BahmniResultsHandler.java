@@ -52,6 +52,7 @@ public class BahmniResultsHandler {
     public Observation  buildAndSendBahmniResultObservation(
     		ProducerTemplate producerTemplate,
             Encounter savedResultEncounter,
+            String serviceRequestUuid,
             String conceptUuid,
             String analysesResult,
             String analysesResultCaptureDate) {
@@ -61,7 +62,7 @@ public class BahmniResultsHandler {
 
         resultMap.put("encounter", savedResultEncounter.getIdPart());
         resultMap.put("concept", conceptUuid);
-        resultMap.put("order", "");
+        resultMap.put("order", serviceRequestUuid);
         resultMap.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         resultMap.put("obsDatetime", analysesResultCaptureDate);
 
@@ -71,7 +72,7 @@ public class BahmniResultsHandler {
         // Create a nested map for the first group member
         Map<String, Object> groupMember1 = new HashMap<>();
         groupMember1.put("concept", conceptUuid);
-        groupMember1.put("order", "");
+        groupMember1.put("order", serviceRequestUuid);
         groupMember1.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         groupMember1.put("obsDatetime", analysesResultCaptureDate);
 
@@ -81,7 +82,7 @@ public class BahmniResultsHandler {
         // Create a nested map for the second group member
         Map<String, Object> groupMember2 = new HashMap<>();
         groupMember2.put("value", analysesResult);
-        groupMember2.put("order", "");
+        groupMember2.put("order", serviceRequestUuid);
         groupMember2.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         groupMember2.put("obsDatetime", analysesResultCaptureDate);
         groupMember2.put("concept", conceptUuid);
