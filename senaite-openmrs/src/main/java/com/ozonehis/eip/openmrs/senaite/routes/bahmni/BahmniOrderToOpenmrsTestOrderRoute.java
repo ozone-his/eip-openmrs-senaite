@@ -49,7 +49,7 @@ public class BahmniOrderToOpenmrsTestOrderRoute extends RouteBuilder {
 
                     .otherwise()
                         // Do nothing if the related test order exists
-                        .log(LoggingLevel.DEGUG, "Related test order exists, no action needed.")
+                        .log(LoggingLevel.INFO, "Related test order exists, no action needed.")
                     .endChoice()
                 .endChoice()
             .end();
