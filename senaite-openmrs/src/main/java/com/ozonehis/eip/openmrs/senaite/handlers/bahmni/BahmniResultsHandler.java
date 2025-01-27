@@ -125,7 +125,6 @@ public class BahmniResultsHandler {
         	throw new RuntimeException("Could not generate Bahmni ENR results payload : ", e);
         }
         
-        log.error("aaaaaaaaaaa json string : {}", jsonString);
         String payload = jsonString;
 
         Map<String, Object> headers = new HashMap<>();
