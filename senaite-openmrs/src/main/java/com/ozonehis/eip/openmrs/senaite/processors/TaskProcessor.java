@@ -48,6 +48,9 @@ public class TaskProcessor implements Processor {
 
     @Value("${results.encounterType.uuid}")
     private String resultEncounterTypeUUID;
+    
+    @Value("${run.with.bahmni.emr}")
+    private String runWithBahmniEmr;
 
     @Autowired
     private ServiceRequestHandler serviceRequestHandler;
@@ -181,42 +184,41 @@ public class TaskProcessor implements Processor {
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
             analysesDTOs.add(resultAnalysesDTO);
         }
-        {
-        	if (analysesDTOs.size() >= 1) {
-        		Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-        				bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest), subjectID, savedResultEncounter.getIdPart(), datePublished);
-        		if (!observationHandler.doesObservationExists(savedObservation)) {
-                    // Create Bahmni result Observation
-                    savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                    		producerTemplate,
+        
+    	if (Boolean.parseBoolean(runWithBahmniEmr)) {
+    		Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+    				bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest), subjectID, savedResultEncounter.getIdPart(), datePublished);
+    		if (!observationHandler.doesObservationExists(savedObservation)) {
+                // Create Bahmni result Observation
+                savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                		producerTemplate,
+                        savedResultEncounter,
+                        serviceRequest,
+                        analysesDTOs,
+                        datePublished);
+            }
+            observationUuids.add(savedObservation.getIdPart());
+        } else {
+        	for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
+            	
+                String analysesDescription = resultAnalysesDTO.getDescription();
+                String conceptUuid = analysesDescription.substring(
+                        analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+
+                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+                        conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
+                if (!observationHandler.doesObservationExists(savedObservation)) {
+                    // Create result Observation
+                    savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
                             savedResultEncounter,
-                            serviceRequest,
-                            analysesDTOs,
-                            datePublished);
+                            conceptUuid,
+                            resultAnalysesDTO.getResult(),
+                            resultAnalysesDTO.getResultCaptureDate()));
                 }
                 observationUuids.add(savedObservation.getIdPart());
             }
         }
-//        for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
-//        	
-//            String analysesDescription = resultAnalysesDTO.getDescription();
-//            String conceptUuid = analysesDescription.substring(
-//                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
-//
-//            Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-//                    conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
-//            if (!observationHandler.doesObservationExists(savedObservation)) {
-//                // Create result Observation
-//                savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-//                		producerTemplate,
-//                        savedResultEncounter,
-//                        serviceRequest,
-//                        conceptUuid,
-//                        resultAnalysesDTO.getResult(),
-//                        resultAnalysesDTO.getResultCaptureDate());
-//            }
-//            observationUuids.add(savedObservation.getIdPart());
-//        }
+        
         diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
                 observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
     }
