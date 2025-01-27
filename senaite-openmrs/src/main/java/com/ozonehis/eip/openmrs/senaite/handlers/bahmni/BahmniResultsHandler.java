@@ -47,6 +47,9 @@ public class BahmniResultsHandler {
 
     @Value("${openmrs.password}")
     private String openmrsPassword;
+    
+    @Value("${bahmni.test.orderType.uuid}")
+	private String bahmniTestOrderTypeUuid;
 
     @Autowired
     private IGenericClient openmrsFhirClient;
@@ -130,6 +133,7 @@ public class BahmniResultsHandler {
         String obsEndpointUrl = openmrsBaseUrl + "/ws/rest/v1/obs";
         headers.put("obsEndpointUrl", obsEndpointUrl);
 
+        headers.put("bahmniTestOrderTypeUuid", bahmniTestOrderTypeUuid);
         String response1 = producerTemplate.requestBodyAndHeaders(
                 "direct:write-bahmniOrder-as-openmrs-testOrder", payload, headers, String.class);
         

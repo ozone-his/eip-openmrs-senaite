@@ -20,9 +20,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BahmniOrderToOpenmrsTestOrderRoute extends RouteBuilder {
-	
-	@Value("${bahmni.test.orderType.uuid}")
-	private String bahmniTestOrderTypeUuid;
     
     @Override
     public void configure() throws Exception {
@@ -40,10 +37,10 @@ public class BahmniOrderToOpenmrsTestOrderRoute extends RouteBuilder {
                     	.when(simple("${body[0]['total']} == 0"))  // No related test order found
                     	.toD("sql:SELECT ot.uuid as order_type_uuid from order_type ot join orders o on o.order_type_id = ot.order_type_id where o.uuid ='${exchangeProperty.event.identifier}'?dataSource=#openmrsDataSource")
                             .choice()
-                                .when(simple("${body[0]['order_type_uuid']} == '${bahmniTestOrderTypeUuid}'"))  // Check if it's the correct order type
-                                	.log(LoggingLevel.INFO, "aaaaaaaaaaaa Order type : ${bahmniTestOrderTypeUuid}")
+                                .when(simple("${body[0]['order_type_uuid']} == '${exchangeProperty.bahmniTestOrderTypeUuid}'"))  // Check if it's the correct order type
+                                	.log(LoggingLevel.INFO, "aaaaaaaaaaaa Order type : ${exchangeProperty.bahmniTestOrderTypeUuid}")
                                 	// Insert a new record into test_order if it's the correct order type
-                                    .toD("sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.lab-order-id})?dataSource=openmrsDataSource")
+                                    .toD("sql:INSERT INTO test_order(order_id) VALUES (${exchangeProperty.event.primaryKeyId})?dataSource=openmrsDataSource")
                             .endChoice()
                         .endChoice()
 
