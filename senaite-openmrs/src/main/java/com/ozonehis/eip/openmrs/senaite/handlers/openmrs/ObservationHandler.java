@@ -28,8 +28,6 @@ import org.hl7.fhir.r4.model.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ca.uhn.fhir.context.FhirContext;
-
 @Slf4j
 @Setter
 @AllArgsConstructor
@@ -69,7 +67,7 @@ public class ObservationHandler {
         return (Observation) methodOutcome.getResource();
     }
 
-    public Observation  buildBahmniResultObservation(
+    public Observation buildResultObservation(
             Encounter savedResultEncounter,
             String conceptUuid,
             String analysesResult,
@@ -82,55 +80,6 @@ public class ObservationHandler {
         observation.setValue(getObservationValueBySenaiteResult(analysesResult));
         observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
         return observation;
-    }
-    
-    public Observation buildResultObservation(
-            Encounter savedResultEncounter,
-            String conceptUuid,
-            String analysesResult,
-            String analysesResultCaptureDate) {
-    	
-        Observation resultObservation = new Observation();
-        resultObservation.setStatus(Observation.ObservationStatus.FINAL);
-        resultObservation.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
-        resultObservation.setSubject(savedResultEncounter.getSubject());
-        resultObservation.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
-        resultObservation.setValue(getObservationValueBySenaiteResult(analysesResult));
-        resultObservation = sendObservation(resultObservation);
-        
-        Observation firstLevelObsGroup = new Observation();
-        firstLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
-        firstLevelObsGroup.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
-        firstLevelObsGroup.setSubject(savedResultEncounter.getSubject());
-        firstLevelObsGroup.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
-        
-        Reference refResultsObs1 = firstLevelObsGroup.addHasMember();
-        refResultsObs1.setType("Observation").setReference("Observation/" + resultObservation.getIdPart());
-        
-        // Create a FhirContext instance (for FHIR R4 in this case)
-        FhirContext ctx = FhirContext.forR4();
-        
-        // Convert the Observation to a JSON string
-        String firstLevelObsGroupString = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(firstLevelObsGroup);
-        
-        
-        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", firstLevelObsGroupString);
-        
-        firstLevelObsGroup = sendObservation(firstLevelObsGroup);
-        
-        Observation secondLevelObsGroup = new Observation();
-        secondLevelObsGroup.setStatus(Observation.ObservationStatus.FINAL);
-        secondLevelObsGroup.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
-        secondLevelObsGroup.setSubject(savedResultEncounter.getSubject());
-        secondLevelObsGroup.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
-        secondLevelObsGroup.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
-        
-        Reference refFirstGroupObs2 = secondLevelObsGroup.addHasMember();
-        refFirstGroupObs2.setType("Observation").setReference("Observation/" + firstLevelObsGroup.getIdPart());
-        
-        log.error("aaaaaaaaaaa ObservationHandler: Observation resultObservation {}", secondLevelObsGroup);
-        
-        return secondLevelObsGroup;
     }
 
     private Type getObservationValueBySenaiteResult(String senaiteResult) {
