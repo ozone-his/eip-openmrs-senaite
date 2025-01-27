@@ -64,7 +64,7 @@ public class BahmniResultsHandler {
     		ProducerTemplate producerTemplate,
             Encounter savedResultEncounter,
             ServiceRequest serviceRequest,
-            AnalysesDTO analysesDTOs) {
+            ArrayList<AnalysesDTO> analysesDTOs) {
         
     	String panelConceptUuid = serviceRequest.getIdPart();
     	
