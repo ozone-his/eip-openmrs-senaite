@@ -51,7 +51,7 @@ public class AnalysisRequestHandler {
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
         
-        log.debug("aaaaaaaaaaaaaaaaa  : analysis request object {}", response);
+        log.error("bbbbbbbbbbbbbbbbb  : analysis request object {}", response);
         
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
@@ -65,7 +65,7 @@ public class AnalysisRequestHandler {
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-by-client-sample-id-route", null, headers, String.class);
         
-        log.debug("bbbbbbbbbbbbbbbbb  : analysis request object {}", response);
+        log.error("ccccccccccccccccc  : analysis request object {}", response);
         
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
