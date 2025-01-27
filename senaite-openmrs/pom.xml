@@ -39,6 +39,11 @@
       <version>${camel.version}</version>
     </dependency>
     <dependency>
+	    <groupId>org.apache.camel</groupId>
+	    <artifactId>camel-vm</artifactId>
+	    <version>${camel.version}</version> <!-- Replace with your Camel version -->
+	</dependency>
+    <dependency>
       <groupId>org.openmrs.eip</groupId>
       <artifactId>camel-openmrs-fhir</artifactId>
       <version>${camel.openmrs.fhir.version}</version>
