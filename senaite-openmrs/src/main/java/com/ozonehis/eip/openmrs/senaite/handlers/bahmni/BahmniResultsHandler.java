@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,11 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 public class BahmniResultsHandler {
-
+	
+	private static final String UUID_REGEX = "^[0-9a-fA-F]{36}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    
+	private static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
+    
 	@Value("${openmrs.baseUrl}")
     private String openmrsBaseUrl;
 	
@@ -173,11 +177,6 @@ public class BahmniResultsHandler {
 
     // Helper method to check if the code is a valid UUID
     private boolean isValidUUID(String code) {
-        try {
-            UUID uuid = UUID.fromString(code);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+    	return UUID_PATTERN.matcher(code).matches();
     }
 }
