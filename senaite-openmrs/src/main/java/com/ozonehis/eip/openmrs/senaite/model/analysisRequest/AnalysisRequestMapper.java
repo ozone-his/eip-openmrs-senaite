@@ -41,6 +41,7 @@ public class AnalysisRequestMapper {
             analysisRequestDTO.setAnalyses(analysisRequestItem.getAnalyses());
             analysisRequestDTO.setClientSampleID(analysisRequestItem.getClientSampleID());
             analysisRequestDTO.setReviewState(analysisRequestItem.getReviewState());
+            analysisRequestDTO.setDatePublished(analysisRequestItem.getDatePublished());
             return analysisRequestDTO;
         }
 
