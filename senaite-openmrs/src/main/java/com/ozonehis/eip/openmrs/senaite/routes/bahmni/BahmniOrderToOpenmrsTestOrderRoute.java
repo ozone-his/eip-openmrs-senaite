@@ -12,6 +12,7 @@ import com.ozonehis.eip.openmrs.senaite.processors.TaskProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.component.sql.SqlComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
