@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
+
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.Encounter;
@@ -53,50 +55,64 @@ public class BahmniResultsHandler {
     
     @Autowired
     private IGenericClient openmrsFhirClient;
+    
+    @Autowired
+    private ObservationHandler observationHandler;
 
     public Observation  buildAndSendBahmniResultObservation(
     		ProducerTemplate producerTemplate,
             Encounter savedResultEncounter,
             ServiceRequest serviceRequest,
-            String conceptUuid,
-            String analysesResult,
-            String analysesResultCaptureDate) {
+            AnalysesDTO analysesDTOs) {
         
+    	String panelConceptUuid = serviceRequest.getIdPart();
+    	
     	// Create the top-level map
         Map<String, Object> resultMap = new HashMap<>();
 
         resultMap.put("encounter", savedResultEncounter.getIdPart());
         resultMap.put("concept", getServiceRequestCodingIdentifier(serviceRequest));
-        resultMap.put("order", serviceRequest.getIdPart());
+        resultMap.put("order", panelConceptUuid);
         resultMap.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
-        resultMap.put("obsDatetime", analysesResultCaptureDate);
 
         // Create the groupMembers list for the first level
         List<Map<String, Object>> groupMembersLevel1 = new ArrayList<>();
+        
+        for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
+        	
+        	String analysesDescription = resultAnalysesDTO.getDescription();
+        	
+            String testConceptUuid = analysesDescription.substring(
+                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+            String analysesResult = resultAnalysesDTO.getResult();
+            String analysesResultCaptureDate = resultAnalysesDTO.getResultCaptureDate();
+            
+        	// Create a nested map for the first group member
+            Map<String, Object> groupMember1 = new HashMap<>();
+            groupMember1.put("concept", testConceptUuid);
+            groupMember1.put("order", serviceRequest.getIdPart());
+            groupMember1.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
+            groupMember1.put("obsDatetime", analysesResultCaptureDate);
 
-        // Create a nested map for the first group member
-        Map<String, Object> groupMember1 = new HashMap<>();
-        groupMember1.put("concept", conceptUuid);
-        groupMember1.put("order", serviceRequest.getIdPart());
-        groupMember1.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
-        groupMember1.put("obsDatetime", analysesResultCaptureDate);
+            // Create the groupMembers list for the second level (nested inside groupMember1)
+            List<Map<String, Object>> groupMembersLevel2 = new ArrayList<>();
 
-        // Create the groupMembers list for the second level (nested inside groupMember1)
-        List<Map<String, Object>> groupMembersLevel2 = new ArrayList<>();
+            // Create a nested map for the second group member
+            Map<String, Object> groupMember2 = new HashMap<>();
+            groupMember2.put("value", analysesResult);
+            groupMember2.put("order", serviceRequest.getIdPart());
+            groupMember2.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
+            groupMember2.put("obsDatetime", analysesResultCaptureDate);
+            groupMember2.put("concept", testConceptUuid);
 
-        // Create a nested map for the second group member
-        Map<String, Object> groupMember2 = new HashMap<>();
-        groupMember2.put("value", analysesResult);
-        groupMember2.put("order", serviceRequest.getIdPart());
-        groupMember2.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
-        groupMember2.put("obsDatetime", analysesResultCaptureDate);
-        groupMember2.put("concept", conceptUuid);
+            groupMembersLevel2.add(groupMember2);
 
-        groupMembersLevel2.add(groupMember2);
+            groupMember1.put("groupMembers", groupMembersLevel2);
 
-        groupMember1.put("groupMembers", groupMembersLevel2);
-
-        groupMembersLevel1.add(groupMember1);
+            groupMembersLevel1.add(groupMember1);
+            
+            resultMap.put("obsDatetime", analysesResultCaptureDate);
+        }
 
         resultMap.put("groupMembers", groupMembersLevel1);
 
@@ -150,7 +166,7 @@ public class BahmniResultsHandler {
         return new String(java.util.Base64.getEncoder().encode(credentials.getBytes()));
     }
     
-    private String getServiceRequestCodingIdentifier(ServiceRequest serviceRequest) {
+    public String getServiceRequestCodingIdentifier(ServiceRequest serviceRequest) {
         List<Coding> codings = serviceRequest.getCode().getCoding();
         for (Coding coding : codings) {
             String code = coding.getCode();

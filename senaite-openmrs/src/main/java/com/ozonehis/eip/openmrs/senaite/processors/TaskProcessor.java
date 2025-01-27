@@ -173,27 +173,48 @@ public class TaskProcessor implements Processor {
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
+        
+        ArrayList<AnalysesDTO> analysesDTOs = new ArrayList<>();
         for (Analyses analysis : analyses) {
             AnalysesDTO resultAnalysesDTO =
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
-            String analysesDescription = resultAnalysesDTO.getDescription();
-            String conceptUuid = analysesDescription.substring(
-                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
-
-            Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                    conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
-            if (!observationHandler.doesObservationExists(savedObservation)) {
-                // Create result Observation
-                savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                		producerTemplate,
-                        savedResultEncounter,
-                        serviceRequest,
-                        conceptUuid,
-                        resultAnalysesDTO.getResult(),
-                        resultAnalysesDTO.getResultCaptureDate());
-            }
-            observationUuids.add(savedObservation.getIdPart());
+            analysesDTOs.add(resultAnalysesDTO);
         }
+        {
+        	if (analysesDTOs.size() >= 1) {
+        		Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+        				bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest), subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
+        		if (!observationHandler.doesObservationExists(savedObservation)) {
+                    // Create Bahmni result Observation
+                    savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                    		producerTemplate,
+                            savedResultEncounter,
+                            serviceRequest,
+                            analysesDTOs);
+                }
+                observationUuids.add(savedObservation.getIdPart());
+            }
+        }
+//        for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
+//        	
+//            String analysesDescription = resultAnalysesDTO.getDescription();
+//            String conceptUuid = analysesDescription.substring(
+//                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+//
+//            Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+//                    conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
+//            if (!observationHandler.doesObservationExists(savedObservation)) {
+//                // Create result Observation
+//                savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
+//                		producerTemplate,
+//                        savedResultEncounter,
+//                        serviceRequest,
+//                        conceptUuid,
+//                        resultAnalysesDTO.getResult(),
+//                        resultAnalysesDTO.getResultCaptureDate());
+//            }
+//            observationUuids.add(savedObservation.getIdPart());
+//        }
         diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
                 observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
     }
