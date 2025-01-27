@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
