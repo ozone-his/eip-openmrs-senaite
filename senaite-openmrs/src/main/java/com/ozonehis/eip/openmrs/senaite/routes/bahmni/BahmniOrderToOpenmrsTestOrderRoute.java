@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.eip.openmrs.senaite.routes;
+package com.ozonehis.eip.openmrs.senaite.routes.bahmni;
 
 import com.ozonehis.eip.openmrs.senaite.converters.ResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.TaskProcessor;
