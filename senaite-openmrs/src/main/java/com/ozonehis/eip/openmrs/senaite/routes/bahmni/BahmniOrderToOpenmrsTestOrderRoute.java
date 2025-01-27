@@ -21,12 +21,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class BahmniOrderToOpenmrsTestOrderRoute extends RouteBuilder {
     
+	@Value("${bahmni.test.orderType.uuid}")
+	private String bahmniTestOrderTypeUuid;
+	
     @Override
     public void configure() throws Exception {
 
     	// spotless:off
-    	from("direct:write-bahmniOrder-as-openmrs-testOrder")
+    	from("direct:debezium-event-listener")
             .routeId("write-bahmniOrder-as-testOrder")
+            .setHeader("bahmniTestOrderTypeUuid", constant(bahmniTestOrderTypeUuid))
             .log(LoggingLevel.INFO, "Processing Test Order from Order ::::::  ${exchangeProperty.event.tableName}")
             .choice()
                 .when(simple("${exchangeProperty.event.tableName} == 'orders' && ${exchangeProperty.event.operation} == 'c'"))
