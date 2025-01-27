@@ -22,6 +22,8 @@ public class AnalysisRequestDTO {
     private String sampleType; // SampleType UUID
 
     private String dateSampled;
+    
+    private String datePublished;
 
     private String template; // Template UUID
 
