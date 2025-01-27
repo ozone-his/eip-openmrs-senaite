@@ -52,7 +52,7 @@ public class BahmniResultsHandler {
     public Observation  buildAndSendBahmniResultObservation(
     		ProducerTemplate producerTemplate,
             Encounter savedResultEncounter,
-            String serviceRequestUuid,
+            ServiceRequest serviceRequest,
             String conceptUuid,
             String analysesResult,
             String analysesResultCaptureDate) {
@@ -61,8 +61,8 @@ public class BahmniResultsHandler {
         Map<String, Object> resultMap = new HashMap<>();
 
         resultMap.put("encounter", savedResultEncounter.getIdPart());
-        resultMap.put("concept", conceptUuid);
-        resultMap.put("order", serviceRequestUuid);
+        resultMap.put("concept", getServiceRequestCodingIdentifier(serviceRequest));
+        resultMap.put("order", serviceRequest.getIdPart());
         resultMap.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         resultMap.put("obsDatetime", analysesResultCaptureDate);
 
@@ -72,7 +72,7 @@ public class BahmniResultsHandler {
         // Create a nested map for the first group member
         Map<String, Object> groupMember1 = new HashMap<>();
         groupMember1.put("concept", conceptUuid);
-        groupMember1.put("order", serviceRequestUuid);
+        groupMember1.put("order", serviceRequest.getIdPart());
         groupMember1.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         groupMember1.put("obsDatetime", analysesResultCaptureDate);
 
@@ -82,7 +82,7 @@ public class BahmniResultsHandler {
         // Create a nested map for the second group member
         Map<String, Object> groupMember2 = new HashMap<>();
         groupMember2.put("value", analysesResult);
-        groupMember2.put("order", serviceRequestUuid);
+        groupMember2.put("order", serviceRequest.getIdPart());
         groupMember2.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
         groupMember2.put("obsDatetime", analysesResultCaptureDate);
         groupMember2.put("concept", conceptUuid);
@@ -143,5 +143,40 @@ public class BahmniResultsHandler {
     private String encodeBasicAuth(String username, String password) {
         String credentials = username + ":" + password;
         return new String(java.util.Base64.getEncoder().encode(credentials.getBytes()));
+    }
+    
+    private String getServiceRequestCodingIdentifier(ServiceRequest serviceRequest) {
+        List<Coding> codings = serviceRequest.getCode().getCoding();
+        for (Coding coding : codings) {
+            String code = coding.getCode();
+
+            // check if the code is a valid UUID
+            if (isValidUUID(code)) {
+                return code;
+            }
+            // check if it's a LOINC code
+            if ("http://loinc.org".equals(coding.getSystem())) {
+                return "LOINC:" + code;
+            }
+            // check if it's a CIEL code
+            if ("https://cielterminology.org".equals(coding.getSystem())) {
+                return "CIEL:" + code;
+            }
+            // check if it's a SNOMED code
+            if ("http://snomed.info/sct/".equals(coding.getSystem())) {
+                return "SNOMED CT:" + code;
+            }
+        }
+        return null;
+    }
+
+    // Helper method to check if the code is a valid UUID
+    private boolean isValidUUID(String code) {
+        try {
+            UUID uuid = UUID.fromString(code);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

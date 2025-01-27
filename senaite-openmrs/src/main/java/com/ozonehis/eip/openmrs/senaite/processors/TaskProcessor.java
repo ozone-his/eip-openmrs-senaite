@@ -187,7 +187,7 @@ public class TaskProcessor implements Processor {
                 savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
                 		producerTemplate,
                         savedResultEncounter,
-                        serviceRequest.getIdPart(),
+                        serviceRequest,
                         conceptUuid,
                         resultAnalysesDTO.getResult(),
                         resultAnalysesDTO.getResultCaptureDate());
