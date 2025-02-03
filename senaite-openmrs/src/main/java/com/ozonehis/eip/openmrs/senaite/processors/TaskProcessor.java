@@ -131,7 +131,7 @@ public class TaskProcessor implements Processor {
                 }
             }
         } catch (Exception e) {
-        	throw new EIPException(String.format("Error processing Task %s", e.getMessage()));
+            throw new EIPException(String.format("Error processing Task %s", e.getMessage()));
         }
     }
 

@@ -1,48 +1,51 @@
+/*
+ * Copyright © 2021, Ozone HIS <info@ozone-his.com>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.ArgumentMatcher;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.apache.camel.ProducerTemplate;
-import org.hl7.fhir.r4.model.Observation;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
-import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
+import static org.mockito.Mockito.when;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.ICriterion;
 import ca.uhn.fhir.rest.gclient.IQuery;
 import ca.uhn.fhir.rest.gclient.IUntypedQuery;
-
-import org.hl7.fhir.r4.model.Encounter;
-import org.hl7.fhir.r4.model.ServiceRequest;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.*;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.instance.model.api.IBaseBundle;
-
-import java.util.List;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
+import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import org.apache.camel.ProducerTemplate;
+import org.hl7.fhir.instance.model.api.IBaseBundle;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.ServiceRequest;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 public class BahmniResultsHandlerTest {
@@ -69,7 +72,7 @@ public class BahmniResultsHandlerTest {
     private AnalysesDTO analysesDTO1, analysesDTO2;
 
     @Mock
-    private IUntypedQuery <IBaseBundle> iUntypedQuery;
+    private IUntypedQuery<IBaseBundle> iUntypedQuery;
 
     @Mock
     private IQuery iQuery;
@@ -103,17 +106,25 @@ public class BahmniResultsHandlerTest {
         savedResultEncounter = new Encounter();
         savedResultEncounter.setId("cb4f94cf-462c-4e0d-8c48-3dc4c7c0201b");
         savedResultEncounter.setStatus(Encounter.EncounterStatus.INPROGRESS);
-        savedResultEncounter.getMeta().addTag().setSystem("http://fhir.openmrs.org/ext/encounter-tag")
-            .setCode("encounter")
-            .setDisplay("Encounter");
-            savedResultEncounter.setSubject(new org.hl7.fhir.r4.model.Reference("Patient/5946f880-b197-400b-9caa-a3c661d23041"));
+        savedResultEncounter
+                .getMeta()
+                .addTag()
+                .setSystem("http://fhir.openmrs.org/ext/encounter-tag")
+                .setCode("encounter")
+                .setDisplay("Encounter");
+        savedResultEncounter.setSubject(
+                new org.hl7.fhir.r4.model.Reference("Patient/5946f880-b197-400b-9caa-a3c661d23041"));
 
         // Create ServiceRequest object with reference to Patient
         serviceRequest = new ServiceRequest();
         serviceRequest.setId("05e271aa-5f11-4378-a443-3e7e3e8c7a71");
         serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.COMPLETED);
         serviceRequest.setIntent(ServiceRequest.ServiceRequestIntent.ORDER);
-        serviceRequest.getCode().addCoding().setCode("1019AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").setDisplay("CBC");
+        serviceRequest
+                .getCode()
+                .addCoding()
+                .setCode("1019AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                .setDisplay("CBC");
         serviceRequest.setSubject(new org.hl7.fhir.r4.model.Reference("Patient/5946f880-b197-400b-9caa-a3c661d23041"));
 
         when(analysesDTO1.getDescription()).thenReturn("Test1(1016AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)");
@@ -131,7 +142,7 @@ public class BahmniResultsHandlerTest {
         when(iUntypedQuery.forResource(Observation.class)).thenReturn(iQuery);
         when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
         when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
-        
+
         observation = new Observation();
         observation.setId("0c4f44f7-7277-4a0a-9f6f-b842c874c95b");
         observation.setStatus(Observation.ObservationStatus.FINAL);
@@ -142,7 +153,11 @@ public class BahmniResultsHandlerTest {
         observation.setValue(code);
 
         Quantity valueQuantity = new Quantity();
-        valueQuantity.setValue(166.0).setUnit("cm").setSystem("http://unitsofmeasure.org").setCode("cm");
+        valueQuantity
+                .setValue(166.0)
+                .setUnit("cm")
+                .setSystem("http://unitsofmeasure.org")
+                .setCode("cm");
         observation.setValue(valueQuantity);
 
         Reference subject = new Reference("Patient/5946f880-b197-400b-9caa-a3c661d23041");
@@ -167,61 +182,60 @@ public class BahmniResultsHandlerTest {
 
         // replay
         Observation result = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                producerTemplate, savedResultEncounter, serviceRequest, new ArrayList<>(analysesDTOs), datePublished
-        );
+                producerTemplate, savedResultEncounter, serviceRequest, new ArrayList<>(analysesDTOs), datePublished);
 
         // replay
         assertNotNull(result);
-        String bahmniResultObs = "{\r\n" +
-                "  \"groupMembers\" : [ {\r\n" + 
-        		"    \"groupMembers\" : [ {\r\n" + 
-        		"      \"obsDatetime\" : \"2022-01-01\",\r\n" + 
-        		"      \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n" + 
-        		"      \"concept\" : \"1016AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n" + 
-        		"      \"value\" : \"1\",\r\n" + 
-        		"      \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n" + 
-        		"    } ],\r\n" + 
-        		"    \"obsDatetime\" : \"2022-01-01\",\r\n" + 
-        		"    \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n" + 
-        		"    \"concept\" : \"1016AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n" + 
-        		"    \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n" + 
-        		"  }, {\r\n" + 
-        		"    \"groupMembers\" : [ {\r\n" + 
-        		"      \"obsDatetime\" : \"2022-01-02\",\r\n" + 
-        		"      \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n" + 
-        		"      \"concept\" : \"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n" + 
-        		"      \"value\" : \"2\",\r\n" + 
-        		"      \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n" + 
-        		"    } ],\r\n" + 
-        		"    \"obsDatetime\" : \"2022-01-02\",\r\n" + 
-        		"    \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n" + 
-        		"    \"concept\" : \"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n" + 
-        		"    \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n" + 
-        		"  } ],\r\n" + 
-        		"  \"obsDatetime\" : \"2025-01-27T13:30:00+00:00\",\r\n" + 
-        		"  \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n" + 
-        		"  \"concept\" : \"1019AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n" + 
-        		"  \"encounter\" : \"cb4f94cf-462c-4e0d-8c48-3dc4c7c0201b\",\r\n" + 
-        		"  \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n" + 
-        		"}";
+        String bahmniResultObs = "{\r\n" + "  \"groupMembers\" : [ {\r\n"
+                + "    \"groupMembers\" : [ {\r\n"
+                + "      \"obsDatetime\" : \"2022-01-01\",\r\n"
+                + "      \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n"
+                + "      \"concept\" : \"1016AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n"
+                + "      \"value\" : \"1\",\r\n"
+                + "      \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n"
+                + "    } ],\r\n"
+                + "    \"obsDatetime\" : \"2022-01-01\",\r\n"
+                + "    \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n"
+                + "    \"concept\" : \"1016AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n"
+                + "    \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n"
+                + "  }, {\r\n"
+                + "    \"groupMembers\" : [ {\r\n"
+                + "      \"obsDatetime\" : \"2022-01-02\",\r\n"
+                + "      \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n"
+                + "      \"concept\" : \"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n"
+                + "      \"value\" : \"2\",\r\n"
+                + "      \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n"
+                + "    } ],\r\n"
+                + "    \"obsDatetime\" : \"2022-01-02\",\r\n"
+                + "    \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n"
+                + "    \"concept\" : \"679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n"
+                + "    \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n"
+                + "  } ],\r\n"
+                + "  \"obsDatetime\" : \"2025-01-27T13:30:00+00:00\",\r\n"
+                + "  \"person\" : \"5946f880-b197-400b-9caa-a3c661d23041\",\r\n"
+                + "  \"concept\" : \"1019AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n"
+                + "  \"encounter\" : \"cb4f94cf-462c-4e0d-8c48-3dc4c7c0201b\",\r\n"
+                + "  \"order\" : \"05e271aa-5f11-4378-a443-3e7e3e8c7a71\"\r\n"
+                + "}";
         JsonNode expectedBahmniResultObs = objectMapper.readTree(bahmniResultObs);
 
-        verify(producerTemplate).requestBodyAndHeaders(
-            anyString(),
-            argThat(new ArgumentMatcher<String>() {
-                @Override
-                public boolean matches(String payload) {
-                    try {
-                        JsonNode payloadNode = objectMapper.readTree(payload); // Parse the payload into JsonNode
-                        return expectedBahmniResultObs.equals(payloadNode); // Compare the structure
-                    } catch (Exception e) {
-                        return false;
-                    }
-                }
-            }),
-            anyMap(),
-            eq(String.class)
-    );
+        verify(producerTemplate)
+                .requestBodyAndHeaders(
+                        anyString(),
+                        argThat(new ArgumentMatcher<String>() {
+                            @Override
+                            public boolean matches(String payload) {
+                                try {
+                                    JsonNode payloadNode =
+                                            objectMapper.readTree(payload); // Parse the payload into JsonNode
+                                    return expectedBahmniResultObs.equals(payloadNode); // Compare the structure
+                                } catch (Exception e) {
+                                    return false;
+                                }
+                            }
+                        }),
+                        anyMap(),
+                        eq(String.class));
         assertEquals(observation, result);
     }
 
@@ -236,7 +250,6 @@ public class BahmniResultsHandlerTest {
 
         // replay
         bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                producerTemplate, savedResultEncounter, serviceRequest, new ArrayList<>(analysesDTOs), datePublished
-        );
+                producerTemplate, savedResultEncounter, serviceRequest, new ArrayList<>(analysesDTOs), datePublished);
     }
 }
