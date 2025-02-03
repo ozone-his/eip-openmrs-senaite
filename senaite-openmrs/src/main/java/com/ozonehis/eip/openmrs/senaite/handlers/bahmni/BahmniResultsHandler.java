@@ -25,6 +25,7 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.ServiceRequest;
+import org.hl7.fhir.r4.model.Consent.provisionActorComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,13 +41,13 @@ public class BahmniResultsHandler {
     private static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
 
     @Value("${openmrs.baseUrl}")
-    private String openmrsBaseUrl;
+    protected String openmrsBaseUrl;
 
     @Value("${openmrs.username}")
-    private String openmrsUsername;
+    protected String openmrsUsername;
 
     @Value("${openmrs.password}")
-    private String openmrsPassword;
+    protected String openmrsPassword;
 
     @Autowired
     private IGenericClient openmrsFhirClient;
