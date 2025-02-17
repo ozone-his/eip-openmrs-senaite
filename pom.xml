@@ -61,7 +61,7 @@
     <fhir-r4.version>7.0.0</fhir-r4.version>
     <camel.version>4.1.0</camel.version>
     <test.containers.version>1.19.3</test.containers.version>
-    <ozone.version>1.0.0-SNAPSHOT</ozone.version>
+    <ozone.distro.version>1.0.0-SNAPSHOT</ozone.distro.version>
     <skipTests>false</skipTests>
     <skipUnitTests>${skipTests}</skipUnitTests>
     <skipIntegrationTests>${skipTests}</skipIntegrationTests>

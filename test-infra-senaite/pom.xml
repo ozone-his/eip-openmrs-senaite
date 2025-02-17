@@ -30,8 +30,8 @@
   <dependencies>
     <dependency>
       <groupId>com.ozonehis</groupId>
-      <artifactId>ozone</artifactId>
-      <version>${ozone.version}</version>
+      <artifactId>ozone-distro</artifactId>
+      <version>${ozone.distro.version}</version>
       <type>zip</type>
       <scope>test</scope>
     </dependency>
@@ -68,10 +68,10 @@
             <phase>generate-test-resources</phase>
             <configuration>
               <includeGroupIds>com.ozonehis</includeGroupIds>
-              <includeArtifactIds>ozone</includeArtifactIds>
+              <includeArtifactIds>ozone-distro</includeArtifactIds>
               <includeTypes>zip</includeTypes>
-              <includes>distro/configs/**</includes>
-              <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+              <includes>configs/**</includes>
+              <outputDirectory>${project.build.directory}/test-classes/distro</outputDirectory>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
