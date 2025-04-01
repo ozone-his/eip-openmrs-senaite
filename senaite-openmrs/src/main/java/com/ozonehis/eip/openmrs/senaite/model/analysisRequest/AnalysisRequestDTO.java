@@ -23,6 +23,8 @@ public class AnalysisRequestDTO {
 
     private String dateSampled;
 
+    private String datePublished;
+
     private String template; // Template UUID
 
     private String profiles; // Profiles UUID

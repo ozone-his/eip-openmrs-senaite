@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.handlers.bahmni.BahmniResultsHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
@@ -48,6 +49,9 @@ public class TaskProcessor implements Processor {
     @Value("${results.encounterType.uuid}")
     private String resultEncounterTypeUUID;
 
+    @Value("${run.with.bahmni.emr}")
+    private String runWithBahmniEmr;
+
     @Autowired
     private ServiceRequestHandler serviceRequestHandler;
 
@@ -68,6 +72,9 @@ public class TaskProcessor implements Processor {
 
     @Autowired
     private DiagnosticReportHandler diagnosticReportHandler;
+
+    @Autowired
+    private BahmniResultsHandler bahmniResultsHandler;
 
     @Override
     public void process(Exchange exchange) {
@@ -102,7 +109,8 @@ public class TaskProcessor implements Processor {
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            createResultsInOpenMRS(producerTemplate, serviceRequest, analyses);
+                            createResultsInOpenMRS(
+                                    producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
@@ -142,7 +150,7 @@ public class TaskProcessor implements Processor {
     }
 
     private void createResultsInOpenMRS(
-            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses)
+            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String datePublished)
             throws JsonProcessingException {
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
                 resultEncounterTypeUUID,
@@ -151,13 +159,15 @@ public class TaskProcessor implements Processor {
                 && resultEncounter.getPeriod().getStart().getTime()
                         == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
             // Result Encounter exists
-            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter);
+            saveObservationAndDiagnosticReport(
+                    producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
         } else {
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
             Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(encounterID);
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
-            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, savedResultEncounter);
+            saveObservationAndDiagnosticReport(
+                    producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
         }
     }
 
@@ -165,29 +175,55 @@ public class TaskProcessor implements Processor {
             ProducerTemplate producerTemplate,
             ServiceRequest serviceRequest,
             Analyses[] analyses,
-            Encounter savedResultEncounter)
+            Encounter savedResultEncounter,
+            String datePublished)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
+
+        ArrayList<AnalysesDTO> analysesDTOs = new ArrayList<>();
         for (Analyses analysis : analyses) {
             AnalysesDTO resultAnalysesDTO =
                     analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
-            String analysesDescription = resultAnalysesDTO.getDescription();
-            String conceptUuid = analysesDescription.substring(
-                    analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+            analysesDTOs.add(resultAnalysesDTO);
+        }
 
+        if (Boolean.parseBoolean(runWithBahmniEmr)) {
             Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
-                    conceptUuid, subjectID, savedResultEncounter.getIdPart(), resultAnalysesDTO.getResultCaptureDate());
+                    bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest),
+                    subjectID,
+                    savedResultEncounter.getIdPart(),
+                    datePublished);
             if (!observationHandler.doesObservationExists(savedObservation)) {
-                // Create result Observation
-                savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
-                        savedResultEncounter,
-                        conceptUuid,
-                        resultAnalysesDTO.getResult(),
-                        resultAnalysesDTO.getResultCaptureDate()));
+                // Create Bahmni result Observation
+                savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                        producerTemplate, savedResultEncounter, serviceRequest, analysesDTOs, datePublished);
             }
             observationUuids.add(savedObservation.getIdPart());
+        } else {
+            for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
+
+                String analysesDescription = resultAnalysesDTO.getDescription();
+                String conceptUuid = analysesDescription.substring(
+                        analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
+
+                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+                        conceptUuid,
+                        subjectID,
+                        savedResultEncounter.getIdPart(),
+                        resultAnalysesDTO.getResultCaptureDate());
+                if (!observationHandler.doesObservationExists(savedObservation)) {
+                    // Create result Observation
+                    savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
+                            savedResultEncounter,
+                            conceptUuid,
+                            resultAnalysesDTO.getResult(),
+                            resultAnalysesDTO.getResultCaptureDate()));
+                }
+                observationUuids.add(savedObservation.getIdPart());
+            }
         }
+
         diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
                 observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
     }
