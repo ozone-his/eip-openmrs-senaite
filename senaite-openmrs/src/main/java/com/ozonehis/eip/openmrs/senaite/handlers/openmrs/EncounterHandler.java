@@ -32,8 +32,12 @@ public class EncounterHandler {
     @Value("${results.encounterType.uuid}")
     private String resultEncounterTypeUUID;
 
-    @Autowired
     private IGenericClient openmrsFhirClient;
+
+    @Autowired
+    public EncounterHandler(IGenericClient openmrsFhirClient) {
+        this.openmrsFhirClient = openmrsFhirClient;
+    }
 
     public Encounter getEncounterByTypeAndSubject(String typeID, String subjectID) {
         Bundle bundle = openmrsFhirClient
@@ -42,6 +46,7 @@ public class EncounterHandler {
                 .where(Encounter.TYPE.exactly().code(typeID))
                 .and(Encounter.SUBJECT.hasId(subjectID))
                 .returnBundle(Bundle.class)
+                .count(1) // Limit to 1 result
                 .execute();
 
         log.debug("EncounterHandler: Encounter getEncounterByTypeAndSubject {}", bundle.getId());
@@ -82,7 +87,9 @@ public class EncounterHandler {
         coding.setDisplay("Lab Results");
         resultEncounter.setType(
                 (Collections.singletonList(new CodeableConcept().setCoding(Collections.singletonList(coding)))));
-        resultEncounter.setPeriod(orderEncounter.getPeriod());
+        if (orderEncounter.hasPeriod()) {
+            resultEncounter.setPeriod(orderEncounter.getPeriod());
+        }
         resultEncounter.setSubject(orderEncounter.getSubject());
         resultEncounter.setPartOf(orderEncounter.getPartOf());
         resultEncounter.setParticipant(orderEncounter.getParticipant());
