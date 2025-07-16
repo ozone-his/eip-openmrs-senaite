@@ -155,20 +155,38 @@ public class TaskProcessor implements Processor {
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
                 resultEncounterTypeUUID,
                 serviceRequest.getSubject().getReference().split("/")[1]);
-        if (resultEncounter != null
-                && resultEncounter.getPeriod().getStart().getTime()
-                        == serviceRequest.getOccurrencePeriod().getStart().getTime()) {
+        if (hasSameStartDate(resultEncounter, serviceRequest)) {
             // Result Encounter exists
+            log.debug("TaskProcessor: LabResults Encounter exists with ID {}", resultEncounter.getIdPart());
             saveObservationAndDiagnosticReport(
                     producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
         } else {
+            // Result Encounter does not exist, create a new one
+            log.debug("TaskProcessor: LabResults Encounter does not exist, creating a new one");
             String encounterID = serviceRequest.getEncounter().getReference().split("/")[1];
+            // Fetch the order encounter using the encounter ID from the service request
+            log.debug("TaskProcessor: Fetching order encounter with ID {}", encounterID);
             Encounter orderEncounter = encounterHandler.getEncounterByEncounterID(encounterID);
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
             saveObservationAndDiagnosticReport(
                     producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
         }
+    }
+
+    /**
+     * Checks if the start date of the encounter matches the start date of the service request.
+     *
+     * @param encounter       The encounter to check.
+     * @param serviceRequest  The service request to check against.
+     * @return true if both dates match, false otherwise.
+     */
+    private boolean hasSameStartDate(Encounter encounter, ServiceRequest serviceRequest) {
+        if (encounter != null && serviceRequest.hasOccurrencePeriod() && encounter.hasPeriod()) {
+            return encounter.getPeriod().getStart().getTime()
+                    == serviceRequest.getOccurrencePeriod().getStart().getTime();
+        }
+        return false;
     }
 
     private void saveObservationAndDiagnosticReport(

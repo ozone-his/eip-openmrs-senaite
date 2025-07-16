@@ -7,8 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,6 +85,7 @@ class EncounterHandlerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldReturnEncounterGivenTypeAndSubject() {
         // Setup
         String encounterID = UUID.randomUUID().toString();
@@ -101,6 +102,7 @@ class EncounterHandlerTest {
         when(iUntypedQuery.forResource(Encounter.class)).thenReturn(iQuery);
         when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
         when(iQuery.and(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.count(1)).thenReturn(iQuery);
         when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
         when(iQuery.execute()).thenReturn(bundle);
 
