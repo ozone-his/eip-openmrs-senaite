@@ -15,4 +15,4 @@ services:
     ports:
       - "8085:8080"
     volumes:
-      - "../target/eip-openmrs-senaite-2.0.0-SNAPSHOT.jar:/eip-client/routes/eip-openmrs-senaite-2.0.0-SNAPSHOT.jar"
+      - "../target/eip-openmrs-senaite-2.2.0-SNAPSHOT.jar:/eip-client/routes/eip-openmrs-senaite-2.2.0-SNAPSHOT.jar"
