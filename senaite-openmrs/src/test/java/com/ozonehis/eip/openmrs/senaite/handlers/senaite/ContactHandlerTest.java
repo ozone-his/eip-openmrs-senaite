@@ -7,7 +7,7 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;

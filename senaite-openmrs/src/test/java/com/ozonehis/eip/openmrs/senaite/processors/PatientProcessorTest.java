@@ -7,7 +7,7 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -85,7 +85,7 @@ class PatientProcessorTest extends BaseProcessorTest {
         patientProcessor.process(exchange);
 
         // Assert
-        assertEquals(exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE), "u");
+        assertEquals("u", exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE));
         verify(clientMapper, times(1)).toSenaite(patient);
     }
 
@@ -111,7 +111,7 @@ class PatientProcessorTest extends BaseProcessorTest {
         patientProcessor.process(exchange);
 
         // Assert
-        assertEquals(exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE), "c");
+        assertEquals("c", exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE));
         verify(clientMapper, times(1)).toSenaite(patient);
     }
 }
