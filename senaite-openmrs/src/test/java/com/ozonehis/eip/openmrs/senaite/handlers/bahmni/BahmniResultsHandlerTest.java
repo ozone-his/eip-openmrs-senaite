@@ -7,8 +7,9 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,18 +37,18 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.ServiceRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class BahmniResultsHandlerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -92,7 +93,7 @@ public class BahmniResultsHandlerTest {
     @Value("${openmrs.password}")
     private String openmrsPassword;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         // Injecting the mock values into the class under test
         bahmniResultsHandler.openmrsBaseUrl = "http://example.com";
@@ -223,6 +224,7 @@ public class BahmniResultsHandlerTest {
                 .requestBodyAndHeaders(
                         anyString(),
                         argThat(new ArgumentMatcher<String>() {
+
                             @Override
                             public boolean matches(String payload) {
                                 try {
@@ -239,8 +241,8 @@ public class BahmniResultsHandlerTest {
         assertEquals(observation, result);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testBuildAndSendBahmniResultObservationExceptionHandling() throws Exception {
+    @Test
+    public void testBuildAndSendBahmniResultObservationExceptionHandling() {
         // setup
         when(producerTemplate.requestBodyAndHeaders(anyString(), anyString(), anyMap(), eq(String.class)))
                 .thenThrow(new RuntimeException("Failed to send request"));
@@ -249,7 +251,13 @@ public class BahmniResultsHandlerTest {
         String datePublished = "2025-01-27T13:30:00+00:00";
 
         // replay
-        bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                producerTemplate, savedResultEncounter, serviceRequest, new ArrayList<>(analysesDTOs), datePublished);
+        assertThrows(RuntimeException.class, () -> {
+            bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                    producerTemplate,
+                    savedResultEncounter,
+                    serviceRequest,
+                    new ArrayList<>(analysesDTOs),
+                    datePublished);
+        });
     }
 }
