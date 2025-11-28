@@ -58,7 +58,6 @@
     <camel.openmrs.fhir.version>4.2.0-SNAPSHOT</camel.openmrs.fhir.version>
     <fhir-r4.version>7.0.0</fhir-r4.version>
     <camel.version>4.1.0</camel.version>
-    <ozone.version>1.0.0-SNAPSHOT</ozone.version>
 
     <!-- Formatting plugins versions -->
     <spotless.version>2.30.0</spotless.version>
