@@ -93,13 +93,14 @@ public class TaskProcessor implements Processor {
                     continue;
                 }
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(
-                        task.getBasedOn().get(0).getReference());
+                        task.getBasedOn().get(0).getReference().split("/")[1]);
                 if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
                     taskHandler.updateTask(taskHandler.markTaskRejected(task), task.getIdPart());
                 } else {
                     String serviceRequestSubjectID =
                             serviceRequest.getSubject().getReference().split("/")[1];
-                    String taskBasedOnReference = task.getBasedOn().get(0).getReference();
+                    String taskBasedOnReference =
+                            task.getBasedOn().get(0).getReference().split("/")[1];
                     AnalysisRequestDTO analysisRequestDTO =
                             analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
                                     producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
