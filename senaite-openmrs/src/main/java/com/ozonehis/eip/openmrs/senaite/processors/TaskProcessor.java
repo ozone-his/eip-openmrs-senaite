@@ -92,14 +92,19 @@ public class TaskProcessor implements Processor {
                 if (!taskHandler.doesTaskExists(task)) {
                     continue;
                 }
-                ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(
-                        task.getBasedOn().get(0).getReference());
+                if (task.getBasedOn() == null || task.getBasedOn().isEmpty()) {
+                    continue;
+                }
+                String taskBasedOnReference = task.getBasedOn().get(0).getReference();
+                if (taskBasedOnReference.contains("\\/")) {
+                    taskBasedOnReference = taskBasedOnReference.split("/")[1];
+                }
+                ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(taskBasedOnReference);
                 if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
                     taskHandler.updateTask(taskHandler.markTaskRejected(task), task.getIdPart());
                 } else {
                     String serviceRequestSubjectID =
                             serviceRequest.getSubject().getReference().split("/")[1];
-                    String taskBasedOnReference = task.getBasedOn().get(0).getReference();
                     AnalysisRequestDTO analysisRequestDTO =
                             analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
                                     producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
@@ -177,8 +182,8 @@ public class TaskProcessor implements Processor {
     /**
      * Checks if the start date of the encounter matches the start date of the service request.
      *
-     * @param encounter       The encounter to check.
-     * @param serviceRequest  The service request to check against.
+     * @param encounter      The encounter to check.
+     * @param serviceRequest The service request to check against.
      * @return true if both dates match, false otherwise.
      */
     private boolean hasSameStartDate(Encounter encounter, ServiceRequest serviceRequest) {
