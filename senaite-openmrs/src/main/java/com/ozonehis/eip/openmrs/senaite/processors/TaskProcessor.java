@@ -245,9 +245,9 @@ public class TaskProcessor implements Processor {
                 }
                 observationUuids.add(savedObservation.getIdPart());
             }
-        }
 
-        diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
-                observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
+            diagnosticReportHandler.sendDiagnosticReport(diagnosticReportHandler.buildDiagnosticReport(
+                    observationUuids, serviceRequest, savedResultEncounter.getIdPart()));
+        }
     }
 }
