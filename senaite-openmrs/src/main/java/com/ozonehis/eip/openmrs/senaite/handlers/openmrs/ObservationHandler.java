@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.api.SummaryEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.time.Instant;
 import java.util.Collections;
@@ -45,6 +46,7 @@ public class ObservationHandler {
                 .where(Observation.CODE.exactly().code(codeID))
                 .and(Observation.SUBJECT.hasId(subjectID))
                 .and(Observation.ENCOUNTER.hasId(encounterID))
+                .summaryMode(SummaryEnum.DATA)
                 // .and(Observation.DATE.exactly().second(observationDate)) // TODO: Fix date format passed
                 .returnBundle(Bundle.class)
                 .execute();

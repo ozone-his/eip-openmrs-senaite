@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.api.SummaryEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.ICreate;
 import ca.uhn.fhir.rest.gclient.ICreateTyped;
@@ -98,6 +99,7 @@ class ObservationHandlerTest {
         when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
         when(iQuery.and(any(ICriterion.class))).thenReturn(iQuery);
         when(iQuery.and(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.summaryMode(any(SummaryEnum.class))).thenReturn(iQuery);
         when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
         when(iQuery.execute()).thenReturn(bundle);
 
