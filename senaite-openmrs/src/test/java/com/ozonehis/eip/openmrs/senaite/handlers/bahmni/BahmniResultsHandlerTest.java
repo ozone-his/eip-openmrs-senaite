@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ca.uhn.fhir.rest.api.SummaryEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.ICriterion;
 import ca.uhn.fhir.rest.gclient.IQuery;
@@ -142,6 +143,7 @@ public class BahmniResultsHandlerTest {
         when(openmrsFhirClient.search()).thenReturn(iUntypedQuery);
         when(iUntypedQuery.forResource(Observation.class)).thenReturn(iQuery);
         when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.summaryMode(any(SummaryEnum.class))).thenReturn(iQuery);
         when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
 
         observation = new Observation();
