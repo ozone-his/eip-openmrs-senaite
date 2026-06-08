@@ -7,6 +7,7 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
+import ca.uhn.fhir.rest.api.SummaryEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -146,6 +147,7 @@ public class BahmniResultsHandler {
                 .search()
                 .forResource(Observation.class)
                 .where(Observation.RES_ID.exactly().identifier(observationUuid))
+                .summaryMode(SummaryEnum.DATA)
                 .returnBundle(Bundle.class)
                 .execute();
 
