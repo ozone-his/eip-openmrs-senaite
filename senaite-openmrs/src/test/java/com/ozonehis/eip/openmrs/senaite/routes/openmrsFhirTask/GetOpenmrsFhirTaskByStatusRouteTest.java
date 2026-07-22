@@ -43,8 +43,7 @@ class GetOpenmrsFhirTaskByStatusRouteTest extends CamelSpringTestSupport {
 
             @Override
             public void configure() {
-                weaveByToUri(
-                                "fhir://search/searchByUrl?url=/Task?status=requested,accepted&_sort=-_lastUpdated&_count=100")
+                weaveByToUri("fhir://search/searchByUrl?url=/Task?status=requested,accepted&_sort=-_lastUpdated")
                         .replace()
                         .to("mock:get-task-by-status-route");
             }

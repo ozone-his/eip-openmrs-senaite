@@ -17,8 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
 
-    public static final String GET_BY_STATUS_ENDPOINT =
-            "/Task?status=requested,accepted&_sort=-_lastUpdated&_count=100";
+    public static final String GET_BY_STATUS_ENDPOINT = "/Task?status=requested,accepted&_sort=-_lastUpdated";
 
     @Override
     public void configure() {
