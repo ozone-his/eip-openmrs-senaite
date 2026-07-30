@@ -23,6 +23,8 @@ jobs:
     with:
       maven-args: '-pl eip-openmrs-senaite-it -am'
       maven-phase: 'verify'
+      build-source-repo: true
+      use-secrets: true
 
   publish:
     if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release' }}
