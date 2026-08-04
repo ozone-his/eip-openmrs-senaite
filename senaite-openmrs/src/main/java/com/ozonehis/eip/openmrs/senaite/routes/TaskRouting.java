@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Setter
@@ -25,11 +26,17 @@ public class TaskRouting extends RouteBuilder {
     @Autowired
     private ResourceConverter resourceConverter;
 
+    @Value("${task.update.initial.delay}")
+    private long taskUpdateInitialDelay;
+
+    @Value("${task.update.delay}")
+    private long taskUpdateDelay;
+
     @Override
     public void configure() {
         getContext().getTypeConverterRegistry().addTypeConverters(resourceConverter);
         // spotless:off
-        from("scheduler:taskUpdate?initialDelay=10000&delay=10000")// TODO: Make initialDelay and delay configurable
+        from("scheduler:taskUpdate?initialDelay=" + taskUpdateInitialDelay + "&delay=" + taskUpdateDelay)
             .routeId("poll-senaite")
             .log(LoggingLevel.INFO, "Polling Tasks started...")
             .to("direct:openmrs-get-task-by-status-route")
