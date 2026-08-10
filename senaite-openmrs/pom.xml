@@ -97,44 +97,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>net.mekomsolutions.maven.plugin</groupId>
-        <artifactId>dependency-tracker-maven-plugin</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>Compile dependency report</id>
-            <goals>
-              <goal>track</goal>
-            </goals>
-            <phase>compile</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- Attach the dependency report to the build -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-          <execution>
-            <id>Attach the dependency report</id>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-dependencies.txt</file>
-                  <type>txt</type>
-                  <classifier>${dependencyReportClassifier}</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
