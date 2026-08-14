@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.ICreate;
 import ca.uhn.fhir.rest.gclient.ICreateTyped;
+import ca.uhn.fhir.rest.gclient.ICriterion;
 import ca.uhn.fhir.rest.gclient.IQuery;
 import ca.uhn.fhir.rest.gclient.IUntypedQuery;
 import ca.uhn.fhir.rest.gclient.IUpdate;
@@ -116,6 +118,7 @@ class TaskHandlerTest {
         // Mock behavior
         when(openmrsFhirClient.search()).thenReturn(iUntypedQuery);
         when(iUntypedQuery.forResource(Task.class)).thenReturn(iQuery);
+        when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
         when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
         when(iQuery.execute()).thenReturn(bundle);
 
@@ -123,6 +126,7 @@ class TaskHandlerTest {
         Task result = taskHandler.getTaskByServiceRequestID(serviceRequestID);
 
         // Verify
+        verify(iQuery, times(1)).where(any(ICriterion.class));
         assertNotNull(result);
         assertEquals(ResourceType.Task, result.getResourceType());
         assertEquals(result.getId(), taskID);
