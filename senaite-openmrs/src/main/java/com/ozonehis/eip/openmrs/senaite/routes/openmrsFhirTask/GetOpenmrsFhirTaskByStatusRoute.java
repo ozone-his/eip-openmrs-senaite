@@ -20,7 +20,6 @@ public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
 
     public static final String GET_BY_STATUS_ENDPOINT = "/Task?status=requested,accepted&_sort=-_lastUpdated&_count=10";
 
-    private static final String FHIR_URL_HEADER = "CamelFhir.url";
     private static final String AGGREGATED_BUNDLE = "aggregatedBundle";
     private static final String NEXT_PAGE_URL = "nextPageUrl";
 
@@ -32,15 +31,13 @@ public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
                 .routeId("openmrs-get-task-by-status-route")
                 .setProperty(NEXT_PAGE_URL, constant(GET_BY_STATUS_ENDPOINT))
                 .loopDoWhile(exchangeProperty(NEXT_PAGE_URL).isNotNull())
-                .setHeader(FHIR_URL_HEADER, exchangeProperty(NEXT_PAGE_URL))
-                .to("fhir://search/searchByUrl")
+                .toD("fhir://search/searchByUrl?url=RAW(${exchangeProperty.nextPageUrl})")
                 .unmarshal()
                 .fhirJson("R4")
                 .convertBodyTo(Bundle.class)
                 .process(this::aggregatePage)
                 .end()
                 .setBody(exchangeProperty(AGGREGATED_BUNDLE))
-                .removeHeader(FHIR_URL_HEADER)
                 .removeProperty(AGGREGATED_BUNDLE)
                 .removeProperty(NEXT_PAGE_URL)
                 .end();
