@@ -37,6 +37,7 @@ public class TaskHandler {
         Bundle bundle = openmrsFhirClient
                 .search()
                 .forResource(Task.class)
+                .where(Task.BASED_ON.hasId(serviceRequestID))
                 .returnBundle(Bundle.class)
                 .execute();
 
@@ -44,10 +45,6 @@ public class TaskHandler {
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Task.class::isInstance)
                 .map(Task.class::cast)
-                .filter(task -> task.getBasedOn()
-                        .get(0)
-                        .getReference()
-                        .equals(serviceRequestID)) // TODO: Use client impl and don't fetch all Tasks
                 .findFirst()
                 .orElse(null);
     }
