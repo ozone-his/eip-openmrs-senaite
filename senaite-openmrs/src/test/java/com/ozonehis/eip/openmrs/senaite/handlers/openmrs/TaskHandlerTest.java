@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.ICreate;
 import ca.uhn.fhir.rest.gclient.ICreateTyped;
+import ca.uhn.fhir.rest.gclient.ICriterion;
 import ca.uhn.fhir.rest.gclient.IQuery;
 import ca.uhn.fhir.rest.gclient.IUntypedQuery;
 import ca.uhn.fhir.rest.gclient.IUpdate;
@@ -55,7 +57,7 @@ class TaskHandlerTest {
     private IUntypedQuery iUntypedQuery;
 
     @Mock
-    private IQuery iQuery;
+    private IQuery<Bundle> iQuery;
 
     @InjectMocks
     private TaskHandler taskHandler;
@@ -103,27 +105,20 @@ class TaskHandlerTest {
     void shouldReturnTaskGivenServiceRequestID() {
         // Setup
         String serviceRequestID = UUID.randomUUID().toString();
-        String nonMatchingServiceRequestId = UUID.randomUUID().toString();
         String taskID = UUID.randomUUID().toString();
         Task task = new Task();
         task.setId(taskID);
         task.setBasedOn(Collections.singletonList(new Reference().setReference("ServiceRequest/" + serviceRequestID)));
 
-        Task nonMatchingTask = new Task();
-        nonMatchingTask.setId(UUID.randomUUID().toString());
-        nonMatchingTask.setBasedOn(Collections.singletonList(
-                new Reference().setReference("ServiceRequest/" + nonMatchingServiceRequestId)));
-
         Bundle bundle = new Bundle();
-        Bundle.BundleEntryComponent nonMatchingBundleEntryComponent = new Bundle.BundleEntryComponent();
-        nonMatchingBundleEntryComponent.setResource(nonMatchingTask);
         Bundle.BundleEntryComponent bundleEntryComponent = new Bundle.BundleEntryComponent();
         bundleEntryComponent.setResource(task);
-        bundle.setEntry(java.util.List.of(nonMatchingBundleEntryComponent, bundleEntryComponent));
+        bundle.setEntry(java.util.List.of(bundleEntryComponent));
 
         // Mock behavior
         when(openmrsFhirClient.search()).thenReturn(iUntypedQuery);
         when(iUntypedQuery.forResource(Task.class)).thenReturn(iQuery);
+        when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
         when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
         when(iQuery.execute()).thenReturn(bundle);
 

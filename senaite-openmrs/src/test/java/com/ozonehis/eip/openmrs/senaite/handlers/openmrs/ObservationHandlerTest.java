@@ -64,7 +64,7 @@ class ObservationHandlerTest {
     private IUntypedQuery iUntypedQuery;
 
     @Mock
-    private IQuery iQuery;
+    private IQuery<Bundle> iQuery;
 
     @InjectMocks
     private ObservationHandler observationHandler;
