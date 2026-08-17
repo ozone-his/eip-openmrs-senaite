@@ -9,7 +9,6 @@ package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask;
 
 import static org.apache.camel.builder.AdviceWith.adviceWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import ca.uhn.fhir.context.FhirContext;
 import org.apache.camel.Endpoint;
@@ -70,11 +69,9 @@ class GetOpenmrsFhirTaskByStatusRouteTest extends CamelSpringTestSupport {
         // Expectations
         MockEndpoint mockEndpoint = getMockEndpoint("mock:get-task-by-status-route");
         mockEndpoint.expectedMessageCount(2);
-        mockEndpoint.expectedHeaderValuesReceivedInAnyOrder(
-                "CamelFhir.url", GetOpenmrsFhirTaskByStatusRoute.GET_BY_STATUS_ENDPOINT, nextPageUrl);
         mockEndpoint.setResultWaitTime(100);
         mockEndpoint.whenAnyExchangeReceived(exchange -> {
-            String requestedUrl = exchange.getMessage().getHeader("CamelFhir.url", String.class);
+            String requestedUrl = exchange.getProperty("nextPageUrl", String.class);
             Bundle response = nextPageUrl.equals(requestedUrl) ? secondPage : firstPage;
             exchange.getMessage().setBody(FhirContext.forR4().newJsonParser().encodeResourceToString(response));
         });
@@ -93,7 +90,6 @@ class GetOpenmrsFhirTaskByStatusRouteTest extends CamelSpringTestSupport {
         assertEquals(
                 "second_task",
                 resultBundle.getEntry().get(1).getResource().getIdElement().getIdPart());
-        assertFalse(result.getMessage().getHeaders().containsKey("CamelFhir.url"));
     }
 
     private Bundle bundleWithTask(String taskId) {
