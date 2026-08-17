@@ -111,8 +111,8 @@ class TaskHandlerTest {
 
         Task nonMatchingTask = new Task();
         nonMatchingTask.setId(UUID.randomUUID().toString());
-        nonMatchingTask.setBasedOn(
-                Collections.singletonList(new Reference().setReference("ServiceRequest/" + nonMatchingServiceRequestId)));
+        nonMatchingTask.setBasedOn(Collections.singletonList(
+                new Reference().setReference("ServiceRequest/" + nonMatchingServiceRequestId)));
 
         Bundle bundle = new Bundle();
         Bundle.BundleEntryComponent nonMatchingBundleEntryComponent = new Bundle.BundleEntryComponent();
