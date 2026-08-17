@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,7 +78,7 @@ public class BahmniResultsHandlerTest {
     private IUntypedQuery<IBaseBundle> iUntypedQuery;
 
     @Mock
-    private IQuery iQuery;
+    private IQuery<Bundle> iQuery;
 
     @Mock
     private Bundle bundle;
@@ -141,10 +142,10 @@ public class BahmniResultsHandlerTest {
                 .thenReturn("{\"uuid\":\"0c4f44f7-7277-4a0a-9f6f-b842c874c95b\"}");
 
         when(openmrsFhirClient.search()).thenReturn(iUntypedQuery);
-        when(iUntypedQuery.forResource(Observation.class)).thenReturn(iQuery);
-        when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
-        when(iQuery.summaryMode(any(SummaryEnum.class))).thenReturn(iQuery);
-        when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
+        doReturn(iQuery).when(iUntypedQuery).forResource(Observation.class);
+        doReturn(iQuery).when(iQuery).where(any(ICriterion.class));
+        doReturn(iQuery).when(iQuery).summaryMode(any(SummaryEnum.class));
+        doReturn(iQuery).when(iQuery).returnBundle(Bundle.class);
 
         observation = new Observation();
         observation.setId("0c4f44f7-7277-4a0a-9f6f-b842c874c95b");

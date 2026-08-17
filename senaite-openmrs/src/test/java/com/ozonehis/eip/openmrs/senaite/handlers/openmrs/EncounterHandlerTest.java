@@ -58,7 +58,7 @@ class EncounterHandlerTest {
     private IUntypedQuery iUntypedQuery;
 
     @Mock
-    private IQuery iQuery;
+    private IQuery<Bundle> iQuery;
 
     @Mock
     private IRead iRead;
