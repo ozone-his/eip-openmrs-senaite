@@ -10,6 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.Collections;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,21 +41,29 @@ public class EncounterHandler {
     }
 
     public Encounter getEncounterByTypeAndSubject(String typeID, String subjectID) {
+        return getEncounterByTypeAndSubjectAndStartDate(typeID, subjectID, null);
+    }
+
+    public Encounter getEncounterByTypeAndSubjectAndStartDate(String typeID, String subjectID, Date startDate) {
         Bundle bundle = openmrsFhirClient
                 .search()
                 .forResource(Encounter.class)
                 .where(Encounter.TYPE.exactly().code(typeID))
                 .and(Encounter.SUBJECT.hasId(subjectID))
                 .returnBundle(Bundle.class)
-                .count(1) // Limit to 1 result
                 .execute();
 
-        log.debug("EncounterHandler: Encounter getEncounterByTypeAndSubject {}", bundle.getId());
+        log.debug(
+                "EncounterHandler: Encounter getEncounterByTypeAndSubjectAndStartDate {}",
+                bundle.getId());
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Encounter.class::isInstance)
                 .map(Encounter.class::cast)
+                .filter(encounter -> startDate == null || (encounter.hasPeriod()
+                        && encounter.getPeriod().hasStart()
+                        && startDate.equals(encounter.getPeriod().getStart())))
                 .findFirst()
                 .orElse(null);
     }
