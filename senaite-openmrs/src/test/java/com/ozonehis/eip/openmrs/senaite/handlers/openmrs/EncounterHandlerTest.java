@@ -141,8 +141,8 @@ class EncounterHandlerTest {
         when(iQuery.execute()).thenReturn(bundle);
 
         // Act
-        Encounter result = encounterHandler.getEncounterByTypeAndSubjectAndStartDate(
-                TYPE_ID, SUBJECT_ID, matchingStartDate);
+        Encounter result =
+                encounterHandler.getEncounterByTypeAndSubjectAndStartDate(TYPE_ID, SUBJECT_ID, matchingStartDate);
 
         // Verify
         assertNotNull(result);

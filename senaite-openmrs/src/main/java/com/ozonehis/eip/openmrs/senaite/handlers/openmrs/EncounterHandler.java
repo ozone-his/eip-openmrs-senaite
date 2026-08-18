@@ -53,17 +53,16 @@ public class EncounterHandler {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        log.debug(
-                "EncounterHandler: Encounter getEncounterByTypeAndSubjectAndStartDate {}",
-                bundle.getId());
+        log.debug("EncounterHandler: Encounter getEncounterByTypeAndSubjectAndStartDate {}", bundle.getId());
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Encounter.class::isInstance)
                 .map(Encounter.class::cast)
-                .filter(encounter -> startDate == null || (encounter.hasPeriod()
-                        && encounter.getPeriod().hasStart()
-                        && startDate.equals(encounter.getPeriod().getStart())))
+                .filter(encounter -> startDate == null
+                        || (encounter.hasPeriod()
+                                && encounter.getPeriod().hasStart()
+                                && startDate.equals(encounter.getPeriod().getStart())))
                 .findFirst()
                 .orElse(null);
     }

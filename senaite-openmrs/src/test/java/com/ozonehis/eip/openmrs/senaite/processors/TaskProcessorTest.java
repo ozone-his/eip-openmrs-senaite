@@ -231,7 +231,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(analysisRequestDTO);
         when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
-        when(encounterHandler.getEncounterByTypeAndSubjectAndStartDate(any(), any(), any())).thenReturn(savedEncounter);
+        when(encounterHandler.getEncounterByTypeAndSubjectAndStartDate(any(), any(), any()))
+                .thenReturn(savedEncounter);
         when(encounterHandler.getEncounterByEncounterID(any())).thenReturn(null);
         when(encounterHandler.buildLabResultEncounter(any())).thenReturn(savedEncounter);
         when(encounterHandler.sendEncounter(any())).thenReturn(savedEncounter);

@@ -92,8 +92,7 @@ public class TaskProcessor implements Processor {
                 if (!taskHandler.doesTaskExists(task)) {
                     continue;
                 }
-                if (task.getStatus() == Task.TaskStatus.COMPLETED
-                        || task.getStatus() == Task.TaskStatus.CANCELLED) {
+                if (task.getStatus() == Task.TaskStatus.COMPLETED || task.getStatus() == Task.TaskStatus.CANCELLED) {
                     log.debug(
                             "TaskProcessor: Skipping duplicate or terminal task {} with status {}",
                             task.getIdPart(),
@@ -169,7 +168,9 @@ public class TaskProcessor implements Processor {
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubjectAndStartDate(
                 resultEncounterTypeUUID,
                 subjectID,
-                serviceRequest.hasOccurrencePeriod() ? serviceRequest.getOccurrencePeriod().getStart() : null);
+                serviceRequest.hasOccurrencePeriod()
+                        ? serviceRequest.getOccurrencePeriod().getStart()
+                        : null);
         if (hasSameStartDate(resultEncounter, serviceRequest)) {
             // Result Encounter exists
             log.debug("TaskProcessor: LabResults Encounter exists with ID {}", resultEncounter.getIdPart());
