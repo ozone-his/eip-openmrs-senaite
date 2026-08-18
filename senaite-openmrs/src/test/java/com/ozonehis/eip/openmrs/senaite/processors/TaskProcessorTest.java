@@ -118,6 +118,26 @@ class TaskProcessorTest extends BaseProcessorTest {
     }
 
     @Test
+    void shouldSkipCompletedTaskWithoutReprocessingResults() throws JsonProcessingException {
+        Task task = getTask();
+        task.setStatus(Task.TaskStatus.COMPLETED);
+
+        Bundle bundle = new Bundle();
+        List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
+        entries.add(new Bundle.BundleEntryComponent().setResource(task));
+        bundle.setEntry(entries);
+
+        when(taskHandler.doesTaskExists(task)).thenReturn(true);
+
+        Exchange exchange = createExchange(bundle, "c");
+
+        taskProcessor.process(exchange);
+
+        verify(taskHandler, times(1)).doesTaskExists(any());
+        verify(serviceRequestHandler, times(0)).getServiceRequestByID(any());
+    }
+
+    @Test
     void shouldNotDoAnythingWhenAnalysisRequestDoesNotExists() throws JsonProcessingException {
         // Setup
         Task task = getTask();
@@ -211,12 +231,13 @@ class TaskProcessorTest extends BaseProcessorTest {
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(analysisRequestDTO);
         when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
-        when(encounterHandler.getEncounterByTypeAndSubject(any(), any())).thenReturn(savedEncounter);
+        when(encounterHandler.getEncounterByTypeAndSubjectAndStartDate(any(), any(), any()))
+                .thenReturn(savedEncounter);
         when(encounterHandler.getEncounterByEncounterID(any())).thenReturn(null);
         when(encounterHandler.buildLabResultEncounter(any())).thenReturn(savedEncounter);
         when(encounterHandler.sendEncounter(any())).thenReturn(savedEncounter);
         when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(getAnalysesDTO());
-        when(observationHandler.getObservationByCodeSubjectEncounterAndDate(any(), any(), any(), any()))
+        when(observationHandler.getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
         when(observationHandler.buildResultObservation(any(), any(), any(), any()))
                 .thenReturn(buildObservation());
@@ -236,12 +257,13 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(any());
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
         verify(analysisRequestHandler, times(1)).doesAnalysisRequestExists(any());
-        verify(encounterHandler, times(1)).getEncounterByTypeAndSubject(any(), any());
+        verify(encounterHandler, times(1)).getEncounterByTypeAndSubjectAndStartDate(any(), any(), any());
         verify(encounterHandler, times(1)).getEncounterByEncounterID(any());
         verify(encounterHandler, times(1)).buildLabResultEncounter(any());
         verify(encounterHandler, times(1)).sendEncounter(any());
         verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
-        verify(observationHandler, times(1)).getObservationByCodeSubjectEncounterAndDate(any(), any(), any(), any());
+        verify(observationHandler, times(1))
+                .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
         verify(observationHandler, times(1)).buildResultObservation(any(), any(), any(), any());
         verify(observationHandler, times(1)).sendObservation(any());
         verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());

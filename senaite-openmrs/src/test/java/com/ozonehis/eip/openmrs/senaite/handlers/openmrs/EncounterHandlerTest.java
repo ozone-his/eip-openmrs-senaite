@@ -27,6 +27,7 @@ import ca.uhn.fhir.rest.gclient.IReadTyped;
 import ca.uhn.fhir.rest.gclient.IUntypedQuery;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
@@ -112,6 +113,40 @@ class EncounterHandlerTest {
         // Verify
         assertNotNull(result);
         assertEquals(encounterID, result.getId());
+    }
+
+    @Test
+    void shouldReturnEncounterMatchingTypeSubjectAndStartDate() {
+        // Setup
+        Date matchingStartDate = new Date();
+        String matchingEncounterID = UUID.randomUUID().toString();
+        Encounter matchingEncounter = new Encounter();
+        matchingEncounter.setId(matchingEncounterID);
+        matchingEncounter.setPeriod(new Period().setStart(matchingStartDate));
+
+        Encounter otherEncounter = new Encounter();
+        otherEncounter.setId(UUID.randomUUID().toString());
+        otherEncounter.setPeriod(new Period().setStart(new Date(matchingStartDate.getTime() + 1000)));
+
+        Bundle bundle = new Bundle();
+        bundle.setEntry(List.of(
+                new Bundle.BundleEntryComponent().setResource(otherEncounter),
+                new Bundle.BundleEntryComponent().setResource(matchingEncounter)));
+
+        when(openmrsFhirClient.search()).thenReturn(iUntypedQuery);
+        when(iUntypedQuery.forResource(Encounter.class)).thenReturn(iQuery);
+        when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.and(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
+        when(iQuery.execute()).thenReturn(bundle);
+
+        // Act
+        Encounter result =
+                encounterHandler.getEncounterByTypeAndSubjectAndStartDate(TYPE_ID, SUBJECT_ID, matchingStartDate);
+
+        // Verify
+        assertNotNull(result);
+        assertEquals(matchingEncounterID, result.getId());
     }
 
     @Test

@@ -92,6 +92,13 @@ public class TaskProcessor implements Processor {
                 if (!taskHandler.doesTaskExists(task)) {
                     continue;
                 }
+                if (task.getStatus() == Task.TaskStatus.COMPLETED || task.getStatus() == Task.TaskStatus.CANCELLED) {
+                    log.debug(
+                            "TaskProcessor: Skipping duplicate or terminal task {} with status {}",
+                            task.getIdPart(),
+                            task.getStatus());
+                    continue;
+                }
                 if (task.getBasedOn() == null || task.getBasedOn().isEmpty()) {
                     continue;
                 }
@@ -157,9 +164,13 @@ public class TaskProcessor implements Processor {
     private void createResultsInOpenMRS(
             ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String datePublished)
             throws JsonProcessingException {
-        Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubject(
+        String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
+        Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubjectAndStartDate(
                 resultEncounterTypeUUID,
-                serviceRequest.getSubject().getReference().split("/")[1]);
+                subjectID,
+                serviceRequest.hasOccurrencePeriod()
+                        ? serviceRequest.getOccurrencePeriod().getStart()
+                        : null);
         if (hasSameStartDate(resultEncounter, serviceRequest)) {
             // Result Encounter exists
             log.debug("TaskProcessor: LabResults Encounter exists with ID {}", resultEncounter.getIdPart());
@@ -230,11 +241,12 @@ public class TaskProcessor implements Processor {
                 String conceptUuid = analysesDescription.substring(
                         analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
-                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterDateAndValue(
                         conceptUuid,
                         subjectID,
                         savedResultEncounter.getIdPart(),
-                        resultAnalysesDTO.getResultCaptureDate());
+                        resultAnalysesDTO.getResultCaptureDate(),
+                        resultAnalysesDTO.getResult());
                 if (!observationHandler.doesObservationExists(savedObservation)) {
                     // Create result Observation
                     savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(
