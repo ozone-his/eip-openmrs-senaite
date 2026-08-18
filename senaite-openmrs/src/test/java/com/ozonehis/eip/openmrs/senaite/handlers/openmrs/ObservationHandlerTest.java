@@ -26,6 +26,7 @@ import ca.uhn.fhir.rest.gclient.IUntypedQuery;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -110,6 +111,48 @@ class ObservationHandlerTest {
         // Verify
         assertNotNull(result);
         assertEquals(observationID, result.getId());
+    }
+
+    @Test
+    void shouldFilterDuplicateObservationByDateAndValue() {
+        // Setup
+        String observationId = UUID.randomUUID().toString();
+        Observation matchingObservation = new Observation();
+        matchingObservation.setId(observationId);
+        matchingObservation.setCode(new CodeableConcept().addCoding(new Coding().setCode(CODE_ID)));
+        matchingObservation.setSubject(new Reference("Patient/" + SUBJECT_ID));
+        matchingObservation.setEncounter(new Reference("Encounter/" + ENCOUNTER_ID));
+        matchingObservation.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(DATE))));
+        matchingObservation.setValue(new Quantity().setValue(23));
+
+        Observation differentObservation = new Observation();
+        differentObservation.setId(UUID.randomUUID().toString());
+        differentObservation.setCode(new CodeableConcept().addCoding(new Coding().setCode(CODE_ID)));
+        differentObservation.setSubject(new Reference("Patient/" + SUBJECT_ID));
+        differentObservation.setEncounter(new Reference("Encounter/" + ENCOUNTER_ID));
+        differentObservation.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(DATE))));
+        differentObservation.setValue(new Quantity().setValue(99));
+
+        Bundle bundle = new Bundle();
+        bundle.setEntry(List.of(
+                new Bundle.BundleEntryComponent().setResource(differentObservation),
+                new Bundle.BundleEntryComponent().setResource(matchingObservation)));
+
+        when(openmrsFhirClient.search()).thenReturn(iUntypedQuery);
+        when(iUntypedQuery.forResource(Observation.class)).thenReturn(iQuery);
+        when(iQuery.where(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.and(any(ICriterion.class))).thenReturn(iQuery);
+        when(iQuery.summaryMode(any(SummaryEnum.class))).thenReturn(iQuery);
+        when(iQuery.returnBundle(Bundle.class)).thenReturn(iQuery);
+        when(iQuery.execute()).thenReturn(bundle);
+
+        // Act
+        Observation result = observationHandler.getObservationByCodeSubjectEncounterDateAndValue(
+                CODE_ID, SUBJECT_ID, ENCOUNTER_ID, DATE, "23");
+
+        // Verify
+        assertNotNull(result);
+        assertEquals(observationId, result.getId());
     }
 
     @Test

@@ -241,11 +241,12 @@ public class TaskProcessor implements Processor {
                 String conceptUuid = analysesDescription.substring(
                         analysesDescription.lastIndexOf("(") + 1, analysesDescription.lastIndexOf(")"));
 
-                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
+                Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterDateAndValue(
                         conceptUuid,
                         subjectID,
                         savedResultEncounter.getIdPart(),
-                        resultAnalysesDTO.getResultCaptureDate());
+                        resultAnalysesDTO.getResultCaptureDate(),
+                        resultAnalysesDTO.getResult());
                 if (!observationHandler.doesObservationExists(savedObservation)) {
                     // Create result Observation
                     savedObservation = observationHandler.sendObservation(observationHandler.buildResultObservation(

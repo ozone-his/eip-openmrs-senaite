@@ -237,7 +237,7 @@ class TaskProcessorTest extends BaseProcessorTest {
         when(encounterHandler.buildLabResultEncounter(any())).thenReturn(savedEncounter);
         when(encounterHandler.sendEncounter(any())).thenReturn(savedEncounter);
         when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(getAnalysesDTO());
-        when(observationHandler.getObservationByCodeSubjectEncounterAndDate(any(), any(), any(), any()))
+        when(observationHandler.getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
         when(observationHandler.buildResultObservation(any(), any(), any(), any()))
                 .thenReturn(buildObservation());
@@ -262,7 +262,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(encounterHandler, times(1)).buildLabResultEncounter(any());
         verify(encounterHandler, times(1)).sendEncounter(any());
         verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
-        verify(observationHandler, times(1)).getObservationByCodeSubjectEncounterAndDate(any(), any(), any(), any());
+        verify(observationHandler, times(1))
+                .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
         verify(observationHandler, times(1)).buildResultObservation(any(), any(), any(), any());
         verify(observationHandler, times(1)).sendObservation(any());
         verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());

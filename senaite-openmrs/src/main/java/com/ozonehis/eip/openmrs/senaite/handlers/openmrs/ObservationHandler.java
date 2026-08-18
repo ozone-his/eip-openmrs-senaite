@@ -13,6 +13,7 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,6 @@ public class ObservationHandler {
                 .and(Observation.SUBJECT.hasId(subjectID))
                 .and(Observation.ENCOUNTER.hasId(encounterID))
                 .summaryMode(SummaryEnum.DATA)
-                // .and(Observation.DATE.exactly().second(observationDate)) // TODO: Fix date format passed
                 .returnBundle(Bundle.class)
                 .execute();
 
@@ -57,6 +57,32 @@ public class ObservationHandler {
                 .map(Bundle.BundleEntryComponent::getResource)
                 .filter(Observation.class::isInstance)
                 .map(Observation.class::cast)
+                .filter(observation -> matchesObservationDate(observation, observationDate))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Observation getObservationByCodeSubjectEncounterDateAndValue(
+            String codeID, String subjectID, String encounterID, String observationDate, String observationValue) {
+        List<Observation> observations = openmrsFhirClient
+                .search()
+                .forResource(Observation.class)
+                .where(Observation.CODE.exactly().code(codeID))
+                .and(Observation.SUBJECT.hasId(subjectID))
+                .and(Observation.ENCOUNTER.hasId(encounterID))
+                .summaryMode(SummaryEnum.DATA)
+                .returnBundle(Bundle.class)
+                .execute()
+                .getEntry()
+                .stream()
+                .map(Bundle.BundleEntryComponent::getResource)
+                .filter(Observation.class::isInstance)
+                .map(Observation.class::cast)
+                .toList();
+
+        return observations.stream()
+                .filter(observation -> matchesObservationDate(observation, observationDate))
+                .filter(observation -> matchesObservationValue(observation, observationValue))
                 .findFirst()
                 .orElse(null);
     }
@@ -101,5 +127,56 @@ public class ObservationHandler {
 
     public boolean doesObservationExists(Observation observation) {
         return observation != null && observation.hasId();
+    }
+
+    private boolean matchesObservationDate(Observation observation, String observationDate) {
+        if (observationDate == null || !observation.hasEffective()) {
+            return true;
+        }
+        if (observation.getEffective() instanceof DateTimeType) {
+            DateTimeType effectiveDate = (DateTimeType) observation.getEffective();
+            try {
+                return Instant.parse(observationDate)
+                        .equals(effectiveDate.getValue().toInstant());
+            } catch (Exception e) {
+                return observationDate.equalsIgnoreCase(effectiveDate.asStringValue());
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesObservationValue(Observation observation, String observationValue) {
+        if (observationValue == null || !observation.hasValue()) {
+            return true;
+        }
+        String normalizedObservationValue = normalizeValueToComparableString(observation.getValue());
+        return normalizeValueToComparableString(observationValue).equals(normalizedObservationValue);
+    }
+
+    private String normalizeValueToComparableString(Object value) {
+        if (value == null) {
+            return "";
+        }
+        if (value instanceof Quantity) {
+            Quantity quantity = (Quantity) value;
+            if (quantity.getValue() == null) {
+                return "";
+            }
+            return quantity.getValue().stripTrailingZeros().toPlainString();
+        }
+        if (value instanceof Type) {
+            Type type = (Type) value;
+            String primitiveValue = type.primitiveValue();
+            if (primitiveValue != null && !primitiveValue.isBlank()) {
+                try {
+                    return new java.math.BigDecimal(primitiveValue)
+                            .stripTrailingZeros()
+                            .toPlainString();
+                } catch (NumberFormatException ignored) {
+                    return primitiveValue.trim();
+                }
+            }
+        }
+        return String.valueOf(value).trim();
     }
 }
