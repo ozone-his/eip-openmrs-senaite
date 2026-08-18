@@ -37,7 +37,7 @@ public class TaskHandler {
         Bundle bundle = openmrsFhirClient
                 .search()
                 .forResource(Task.class)
-                .where(Task.BASED_ON.hasId(serviceRequestID))
+                .where(Task.BASED_ON.hasId("ServiceRequest/" + serviceRequestID))
                 .returnBundle(Bundle.class)
                 .execute();
 
