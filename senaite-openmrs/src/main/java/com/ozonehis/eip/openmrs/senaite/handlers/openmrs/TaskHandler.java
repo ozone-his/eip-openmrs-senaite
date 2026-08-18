@@ -7,6 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.handlers.openmrs;
 
+import static com.ozonehis.eip.openmrs.senaite.Constants.SERVICE_REQUEST_PREFIX;
+
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import lombok.AllArgsConstructor;
@@ -37,7 +39,7 @@ public class TaskHandler {
         Bundle bundle = openmrsFhirClient
                 .search()
                 .forResource(Task.class)
-                .where(Task.BASED_ON.hasId(serviceRequestID))
+                .where(Task.BASED_ON.hasId(normaliseServiceRequestID(serviceRequestID)))
                 .returnBundle(Bundle.class)
                 .execute();
 
@@ -75,5 +77,13 @@ public class TaskHandler {
 
     public boolean doesTaskExists(Task task) {
         return task != null && task.hasId() && task.hasStatus();
+    }
+
+    private String normaliseServiceRequestID(String serviceRequestID) {
+        if (serviceRequestID.startsWith(SERVICE_REQUEST_PREFIX)) {
+            return serviceRequestID;
+        } else {
+            return SERVICE_REQUEST_PREFIX + serviceRequestID;
+        }
     }
 }
