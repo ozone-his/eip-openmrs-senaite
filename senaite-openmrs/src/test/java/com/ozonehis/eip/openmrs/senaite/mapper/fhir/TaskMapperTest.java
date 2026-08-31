@@ -48,7 +48,7 @@ class TaskMapperTest {
         assertNotNull(task);
         assertEquals(Task.TaskIntent.ORDER, task.getIntent());
         assertNotNull(task.getBasedOnFirstRep());
-        assertEquals("SampleID123", task.getBasedOnFirstRep().getReference());
+        assertEquals("ServiceRequest/SampleID123", task.getBasedOnFirstRep().getReference());
         assertEquals("ServiceRequest", task.getBasedOnFirstRep().getType());
     }
 }

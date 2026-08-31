@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.Constants;
 import com.ozonehis.eip.openmrs.senaite.handlers.bahmni.BahmniResultsHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
@@ -103,7 +104,7 @@ public class TaskProcessor implements Processor {
                     continue;
                 }
                 String taskBasedOnReference = task.getBasedOn().get(0).getReference();
-                if (taskBasedOnReference.contains("\\/")) {
+                if (taskBasedOnReference.contains(Constants.SERVICE_REQUEST_PREFIX)) {
                     taskBasedOnReference = taskBasedOnReference.split("/")[1];
                 }
                 ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(taskBasedOnReference);

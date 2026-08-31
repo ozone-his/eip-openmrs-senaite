@@ -7,6 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.mapper.fhir;
 
+import static com.ozonehis.eip.openmrs.senaite.Constants.SERVICE_REQUEST_PREFIX;
+
 import com.ozonehis.eip.openmrs.senaite.mapper.ToFhirMapping;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import org.hl7.fhir.r4.model.Task;
@@ -19,7 +21,9 @@ public class TaskMapper implements ToFhirMapping<AnalysisRequestDTO, Task> {
     public Task toFhir(AnalysisRequestDTO analysisRequestDTO) {
         Task task = new Task();
         task.setIntent(Task.TaskIntent.ORDER);
-        task.addBasedOn().setReference(analysisRequestDTO.getClientSampleID()).setType("ServiceRequest");
+        task.addBasedOn()
+                .setReference(SERVICE_REQUEST_PREFIX + analysisRequestDTO.getClientSampleID())
+                .setType("ServiceRequest");
         return task;
     }
 }

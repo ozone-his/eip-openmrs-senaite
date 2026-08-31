@@ -42,6 +42,7 @@ import org.mockito.Mock;
 class TaskProcessorTest extends BaseProcessorTest {
 
     private static final String TASK_ID = "zzaea498-e046-43c6-bf9c-dbbc7d39f40c";
+    private static final String SERVICE_REQUEST_ID = "bbaea498-e046-43c6-bf9c-dbbc7d39f38c";
 
     @Mock
     private ServiceRequestHandler serviceRequestHandler;
@@ -99,9 +100,7 @@ class TaskProcessorTest extends BaseProcessorTest {
         rejectTask.setIntent(Task.TaskIntent.ORDER);
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
-        when(serviceRequestHandler.getServiceRequestByID(
-                        task.getBasedOn().get(0).getReference()))
-                .thenReturn(serviceRequest);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(taskHandler.markTaskRejected(task)).thenReturn(rejectTask);
         when(taskHandler.updateTask(rejectTask, task.getIdPart())).thenReturn(rejectTask);
 
@@ -112,7 +111,7 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
-        verify(serviceRequestHandler, times(1)).getServiceRequestByID(any());
+        verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(taskHandler, times(1)).updateTask(any(), any());
         verify(taskHandler, times(1)).markTaskRejected(any());
     }
@@ -150,9 +149,7 @@ class TaskProcessorTest extends BaseProcessorTest {
         ServiceRequest serviceRequest = buildServiceRequest();
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
-        when(serviceRequestHandler.getServiceRequestByID(
-                        task.getBasedOn().get(0).getReference()))
-                .thenReturn(serviceRequest);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(null);
 
@@ -163,7 +160,7 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
-        verify(serviceRequestHandler, times(1)).getServiceRequestByID(any());
+        verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
     }
 
@@ -182,9 +179,7 @@ class TaskProcessorTest extends BaseProcessorTest {
         analysisRequestDTO.setReviewState("sample_due");
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
-        when(serviceRequestHandler.getServiceRequestByID(
-                        task.getBasedOn().get(0).getReference()))
-                .thenReturn(serviceRequest);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(getAnalysisRequestDTO());
 
@@ -195,7 +190,7 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
-        verify(serviceRequestHandler, times(1)).getServiceRequestByID(any());
+        verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
     }
 
@@ -225,9 +220,7 @@ class TaskProcessorTest extends BaseProcessorTest {
         updatedTask.setStatus(Task.TaskStatus.COMPLETED);
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
-        when(serviceRequestHandler.getServiceRequestByID(
-                        task.getBasedOn().get(0).getReference()))
-                .thenReturn(serviceRequest);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(analysisRequestDTO);
         when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
@@ -254,7 +247,7 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
-        verify(serviceRequestHandler, times(1)).getServiceRequestByID(any());
+        verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
         verify(analysisRequestHandler, times(1)).doesAnalysisRequestExists(any());
         verify(encounterHandler, times(1)).getEncounterByTypeAndSubjectAndStartDate(any(), any(), any());
