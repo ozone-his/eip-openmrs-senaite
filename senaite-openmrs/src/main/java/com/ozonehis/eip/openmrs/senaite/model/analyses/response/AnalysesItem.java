@@ -25,6 +25,9 @@ public class AnalysesItem {
     @JsonProperty("ResultCaptureDate")
     private String resultCaptureDate;
 
+    @JsonProperty("Remarks")
+    private String remarks;
+
     @JsonProperty("description")
     private String description;
 }

@@ -18,6 +18,7 @@ public class AnalysesMapper {
             analysesDTO.setResult(analysesResponse.getItems().get(0).getResult());
             analysesDTO.setResultCaptureDate(analysesResponse.getItems().get(0).getResultCaptureDate());
             analysesDTO.setDescription(analysesResponse.getItems().get(0).getDescription());
+            analysesDTO.setRemarks(analysesResponse.getItems().get(0).getRemarks());
             return analysesDTO;
         }
 

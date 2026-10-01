@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.bahmni;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +43,7 @@ import org.hl7.fhir.r4.model.ServiceRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -104,6 +106,7 @@ public class BahmniResultsHandlerTest {
 
         // Initialize mock objects and set default behaviors
         MockitoAnnotations.initMocks(this);
+        bahmniResultsHandler.setLabNotesConceptUuid("configured-notes-concept-uuid");
 
         // Create Encounter object with reference to Patient
         savedResultEncounter = new Encounter();
@@ -242,6 +245,65 @@ public class BahmniResultsHandlerTest {
                         anyMap(),
                         eq(String.class));
         assertEquals(observation, result);
+    }
+
+    @Test
+    public void shouldMapEachTestRemarksToItsResultComment() throws Exception {
+        String firstRemarks = "Sample slightly hemolysed; result verified.";
+        String secondRemarks = "Repeat result verified.\nReviewed by lab.";
+        when(analysesDTO1.getRemarks()).thenReturn(firstRemarks);
+        when(analysesDTO2.getRemarks()).thenReturn(secondRemarks);
+
+        bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                producerTemplate,
+                savedResultEncounter,
+                serviceRequest,
+                new ArrayList<>(Arrays.asList(analysesDTO1, analysesDTO2)),
+                "2025-01-27T13:30:00+00:00");
+
+        ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
+        verify(producerTemplate)
+                .requestBodyAndHeaders(
+                        eq("direct:create-bahmni-lab-results-route"), payload.capture(), anyMap(), eq(String.class));
+        JsonNode root = objectMapper.readTree(payload.getValue());
+        assertFalse(root.has("comment"));
+        JsonNode tests = root.get("groupMembers");
+        assertFalse(tests.get(0).has("comment"));
+        assertFalse(tests.get(1).has("comment"));
+        assertEquals(
+                firstRemarks,
+                tests.get(0).get("groupMembers").get(0).get("comment").asText());
+        assertEquals(
+                secondRemarks,
+                tests.get(1).get("groupMembers").get(0).get("comment").asText());
+        assertEquals(
+                "configured-notes-concept-uuid",
+                tests.get(0).get("groupMembers").get(1).get("concept").asText());
+        assertEquals(
+                "configured-notes-concept-uuid",
+                tests.get(1).get("groupMembers").get(1).get("concept").asText());
+    }
+
+    @Test
+    public void shouldOmitResultCommentsForNullAndBlankRemarks() throws Exception {
+        when(analysesDTO2.getRemarks()).thenReturn("  \n ");
+
+        bahmniResultsHandler.buildAndSendBahmniResultObservation(
+                producerTemplate,
+                savedResultEncounter,
+                serviceRequest,
+                new ArrayList<>(Arrays.asList(analysesDTO1, analysesDTO2)),
+                "2025-01-27T13:30:00+00:00");
+
+        ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
+        verify(producerTemplate)
+                .requestBodyAndHeaders(
+                        eq("direct:create-bahmni-lab-results-route"), payload.capture(), anyMap(), eq(String.class));
+        JsonNode tests = objectMapper.readTree(payload.getValue()).get("groupMembers");
+        assertFalse(tests.get(0).get("groupMembers").get(0).has("comment"));
+        assertFalse(tests.get(1).get("groupMembers").get(0).has("comment"));
+        assertEquals(1, tests.get(0).get("groupMembers").size());
+        assertEquals(1, tests.get(1).get("groupMembers").size());
     }
 
     @Test
