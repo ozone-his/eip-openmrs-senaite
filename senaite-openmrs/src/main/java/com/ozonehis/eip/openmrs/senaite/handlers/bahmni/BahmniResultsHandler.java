@@ -76,6 +76,7 @@ public class BahmniResultsHandler {
         // Create the groupMembers list for the first level
         List<Map<String, Object>> groupMembersLevel1 = new ArrayList<>();
 
+        String labNotesConceptUuid = "2ee5487f-bccd-11f1-92a8-b68587b26b94";
         for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
 
             String analysesDescription = resultAnalysesDTO.getDescription();
@@ -104,8 +105,21 @@ public class BahmniResultsHandler {
                     "person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
             groupMember2.put("obsDatetime", analysesResultCaptureDate);
             groupMember2.put("concept", testConceptUuid);
+            String remarks = resultAnalysesDTO.getRemarks();
+            if (remarks != null && !remarks.isBlank()) {
+                groupMember2.put("comment", remarks);
+            }
 
             groupMembersLevel2.add(groupMember2);
+            if (remarks != null && !remarks.isBlank()) {
+                Map<String, Object> notesObservation = new HashMap<>();
+                notesObservation.put("concept", labNotesConceptUuid);
+                notesObservation.put("value", remarks);
+                notesObservation.put("order", serviceRequest.getIdPart());
+                notesObservation.put("person", groupMember2.get("person"));
+                notesObservation.put("obsDatetime", analysesResultCaptureDate);
+                groupMembersLevel2.add(notesObservation);
+            }
 
             groupMember1.put("groupMembers", groupMembersLevel2);
 
