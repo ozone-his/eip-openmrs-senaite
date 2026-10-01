@@ -49,6 +49,9 @@ public class BahmniResultsHandler {
     @Value("${openmrs.password}")
     protected String openmrsPassword;
 
+    @Value("${bahmni.labNotesConcept.uuid:}")
+    protected String labNotesConceptUuid;
+
     @Autowired
     private IGenericClient openmrsFhirClient;
 
@@ -76,7 +79,6 @@ public class BahmniResultsHandler {
         // Create the groupMembers list for the first level
         List<Map<String, Object>> groupMembersLevel1 = new ArrayList<>();
 
-        String labNotesConceptUuid = "2ee5487f-bccd-11f1-92a8-b68587b26b94";
         for (AnalysesDTO resultAnalysesDTO : analysesDTOs) {
 
             String analysesDescription = resultAnalysesDTO.getDescription();
@@ -112,6 +114,10 @@ public class BahmniResultsHandler {
 
             groupMembersLevel2.add(groupMember2);
             if (remarks != null && !remarks.isBlank()) {
+                if (labNotesConceptUuid == null || labNotesConceptUuid.isBlank()) {
+                    throw new IllegalStateException(
+                            "Set OPENMRS_LAB_NOTES_CONCEPT_UUID to receive Bahmni test remarks");
+                }
                 Map<String, Object> notesObservation = new HashMap<>();
                 notesObservation.put("concept", labNotesConceptUuid);
                 notesObservation.put("value", remarks);

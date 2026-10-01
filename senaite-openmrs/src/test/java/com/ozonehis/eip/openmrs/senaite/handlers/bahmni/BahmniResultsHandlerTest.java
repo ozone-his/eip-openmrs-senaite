@@ -106,6 +106,7 @@ public class BahmniResultsHandlerTest {
 
         // Initialize mock objects and set default behaviors
         MockitoAnnotations.initMocks(this);
+        bahmniResultsHandler.setLabNotesConceptUuid("configured-notes-concept-uuid");
 
         // Create Encounter object with reference to Patient
         savedResultEncounter = new Encounter();
@@ -275,6 +276,12 @@ public class BahmniResultsHandlerTest {
         assertEquals(
                 secondRemarks,
                 tests.get(1).get("groupMembers").get(0).get("comment").asText());
+        assertEquals(
+                "configured-notes-concept-uuid",
+                tests.get(0).get("groupMembers").get(1).get("concept").asText());
+        assertEquals(
+                "configured-notes-concept-uuid",
+                tests.get(1).get("groupMembers").get(1).get("concept").asText());
     }
 
     @Test
