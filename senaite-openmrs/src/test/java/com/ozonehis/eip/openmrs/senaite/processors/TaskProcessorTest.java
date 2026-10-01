@@ -8,6 +8,7 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -229,10 +230,12 @@ class TaskProcessorTest extends BaseProcessorTest {
         when(encounterHandler.getEncounterByEncounterID(any())).thenReturn(null);
         when(encounterHandler.buildLabResultEncounter(any())).thenReturn(savedEncounter);
         when(encounterHandler.sendEncounter(any())).thenReturn(savedEncounter);
-        when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(getAnalysesDTO());
+        var resultAnalyses = getAnalysesDTO();
+        resultAnalyses.setRemarks("Sample slightly hemolysed; result verified.");
+        when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(resultAnalyses);
         when(observationHandler.getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
-        when(observationHandler.buildResultObservation(any(), any(), any(), any()))
+        when(observationHandler.buildResultObservation(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
         when(observationHandler.sendObservation(any())).thenReturn(buildObservation());
         when(diagnosticReportHandler.buildDiagnosticReport(any(), any(), any())).thenReturn(buildDiagnosticReport());
@@ -257,7 +260,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
         verify(observationHandler, times(1))
                 .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
-        verify(observationHandler, times(1)).buildResultObservation(any(), any(), any(), any());
+        verify(observationHandler, times(1))
+                .buildResultObservation(any(), any(), any(), any(), eq(resultAnalyses.getRemarks()));
         verify(observationHandler, times(1)).sendObservation(any());
         verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());
         verify(diagnosticReportHandler, times(1)).sendDiagnosticReport(any());

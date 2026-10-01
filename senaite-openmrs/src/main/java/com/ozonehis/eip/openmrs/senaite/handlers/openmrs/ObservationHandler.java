@@ -99,7 +99,8 @@ public class ObservationHandler {
             Encounter savedResultEncounter,
             String conceptUuid,
             String analysesResult,
-            String analysesResultCaptureDate) {
+            String analysesResultCaptureDate,
+            String remarks) {
         Observation observation = new Observation();
         observation.setStatus(Observation.ObservationStatus.FINAL);
         observation.setCode(new CodeableConcept(new Coding().setCode(conceptUuid)));
@@ -107,6 +108,9 @@ public class ObservationHandler {
         observation.setEffective(new DateTimeType().setValue(Date.from(Instant.parse(analysesResultCaptureDate))));
         observation.setValue(getObservationValueBySenaiteResult(analysesResult));
         observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
+        if (remarks != null && !remarks.isBlank()) {
+            observation.addNote().setText(remarks);
+        }
         return observation;
     }
 
