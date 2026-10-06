@@ -109,7 +109,7 @@ public class ObservationHandler {
         observation.setValue(getObservationValueBySenaiteResult(analysesResult));
         observation.setEncounter(new Reference("Encounter/" + savedResultEncounter.getIdPart()));
         if (remarks != null && !remarks.isBlank()) {
-            observation.addNote().setText(remarks);
+            observation.addNote().setText(remarks); // FHIR2 module needs to add support for Observation.note
         }
         return observation;
     }
