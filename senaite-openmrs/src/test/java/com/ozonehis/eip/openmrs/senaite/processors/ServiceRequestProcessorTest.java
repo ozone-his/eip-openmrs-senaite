@@ -7,12 +7,15 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -264,6 +267,101 @@ class ServiceRequestProcessorTest extends BaseProcessorTest {
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
         verify(analysisRequestHandler, times(1)).doesAnalysisRequestExists(any());
         verify(analysisRequestTemplateHandler, times(1)).getAnalysisRequestTemplateByServiceRequestCode(any(), any());
+    }
+
+    @Test
+    public void shouldSkipCancellationWhenAnalysisRequestWasNotCreatedDueToMissingTemplate()
+            throws JsonProcessingException {
+        // Setup
+        Patient patient = buildPatient();
+        Encounter encounter = buildEncounter();
+        ServiceRequest serviceRequest = buildServiceRequest();
+        serviceRequest.setId("25f91544-b9d6-4a13-aa31-4221a2674335");
+
+        Bundle bundle = new Bundle();
+        List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
+        entries.add(new Bundle.BundleEntryComponent().setResource(patient));
+        entries.add(new Bundle.BundleEntryComponent().setResource(encounter));
+        entries.add(new Bundle.BundleEntryComponent().setResource(serviceRequest));
+        bundle.setEntry(entries);
+
+        Client client = getClient();
+        ClientDTO clientDTO = getClientDTO();
+        ContactDTO contactDTO = getContactDTO();
+        Contact contact = getContact();
+        AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
+
+        when(clientMapper.toSenaite(patient)).thenReturn(client);
+
+        when(clientHandler.getClientByPatientID(any(), eq(patient.getIdPart()))).thenReturn(clientDTO);
+        when(clientHandler.doesClientExists(clientDTO)).thenReturn(false);
+        when(clientHandler.sendClient(any(), eq(client))).thenReturn(clientDTO);
+
+        when(contactHandler.getContactByClientPath(any(), eq(clientDTO.getPath())))
+                .thenReturn(contactDTO);
+        when(contactHandler.doesContactExists(contactDTO)).thenReturn(false);
+
+        when(contactMapper.toSenaite(serviceRequest, clientDTO)).thenReturn(contact);
+        when(contactHandler.sendContact(any(), eq(contact))).thenReturn(contactDTO);
+
+        when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                        any(), eq(clientDTO.getClientID()), eq(serviceRequest.getIdPart())))
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO))
+                .thenReturn(false);
+
+        when(analysisRequestTemplateHandler.getAnalysisRequestTemplateByServiceRequestCode(
+                        any(), eq(serviceRequest.getCode().getCoding().get(0).getCode())))
+                .thenReturn(null);
+
+        Exchange exchange = createExchange(bundle, "c");
+
+        // Act
+        serviceRequestProcessor.process(exchange);
+
+        // Verify
+        verify(clientMapper, times(1)).toSenaite(any());
+        verify(clientHandler, times(1)).getClientByPatientID(any(), any());
+        verify(clientHandler, times(1)).doesClientExists(any());
+        verify(clientHandler, times(1)).sendClient(any(), any());
+        verify(contactHandler, times(1)).getContactByClientPath(any(), any());
+        verify(contactHandler, times(1)).doesContactExists(any());
+        verify(contactHandler, times(1)).sendContact(any(), any());
+        verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, times(1)).doesAnalysisRequestExists(any());
+        verify(analysisRequestTemplateHandler, times(1)).getAnalysisRequestTemplateByServiceRequestCode(any(), any());
+
+        serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.REVOKED);
+        when(analysisRequestHandler.getAnalysisRequestByClientSampleID(any(), eq(serviceRequest.getIdPart())))
+                .thenReturn(null);
+
+        assertDoesNotThrow(() -> serviceRequestProcessor.process(createExchange(bundle, "u")));
+
+        verify(analysisRequestHandler).getAnalysisRequestByClientSampleID(any(), eq(serviceRequest.getIdPart()));
+        verify(analysisRequestHandler, never()).sendAnalysisRequest(any(), any(), any());
+        verify(analysisRequestHandler, never()).cancelAnalysisRequest(any(), any(), any());
+        verifyNoInteractions(taskHandler, taskMapper);
+    }
+
+    @Test
+    public void shouldSkipCancellationWhenServiceRequestIsDeletedAndAnalysisRequestDoesNotExist()
+            throws JsonProcessingException {
+        ServiceRequest serviceRequest = buildServiceRequest();
+        serviceRequest.setId("25f91544-b9d6-4a13-aa31-4221a2674335");
+
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(buildPatient());
+        bundle.addEntry().setResource(buildEncounter());
+        bundle.addEntry().setResource(serviceRequest);
+
+        when(analysisRequestHandler.getAnalysisRequestByClientSampleID(any(), eq(serviceRequest.getIdPart())))
+                .thenReturn(null);
+
+        assertDoesNotThrow(() -> serviceRequestProcessor.process(createExchange(bundle, "d")));
+
+        verify(analysisRequestHandler).getAnalysisRequestByClientSampleID(any(), eq(serviceRequest.getIdPart()));
+        verify(analysisRequestHandler, never()).cancelAnalysisRequest(any(), any(), any());
+        verifyNoInteractions(clientHandler, contactHandler, analysisRequestTemplateHandler, taskHandler, taskMapper);
     }
 
     @Test
