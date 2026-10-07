@@ -29,7 +29,7 @@ public class GetAnalysisRequestTemplateRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:senaite-get-analysis-request-template-route")
-                .log(LoggingLevel.INFO, "Fetching AnalysisRequestTemplate in SENAITE...")
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Searching SENAITE for an analysis request template (exchange ID: ${exchangeId})")
                 .routeId("senaite-get-analysis-request-template-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))

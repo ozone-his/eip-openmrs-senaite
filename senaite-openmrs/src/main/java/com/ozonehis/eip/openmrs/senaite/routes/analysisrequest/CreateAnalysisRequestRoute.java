@@ -28,7 +28,7 @@ public class CreateAnalysisRequestRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:senaite-create-analysis-request-route")
-                .log(LoggingLevel.INFO, "Creating AnalysisRequest in SENAITE...")
+                .log(LoggingLevel.INFO, getClass().getName(), "Creating an analysis request in SENAITE (exchange ID: ${exchangeId})")
                 .routeId("senaite-create-analysis-request-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))

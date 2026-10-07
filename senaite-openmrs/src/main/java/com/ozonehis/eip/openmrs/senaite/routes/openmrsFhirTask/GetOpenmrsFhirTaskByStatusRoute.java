@@ -24,7 +24,7 @@ public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:openmrs-get-task-by-status-route")
-                .log(LoggingLevel.INFO, "Fetching Task by Status in OpenMRS...")
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Fetching requested and accepted Tasks from OpenMRS (exchange ID: ${exchangeId})")
                 .routeId("openmrs-get-task-by-status-route")
                 .toD("fhir://search/searchByUrl?url=RAW(${exchangeProperty.nextPageUrl})")
                 .unmarshal()

@@ -36,7 +36,10 @@ public class DiagnosticReportHandler {
                 .encodedJson()
                 .execute();
 
-        log.debug("DiagnosticReportHandler: DiagnosticReport created {}", methodOutcome.getCreated());
+        log.info(
+                "OpenMRS DiagnosticReport create request succeeded (ID: {}, created: {})",
+                methodOutcome.getId(),
+                methodOutcome.getCreated());
     }
 
     public DiagnosticReport buildDiagnosticReport(

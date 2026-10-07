@@ -28,7 +28,7 @@ public class UpdateClientRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:senaite-update-client-route")
-                .log(LoggingLevel.INFO, "Updating Client in SENAITE...")
+                .log(LoggingLevel.INFO, getClass().getName(), "Updating a client in SENAITE (exchange ID: ${exchangeId})")
                 .routeId("senaite-update-client-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))

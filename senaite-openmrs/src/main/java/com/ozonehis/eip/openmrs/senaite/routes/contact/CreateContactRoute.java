@@ -28,7 +28,7 @@ public class CreateContactRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:senaite-create-contact-route")
-                .log(LoggingLevel.INFO, "Creating Contact in SENAITE...")
+                .log(LoggingLevel.INFO, getClass().getName(), "Creating a contact in SENAITE (exchange ID: ${exchangeId})")
                 .routeId("senaite-create-contact-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))

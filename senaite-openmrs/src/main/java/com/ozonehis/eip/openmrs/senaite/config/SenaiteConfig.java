@@ -33,10 +33,12 @@ public class SenaiteConfig {
 
     public String authHeader() {
         if (StringUtils.isEmpty(getSenaiteUsername())) {
-            throw new IllegalArgumentException("SENAITE username is empty");
+            throw new IllegalArgumentException(
+                    "Cannot authenticate with SENAITE: configure a non-empty 'senaite.username' property");
         }
         if (StringUtils.isEmpty(getSenaitePassword())) {
-            throw new IllegalArgumentException("SENAITE password is empty");
+            throw new IllegalArgumentException(
+                    "Cannot authenticate with SENAITE: configure a non-empty 'senaite.password' property");
         }
         String auth = getSenaiteUsername() + ":" + getSenaitePassword();
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());

@@ -51,7 +51,12 @@ public class ObservationHandler {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        log.debug("ObservationHandler: Observation getObservationByCodeSubjectEncounterAndDate {}", bundle.getId());
+        log.debug(
+                "OpenMRS Observation search returned {} entries for code {}, Patient {}, and Encounter {} before date filtering",
+                bundle.getEntry().size(),
+                codeID,
+                subjectID,
+                encounterID);
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
@@ -91,7 +96,10 @@ public class ObservationHandler {
         MethodOutcome methodOutcome =
                 openmrsFhirClient.create().resource(observation).encodedJson().execute();
 
-        log.debug("ObservationHandler: Observation created {}", methodOutcome.getCreated());
+        log.info(
+                "OpenMRS Observation create request succeeded (ID: {}, created: {})",
+                methodOutcome.getId(),
+                methodOutcome.getCreated());
         return (Observation) methodOutcome.getResource();
     }
 
