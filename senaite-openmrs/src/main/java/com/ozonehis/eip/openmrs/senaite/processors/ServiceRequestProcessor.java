@@ -38,6 +38,7 @@ import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Task;
 import org.openmrs.eip.EIPException;
+import org.openmrs.eip.fhir.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -109,10 +110,10 @@ public class ServiceRequestProcessor implements Processor {
             } else {
                 log.debug("Processing OpenMRS ServiceRequest {} for Patient {}", serviceRequestId, patient.getIdPart());
                 String eventType = exchange.getMessage()
-                        .getHeader(org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE, String.class);
+                        .getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
                 if (eventType == null) {
                     throw new IllegalArgumentException("Cannot process ServiceRequest " + serviceRequestId
-                            + ": required exchange header '" + org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE
+                            + ": required exchange header '" + Constants.HEADER_FHIR_EVENT_TYPE
                             + "' is missing; expected 'c' (create), 'u' (update), or 'd' (delete)");
                 }
                 String serviceRequestUuid = serviceRequest.getIdPart();
