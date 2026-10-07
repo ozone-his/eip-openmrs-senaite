@@ -7,7 +7,9 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -104,7 +106,8 @@ class ServiceRequestProcessorTest extends BaseProcessorTest {
         Exchange exchange = createExchange(bundle, "c");
 
         // Verify
-        assertThrows(EIPException.class, () -> serviceRequestProcessor.process(exchange));
+        EIPException exception = assertThrows(EIPException.class, () -> serviceRequestProcessor.process(exchange));
+        assertTrue(exception.getCause().getMessage().contains("Patient present: false"));
     }
 
     @Test
@@ -120,7 +123,9 @@ class ServiceRequestProcessorTest extends BaseProcessorTest {
         Exchange exchange = createExchange(bundle, null);
 
         // Verify
-        assertThrows(EIPException.class, () -> serviceRequestProcessor.process(exchange));
+        EIPException exception = assertThrows(EIPException.class, () -> serviceRequestProcessor.process(exchange));
+        assertTrue(exception.getCause().getMessage().contains(org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE));
+        assertTrue(exception.getCause().getMessage().contains("is missing"));
     }
 
     @Test
@@ -360,5 +365,35 @@ class ServiceRequestProcessorTest extends BaseProcessorTest {
         // Verify
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientSampleID(any(), any());
         verify(analysisRequestHandler, times(0)).cancelAnalysisRequest(any(), any(), any());
+    }
+
+    @Test
+    void shouldPreserveFailureCauseAndServiceRequestContext() {
+        Patient patient = buildPatient();
+        ServiceRequest serviceRequest = buildServiceRequest();
+        serviceRequest.setId("service-request-id");
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(patient);
+        bundle.addEntry().setResource(buildEncounter());
+        bundle.addEntry().setResource(serviceRequest);
+        Exchange exchange = createExchange(bundle, "c");
+        RuntimeException cause = new RuntimeException("Patient mapping failed");
+        when(clientMapper.toSenaite(patient)).thenThrow(cause);
+
+        EIPException exception = assertThrows(EIPException.class, () -> serviceRequestProcessor.process(exchange));
+
+        assertSame(cause, exception.getCause());
+        assertTrue(exception.getMessage().contains(serviceRequest.getIdPart()));
+        assertTrue(exception.getMessage().contains(exchange.getExchangeId()));
+    }
+
+    @Test
+    void shouldDescribeMissingBundleBody() {
+        Exchange exchange = createExchange(null, "c");
+
+        EIPException exception = assertThrows(EIPException.class, () -> serviceRequestProcessor.process(exchange));
+
+        assertTrue(exception.getCause() instanceof IllegalArgumentException);
+        assertTrue(exception.getCause().getMessage().contains("expected a FHIR Bundle body"));
     }
 }

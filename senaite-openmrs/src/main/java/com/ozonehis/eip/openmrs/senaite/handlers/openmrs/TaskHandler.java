@@ -32,7 +32,10 @@ public class TaskHandler {
         MethodOutcome methodOutcome =
                 openmrsFhirClient.create().resource(task).encodedJson().execute();
 
-        log.debug("TaskHandler: Task created {}", methodOutcome.getCreated());
+        log.info(
+                "OpenMRS Task create request succeeded (ID: {}, created: {})",
+                methodOutcome.getId(),
+                methodOutcome.getCreated());
     }
 
     public Task getTaskByServiceRequestID(String serviceRequestID) {
@@ -54,7 +57,11 @@ public class TaskHandler {
     public Task updateTask(Task task, String taskID) {
         MethodOutcome methodOutcome = openmrsFhirClient.update().resource(task).execute();
 
-        log.debug("TaskHandler: Task updateTask {}", methodOutcome.getCreated());
+        log.debug(
+                "OpenMRS Task {} update request succeeded (response ID: {}, requested status: {})",
+                taskID,
+                methodOutcome.getId(),
+                task.getStatus());
 
         return (Task) methodOutcome.getResource();
     }

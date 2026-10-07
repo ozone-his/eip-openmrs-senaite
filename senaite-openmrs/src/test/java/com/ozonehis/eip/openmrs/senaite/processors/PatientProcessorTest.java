@@ -8,6 +8,9 @@
 package com.ozonehis.eip.openmrs.senaite.processors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -31,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.openmrs.eip.EIPException;
 
 class PatientProcessorTest extends BaseProcessorTest {
 
@@ -113,5 +117,20 @@ class PatientProcessorTest extends BaseProcessorTest {
         // Assert
         assertEquals("c", exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE));
         verify(clientMapper, times(1)).toSenaite(patient);
+    }
+
+    @Test
+    void shouldPreserveFailureCauseAndPatientContext() throws JsonProcessingException {
+        Patient patient = new Patient();
+        patient.setId(PATIENT_ID);
+        Exchange exchange = createExchange(patient, "c");
+        RuntimeException cause = new RuntimeException("SENAITE is unavailable");
+        when(clientHandler.getClientByPatientID(any(), eq(PATIENT_ID))).thenThrow(cause);
+
+        EIPException exception = assertThrows(EIPException.class, () -> patientProcessor.process(exchange));
+
+        assertSame(cause, exception.getCause());
+        assertTrue(exception.getMessage().contains(PATIENT_ID));
+        assertTrue(exception.getMessage().contains(exchange.getExchangeId()));
     }
 }

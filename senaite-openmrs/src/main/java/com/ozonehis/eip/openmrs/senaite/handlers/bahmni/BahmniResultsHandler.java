@@ -119,7 +119,10 @@ public class BahmniResultsHandler {
             ObjectMapper objectMapper = new ObjectMapper();
             jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultMap);
         } catch (Exception e) {
-            throw new RuntimeException("Could not generate Bahmni ENR results payload : ", e);
+            throw new RuntimeException(
+                    "Failed to serialize the Bahmni EMR lab results payload for ServiceRequest "
+                            + serviceRequest.getIdPart() + " and Encounter " + savedResultEncounter.getIdPart(),
+                    e);
         }
 
         String payload = jsonString;
@@ -140,7 +143,10 @@ public class BahmniResultsHandler {
             JsonNode rootNode = objectMapper.readTree(response);
             observationUuid = rootNode.get("uuid").asText();
         } catch (Exception e) {
-            throw new RuntimeException("Could not extract Bahmni EMR results observation uuid : ", e);
+            throw new RuntimeException(
+                    "Failed to read the observation UUID from the Bahmni EMR lab results response for ServiceRequest "
+                            + serviceRequest.getIdPart() + " and Encounter " + savedResultEncounter.getIdPart(),
+                    e);
         }
 
         Bundle bundle = openmrsFhirClient

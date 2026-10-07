@@ -7,6 +7,9 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -38,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.openmrs.eip.EIPException;
 
 class TaskProcessorTest extends BaseProcessorTest {
 
@@ -263,5 +267,32 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(diagnosticReportHandler, times(1)).sendDiagnosticReport(any());
         verify(taskHandler, times(1)).updateTaskStatus(any(), any());
         verify(taskHandler, times(1)).updateTask(any(), any());
+    }
+
+    @Test
+    void shouldPreserveFailureCauseAndTaskContext() {
+        Task task = getTask();
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(task);
+        Exchange exchange = createExchange(bundle, null);
+        RuntimeException cause = new RuntimeException("OpenMRS is unavailable");
+        when(taskHandler.doesTaskExists(task)).thenReturn(true);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenThrow(cause);
+
+        EIPException exception = assertThrows(EIPException.class, () -> taskProcessor.process(exchange));
+
+        assertSame(cause, exception.getCause());
+        assertTrue(exception.getMessage().contains(task.getIdPart()));
+        assertTrue(exception.getMessage().contains(exchange.getExchangeId()));
+    }
+
+    @Test
+    void shouldDescribeMissingBundleBody() {
+        Exchange exchange = createExchange(null, null);
+
+        EIPException exception = assertThrows(EIPException.class, () -> taskProcessor.process(exchange));
+
+        assertTrue(exception.getCause() instanceof IllegalArgumentException);
+        assertTrue(exception.getCause().getMessage().contains("expected a FHIR Bundle body"));
     }
 }
