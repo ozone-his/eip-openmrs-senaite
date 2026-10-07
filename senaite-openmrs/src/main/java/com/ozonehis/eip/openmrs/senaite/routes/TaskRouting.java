@@ -31,10 +31,10 @@ public class TaskRouting extends RouteBuilder {
         // spotless:off
         from("direct:poll-senaite")
             .routeId("poll-senaite")
-            .log(LoggingLevel.INFO, "Polling Tasks started...")
+            .log(LoggingLevel.DEBUG, getClass().getName(), "Starting OpenMRS Task polling and SENAITE result synchronization (exchange ID: ${exchangeId})")
             .to("direct:openmrs-get-task-by-status-route")
             .process(taskProcessor)
-            .log(LoggingLevel.INFO, "Polling Tasks completed.")
+            .log(LoggingLevel.DEBUG, getClass().getName(), "Completed OpenMRS Task polling and SENAITE result synchronization (exchange ID: ${exchangeId})")
                 .end();
         // spotless:on
     }

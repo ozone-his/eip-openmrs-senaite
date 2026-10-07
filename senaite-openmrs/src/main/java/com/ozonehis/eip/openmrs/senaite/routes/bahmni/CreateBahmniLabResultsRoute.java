@@ -18,7 +18,7 @@ public class CreateBahmniLabResultsRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:create-bahmni-lab-results-route")
-                .log(LoggingLevel.INFO, "Creating Bahmni lab results ...")
+                .log(LoggingLevel.INFO, getClass().getName(), "Submitting lab results to Bahmni EMR (exchange ID: ${exchangeId})")
                 .routeId("create-bahmni-lab-results-route")
                 .toD("${header.obsEndpointUrl}")
                 .end();

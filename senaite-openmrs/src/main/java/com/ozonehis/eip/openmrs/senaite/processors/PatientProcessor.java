@@ -41,12 +41,15 @@ public class PatientProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) {
+        String patientId = "unavailable";
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
             Message message = exchange.getMessage();
             Patient patient = message.getBody(Patient.class);
             if (patient == null) {
+                log.debug("Skipping patient synchronization: no Patient in exchange {}", exchange.getExchangeId());
                 return;
             }
+            patientId = patient.getIdPart();
 
             Map<String, Object> headers = new HashMap<>();
             ClientDTO savedClientDTO = clientHandler.getClientByPatientID(producerTemplate, patient.getIdPart());
@@ -63,7 +66,11 @@ public class PatientProcessor implements Processor {
             exchange.getMessage().setHeaders(headers);
 
         } catch (Exception e) {
-            throw new EIPException(String.format("Error processing Patient %s", e.getMessage()));
+            throw new EIPException(
+                    String.format(
+                            "Failed to synchronize OpenMRS Patient %s with SENAITE (exchange ID: %s)",
+                            patientId, exchange.getExchangeId()),
+                    e);
         }
     }
 }

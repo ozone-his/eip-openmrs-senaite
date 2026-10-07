@@ -75,8 +75,13 @@ public class ServiceRequestProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) {
+        String serviceRequestId = "unavailable";
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
             Bundle bundle = exchange.getMessage().getBody(Bundle.class);
+            if (bundle == null) {
+                throw new IllegalArgumentException(
+                        "Cannot process a ServiceRequest event: expected a FHIR Bundle body");
+            }
             List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
 
             Patient patient = null;
@@ -93,14 +98,22 @@ public class ServiceRequestProcessor implements Processor {
                 }
             }
 
+            if (serviceRequest != null) {
+                serviceRequestId = serviceRequest.getIdPart();
+            }
             if (patient == null || encounter == null || serviceRequest == null) {
-                throw new EIPException("Invalid Bundle. Bundle must contain Patient, Encounter and ServiceRequest");
+                throw new EIPException(String.format(
+                        "Cannot process ServiceRequest Bundle: required resources are missing (Patient present: %s, "
+                                + "Encounter present: %s, ServiceRequest present: %s)",
+                        patient != null, encounter != null, serviceRequest != null));
             } else {
-                log.debug("Processing ServiceRequest for Patient with UUID {}", patient.getIdPart());
+                log.debug("Processing OpenMRS ServiceRequest {} for Patient {}", serviceRequestId, patient.getIdPart());
                 String eventType = exchange.getMessage()
                         .getHeader(org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE, String.class);
                 if (eventType == null) {
-                    throw new IllegalArgumentException("Event type not found in the exchange headers.");
+                    throw new IllegalArgumentException("Cannot process ServiceRequest " + serviceRequestId
+                            + ": required exchange header '" + org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE
+                            + "' is missing; expected 'c' (create), 'u' (update), or 'd' (delete)");
                 }
                 String serviceRequestUuid = serviceRequest.getIdPart();
                 if ("c".equals(eventType) || "u".equals(eventType)) {
@@ -129,7 +142,11 @@ public class ServiceRequestProcessor implements Processor {
                                     analysisRequestTemplateHandler.getAnalysisRequestTemplateByServiceRequestCode(
                                             producerTemplate, serviceRequestCodeID);
                             if (analysisRequestTemplateDTO == null) {
-                                log.error("No ARTemplate found in SENAITE code {}", serviceRequestCodeID);
+                                log.error(
+                                        "Skipping ServiceRequest {}: no SENAITE analysis request template found for code {}; "
+                                                + "configure a matching template in SENAITE",
+                                        serviceRequestUuid,
+                                        serviceRequestCodeID);
                                 // TODO: Should we throw an error if ARTemplate with serviceRequest code does not exists
                                 return;
                             }
@@ -140,15 +157,15 @@ public class ServiceRequestProcessor implements Processor {
                         }
                         Task savedTask = taskHandler.getTaskByServiceRequestID(serviceRequestUuid);
                         if (!taskHandler.doesTaskExists(savedTask)) {
-                            log.info("Task does not exists for serviceRequest {}", serviceRequestUuid);
+                            log.debug("Creating an OpenMRS Task for ServiceRequest {}", serviceRequestUuid);
                             Task task = taskMapper.toFhir(savedAnalysisRequestDTO);
                             task.setStatus(Task.TaskStatus.REQUESTED);
                             taskHandler.sendTask(task);
                         } else {
-                            log.info(
-                                    "Task exists for serviceRequest {}, Task ID {}",
-                                    serviceRequestUuid,
-                                    savedTask.getIdPart());
+                            log.debug(
+                                    "Reusing OpenMRS Task {} for ServiceRequest {}",
+                                    savedTask.getIdPart(),
+                                    serviceRequestUuid);
                         }
 
                     } else {
@@ -159,11 +176,17 @@ public class ServiceRequestProcessor implements Processor {
                     // Executed when DISCONTINUE option is selected in OpenMRS
                     cancelAnalysisRequest(producerTemplate, serviceRequestUuid);
                 } else {
-                    throw new IllegalArgumentException("Unsupported event type: " + eventType);
+                    throw new IllegalArgumentException("Cannot process ServiceRequest " + serviceRequestId
+                            + ": unsupported event type '" + eventType
+                            + "'; expected 'c' (create), 'u' (update), or 'd' (delete)");
                 }
             }
         } catch (Exception e) {
-            throw new EIPException(String.format("Error processing ServiceRequest %s", e.getMessage()));
+            throw new EIPException(
+                    String.format(
+                            "Failed to synchronize OpenMRS ServiceRequest %s with SENAITE (exchange ID: %s)",
+                            serviceRequestId, exchange.getExchangeId()),
+                    e);
         }
     }
 
@@ -179,9 +202,11 @@ public class ServiceRequestProcessor implements Processor {
                     producerTemplate, cancelAnalysisRequest, analysisRequestDTO.getUid());
         } else {
             log.debug(
-                    "ServiceRequestProcessor: AnalysisRequest {} is cannot be cancelled for ServiceRequest id {}",
-                    analysisRequestDTO,
-                    serviceRequestUuid);
+                    "Skipping cancellation of SENAITE analysis request {} for ServiceRequest {}: "
+                            + "review state is '{}'; cancellation requires 'sample_due'",
+                    analysisRequestDTO.getUid(),
+                    serviceRequestUuid,
+                    analysisRequestDTO.getReviewState());
         }
         return null;
     }

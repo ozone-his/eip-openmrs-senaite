@@ -48,7 +48,7 @@ public class PatientRouting extends RouteBuilder {
                 .routeId("patient-to-client-router")
                 .filter(exchange -> exchange.getMessage().getBody() instanceof Patient)
                 .filter(isPatientSyncEnabled())
-                .log(LoggingLevel.INFO, "Processing Patient")
+                .log(LoggingLevel.INFO, getClass().getName(), "Synchronizing OpenMRS Patient ${body.idElement.idPart} with SENAITE (exchange ID: ${exchangeId})")
                 .process(patientProcessor)
                 .choice()
                 .when(header(HEADER_FHIR_EVENT_TYPE).isEqualTo("c"))

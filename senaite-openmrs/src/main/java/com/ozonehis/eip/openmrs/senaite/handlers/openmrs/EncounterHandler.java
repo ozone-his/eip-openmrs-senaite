@@ -53,7 +53,11 @@ public class EncounterHandler {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        log.debug("EncounterHandler: Encounter getEncounterByTypeAndSubjectAndStartDate {}", bundle.getId());
+        log.debug(
+                "OpenMRS Encounter search returned {} entries for encounter type {} and Patient {} before date filtering",
+                bundle.getEntry().size(),
+                typeID,
+                subjectID);
 
         return bundle.getEntry().stream()
                 .map(Bundle.BundleEntryComponent::getResource)
@@ -74,7 +78,7 @@ public class EncounterHandler {
                 .withId(encounterID)
                 .execute();
 
-        log.debug("EncounterHandler: Encounter getEncounterByEncounterID {}", encounter.getId());
+        log.debug("Fetched OpenMRS Encounter {}", encounter.getIdPart());
         return encounter;
     }
 
@@ -82,7 +86,10 @@ public class EncounterHandler {
         MethodOutcome methodOutcome =
                 openmrsFhirClient.create().resource(encounter).encodedJson().execute();
 
-        log.debug("EncounterHandler: Encounter created {}", methodOutcome.getCreated());
+        log.info(
+                "OpenMRS Encounter create request succeeded (ID: {}, created: {})",
+                methodOutcome.getId(),
+                methodOutcome.getCreated());
         return (Encounter) methodOutcome.getResource();
     }
 
