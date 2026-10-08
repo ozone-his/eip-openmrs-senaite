@@ -171,6 +171,12 @@ public class ServiceRequestProcessor implements Processor {
             throws JsonProcessingException {
         AnalysisRequestDTO analysisRequestDTO =
                 analysisRequestHandler.getAnalysisRequestByClientSampleID(producerTemplate, serviceRequestUuid);
+        if (analysisRequestDTO == null) {
+            log.info(
+                    "No AnalysisRequest found in SENAITE for ServiceRequest {}; skipping cancellation",
+                    serviceRequestUuid);
+            return null;
+        }
         if (analysisRequestDTO.getReviewState().equalsIgnoreCase("sample_due")) {
             CancelAnalysisRequest cancelAnalysisRequest = new CancelAnalysisRequest();
             cancelAnalysisRequest.setTransition("cancel");
