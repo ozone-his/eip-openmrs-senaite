@@ -193,9 +193,10 @@ class ObservationHandlerTest {
 
         // Act
         Observation observation =
-                observationHandler.buildResultObservation(savedResultEncounter, CODE_ID, analysesResult, DATE);
+                observationHandler.buildResultObservation(savedResultEncounter, CODE_ID, analysesResult, DATE, null);
 
         // Verify
+        assertEquals(0, observation.getNote().size());
         assertNotNull(observation);
         assertEquals(Observation.ObservationStatus.FINAL, observation.getStatus());
 
@@ -207,5 +208,25 @@ class ObservationHandlerTest {
         assertEquals(Date.from(Instant.parse(DATE)), ((DateTimeType) observation.getEffective()).getValue());
         assertEquals(Quantity.class, observation.getValue().getClass());
         assertEquals("Encounter/" + ENCOUNTER_ID, observation.getEncounter().getReference());
+    }
+
+    @Test
+    void shouldMapTestRemarksToObservationNoteText() {
+        String remarks = "Sample slightly hemolysed; result verified.";
+        Observation observation =
+                observationHandler.buildResultObservation(new Encounter(), CODE_ID, "3.0", DATE, remarks);
+
+        assertEquals(1, observation.getNote().size());
+        assertEquals(remarks, observation.getNoteFirstRep().getText());
+    }
+
+    @Test
+    void shouldOmitObservationNoteForBlankRemarks() {
+        for (String remarks : new String[] {null, "", "  \n "}) {
+            Observation observation =
+                    observationHandler.buildResultObservation(new Encounter(), CODE_ID, "3.0", DATE, remarks);
+
+            assertEquals(0, observation.getNote().size());
+        }
     }
 }
