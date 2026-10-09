@@ -49,7 +49,7 @@ public class BahmniResultsHandler {
     @Value("${openmrs.password}")
     protected String openmrsPassword;
 
-    @Value("${bahmni.labNotesConcept.uuid:}")
+    @Value("${bahmni.labNotesConcept.uuid}")
     protected String labNotesConceptUuid;
 
     @Autowired
