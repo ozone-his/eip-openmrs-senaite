@@ -71,6 +71,7 @@ class AnalysesHandlerTest {
 
         AnalysesDTO analysesDTO = new AnalysesDTO();
         analysesDTO.setResult("4.5");
+        analysesDTO.setRemarks("Sample slightly hemolysed; result verified.");
         analysesDTO.setResultCaptureDate("2024-09-30T11:21:36+00:00");
         analysesDTO.setDescription(
                 "Blood test to measure the number of red blood cells.(679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)");

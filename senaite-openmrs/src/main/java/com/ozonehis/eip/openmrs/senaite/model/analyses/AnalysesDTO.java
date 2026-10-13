@@ -21,4 +21,6 @@ public class AnalysesDTO {
     private String resultCaptureDate;
 
     private String description;
+
+    private String remarks;
 }

@@ -254,7 +254,8 @@ public class TaskProcessor implements Processor {
                             savedResultEncounter,
                             conceptUuid,
                             resultAnalysesDTO.getResult(),
-                            resultAnalysesDTO.getResultCaptureDate()));
+                            resultAnalysesDTO.getResultCaptureDate(),
+                            resultAnalysesDTO.getRemarks()));
                 }
                 observationUuids.add(savedObservation.getIdPart());
             }
