@@ -21,7 +21,12 @@ import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -53,6 +58,16 @@ public class TaskProcessor implements Processor {
     @Value("${run.with.bahmni.emr}")
     private String runWithBahmniEmr;
 
+    // Maximum number of open Tasks checked against SENAITE per polling cycle, 0 or less means no limit.
+    @Value("${task.update.max.per.cycle:100}")
+    private int maxTasksPerCycle;
+
+    // Polling cycle in which each open Task was last checked, so that a capped cycle starts with the Tasks that have
+    // waited the longest.
+    private final Map<String, Long> lastCheckedCycleByTaskId = new HashMap<>();
+
+    private long pollCycle;
+
     @Autowired
     private ServiceRequestHandler serviceRequestHandler;
 
@@ -82,24 +97,7 @@ public class TaskProcessor implements Processor {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
             Bundle bundle = exchange.getMessage().getBody(Bundle.class);
             log.debug("TaskProcessor: bundle {}", bundle.getId());
-            List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
-            for (Bundle.BundleEntryComponent entry : entries) {
-                Task task = null;
-                Resource resource = entry.getResource();
-                if (resource instanceof Task) {
-                    task = (Task) resource;
-                }
-
-                if (!taskHandler.doesTaskExists(task)) {
-                    continue;
-                }
-                if (task.getStatus() == Task.TaskStatus.COMPLETED || task.getStatus() == Task.TaskStatus.CANCELLED) {
-                    log.debug(
-                            "TaskProcessor: Skipping duplicate or terminal task {} with status {}",
-                            task.getIdPart(),
-                            task.getStatus());
-                    continue;
-                }
+            for (Task task : selectTasksToCheck(bundle.getEntry())) {
                 if (task.getBasedOn() == null || task.getBasedOn().isEmpty()) {
                     continue;
                 }
@@ -113,17 +111,30 @@ public class TaskProcessor implements Processor {
                 } else {
                     String serviceRequestSubjectID =
                             serviceRequest.getSubject().getReference().split("/")[1];
+                    // Only the review state is needed to decide what to do, the full sample is fetched once published
                     AnalysisRequestDTO analysisRequestDTO =
-                            analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                            analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(
                                     producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
                     if (analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO)) {
-                        Analyses[] analyses = analysisRequestDTO.getAnalyses();
                         String analysisRequestTaskStatus =
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
+                            AnalysisRequestDTO publishedAnalysisRequestDTO =
+                                    analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                                            producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
+                            if (!analysisRequestHandler.doesAnalysisRequestExists(publishedAnalysisRequestDTO)) {
+                                log.warn(
+                                        "TaskProcessor: Published AnalysisRequest for task {} could not be fetched",
+                                        task.getIdPart());
+                                continue;
+                            }
                             createResultsInOpenMRS(
-                                    producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
+                                    producerTemplate,
+                                    serviceRequest,
+                                    publishedAnalysisRequestDTO.getUid(),
+                                    publishedAnalysisRequestDTO.getAnalyses(),
+                                    analysisRequestDTO.getDatePublished());
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
@@ -148,22 +159,74 @@ public class TaskProcessor implements Processor {
         }
     }
 
+    /**
+     * Returns the open Tasks to check against SENAITE in this cycle. When there are more than
+     * {@code maxTasksPerCycle}, the ones checked least recently go first, so every open Task is checked within a few
+     * cycles and a Task that keeps failing does not hold the others back.
+     */
+    private List<Task> selectTasksToCheck(List<Bundle.BundleEntryComponent> entries) {
+        List<Task> openTasks = new ArrayList<>();
+        for (Bundle.BundleEntryComponent entry : entries) {
+            Task task = null;
+            Resource resource = entry.getResource();
+            if (resource instanceof Task) {
+                task = (Task) resource;
+            }
+
+            if (!taskHandler.doesTaskExists(task)) {
+                continue;
+            }
+            if (task.getStatus() == Task.TaskStatus.COMPLETED || task.getStatus() == Task.TaskStatus.CANCELLED) {
+                log.debug(
+                        "TaskProcessor: Skipping duplicate or terminal task {} with status {}",
+                        task.getIdPart(),
+                        task.getStatus());
+                continue;
+            }
+            openTasks.add(task);
+        }
+
+        pollCycle++;
+        Set<String> openTaskIds = openTasks.stream().map(Task::getIdPart).collect(Collectors.toSet());
+        lastCheckedCycleByTaskId.keySet().retainAll(openTaskIds);
+
+        List<Task> tasksToCheck = openTasks;
+        if (maxTasksPerCycle > 0 && openTasks.size() > maxTasksPerCycle) {
+            tasksToCheck = openTasks.stream()
+                    .sorted(Comparator.comparingLong(
+                            task -> lastCheckedCycleByTaskId.getOrDefault(task.getIdPart(), 0L)))
+                    .limit(maxTasksPerCycle)
+                    .toList();
+            log.info(
+                    "TaskProcessor: Checking {} of {} open Tasks this cycle (task.update.max.per.cycle={})",
+                    tasksToCheck.size(),
+                    openTasks.size(),
+                    maxTasksPerCycle);
+        }
+        tasksToCheck.forEach(task -> lastCheckedCycleByTaskId.put(task.getIdPart(), pollCycle));
+        return tasksToCheck;
+    }
+
     private String getTaskStatusCorrespondingToAnalysisRequestStatus(AnalysisRequestDTO analysisRequestDTO) {
         String analysisRequestStatus = analysisRequestDTO.getReviewState();
-        if (analysisRequestStatus.equalsIgnoreCase("sample_due")) {
-            return "requested";
-        } else if (analysisRequestStatus.equalsIgnoreCase("sample_received")) {
-            return "accepted";
-        } else if (analysisRequestStatus.equalsIgnoreCase("published")) {
-            return "completed";
-        } else if (analysisRequestStatus.equalsIgnoreCase("cancelled")) {
-            return "rejected";
+        if (analysisRequestStatus == null) {
+            return null;
         }
-        return null;
+        return switch (analysisRequestStatus.toLowerCase()) {
+            case "sample_due" -> "requested";
+            case "sample_received" -> "accepted";
+            case "published" -> "completed";
+            case "cancelled", "rejected" -> "rejected";
+            default -> null;
+        };
     }
 
     private void createResultsInOpenMRS(
-            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String datePublished)
+            ProducerTemplate producerTemplate,
+            ServiceRequest serviceRequest,
+            String analysisRequestUid,
+            Analyses[] analyses,
+            String datePublished)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubjectAndStartDate(
@@ -176,7 +239,7 @@ public class TaskProcessor implements Processor {
             // Result Encounter exists
             log.debug("TaskProcessor: LabResults Encounter exists with ID {}", resultEncounter.getIdPart());
             saveObservationAndDiagnosticReport(
-                    producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
+                    producerTemplate, serviceRequest, analysisRequestUid, analyses, resultEncounter, datePublished);
         } else {
             // Result Encounter does not exist, create a new one
             log.debug("TaskProcessor: LabResults Encounter does not exist, creating a new one");
@@ -187,7 +250,12 @@ public class TaskProcessor implements Processor {
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
             saveObservationAndDiagnosticReport(
-                    producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
+                    producerTemplate,
+                    serviceRequest,
+                    analysisRequestUid,
+                    analyses,
+                    savedResultEncounter,
+                    datePublished);
         }
     }
 
@@ -209,6 +277,7 @@ public class TaskProcessor implements Processor {
     private void saveObservationAndDiagnosticReport(
             ProducerTemplate producerTemplate,
             ServiceRequest serviceRequest,
+            String analysisRequestUid,
             Analyses[] analyses,
             Encounter savedResultEncounter,
             String datePublished)
@@ -216,10 +285,17 @@ public class TaskProcessor implements Processor {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
 
+        // One request for all analyses of the sample, restricted to the ones the sample lists, with a per-analysis
+        // fallback for any the batch did not return
+        Map<String, AnalysesDTO> analysesByUid =
+                analysesHandler.getAnalysesByAnalysisRequestUID(producerTemplate, analysisRequestUid);
         ArrayList<AnalysesDTO> analysesDTOs = new ArrayList<>();
         for (Analyses analysis : analyses) {
-            AnalysesDTO resultAnalysesDTO =
-                    analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
+            AnalysesDTO resultAnalysesDTO = analysesByUid.get(analysis.getAnalysesUid());
+            if (resultAnalysesDTO == null) {
+                resultAnalysesDTO =
+                        analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
+            }
             analysesDTOs.add(resultAnalysesDTO);
         }
 

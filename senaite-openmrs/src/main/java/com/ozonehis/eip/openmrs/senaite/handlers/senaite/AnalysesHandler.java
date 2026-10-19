@@ -39,4 +39,22 @@ public class AnalysesHandler {
         SenaiteResponseWrapper<AnalysesItem> responseWrapper = objectMapper.readValue(response, typeReference);
         return AnalysesMapper.map(responseWrapper);
     }
+
+    /**
+     * Fetches the analyses of an AnalysisRequest in a single SENAITE request, keyed by analysis UID.
+     */
+    public Map<String, AnalysesDTO> getAnalysesByAnalysisRequestUID(
+            ProducerTemplate producerTemplate, String analysisRequestUID) throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-get-analyses-by-analysis-request-route", null, headers, String.class);
+        TypeReference<SenaiteResponseWrapper<AnalysesItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysesItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        Map<String, AnalysesDTO> analysesByUid = new HashMap<>();
+        for (AnalysesDTO analysesDTO : AnalysesMapper.mapAll(responseWrapper)) {
+            analysesByUid.put(analysesDTO.getUid(), analysesDTO);
+        }
+        return analysesByUid;
+    }
 }
