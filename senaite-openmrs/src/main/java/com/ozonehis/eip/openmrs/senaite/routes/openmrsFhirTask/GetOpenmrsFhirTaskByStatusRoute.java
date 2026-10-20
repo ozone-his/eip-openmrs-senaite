@@ -7,21 +7,18 @@
  */
 package com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask;
 
-import lombok.AllArgsConstructor;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.stereotype.Component;
 
-@AllArgsConstructor
 @Component
 public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
 
     public static final String GET_BY_STATUS_ENDPOINT = "/Task?status=requested,accepted&_sort=-_lastUpdated&_count=10";
 
-    private static final String AGGREGATED_BUNDLE = "aggregatedBundle";
-    private static final String NEXT_PAGE_URL = "nextPageUrl";
+    public static final String NEXT_PAGE_URL = "nextPageUrl";
 
     @Override
     public void configure() {
@@ -29,32 +26,17 @@ public class GetOpenmrsFhirTaskByStatusRoute extends RouteBuilder {
         from("direct:openmrs-get-task-by-status-route")
                 .log(LoggingLevel.INFO, "Fetching Task by Status in OpenMRS...")
                 .routeId("openmrs-get-task-by-status-route")
-                .setProperty(NEXT_PAGE_URL, constant(GET_BY_STATUS_ENDPOINT))
-                .loopDoWhile(exchangeProperty(NEXT_PAGE_URL).isNotNull())
                 .toD("fhir://search/searchByUrl?url=RAW(${exchangeProperty.nextPageUrl})")
                 .unmarshal()
                 .fhirJson("R4")
                 .convertBodyTo(Bundle.class)
-                .process(this::aggregatePage)
-                .end()
-                .setBody(exchangeProperty(AGGREGATED_BUNDLE))
-                .removeProperty(AGGREGATED_BUNDLE)
-                .removeProperty(NEXT_PAGE_URL)
+                .process(this::setNextPageUrl)
                 .end();
         // spotless:on
     }
 
-    private void aggregatePage(Exchange exchange) {
+    private void setNextPageUrl(Exchange exchange) {
         Bundle page = exchange.getMessage().getBody(Bundle.class);
-        Bundle aggregatedBundle = exchange.getProperty(AGGREGATED_BUNDLE, Bundle.class);
-
-        if (aggregatedBundle == null) {
-            aggregatedBundle = page;
-            exchange.setProperty(AGGREGATED_BUNDLE, aggregatedBundle);
-        } else {
-            aggregatedBundle.getEntry().addAll(page.getEntry());
-        }
-
         String nextPageUrl = page.getLink(Bundle.LINK_NEXT) == null
                 ? null
                 : page.getLink(Bundle.LINK_NEXT).getUrl();
