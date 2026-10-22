@@ -109,8 +109,7 @@ public class ServiceRequestProcessor implements Processor {
                         patient != null, encounter != null, serviceRequest != null));
             } else {
                 log.debug("Processing OpenMRS ServiceRequest {} for Patient {}", serviceRequestId, patient.getIdPart());
-                String eventType = exchange.getMessage()
-                        .getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
+                String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
                 if (eventType == null) {
                     throw new IllegalArgumentException("Cannot process ServiceRequest " + serviceRequestId
                             + ": required exchange header '" + Constants.HEADER_FHIR_EVENT_TYPE
