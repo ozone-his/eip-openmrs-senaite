@@ -28,7 +28,7 @@ public class GetContactRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:senaite-get-contact-route")
-                .log(LoggingLevel.INFO, "Fetching Contact in SENAITE...")
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Searching SENAITE for a contact by client path (exchange ID: ${exchangeId})")
                 .routeId("senaite-get-contact-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))

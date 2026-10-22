@@ -57,7 +57,7 @@ public class ServiceRequestRouting extends RouteBuilder {
         from("direct:service-request-to-analysis-request-processor")
                 .routeId("service-request-to-analysis-request-processor")
                 .process(serviceRequestProcessor)
-                .log(LoggingLevel.INFO, "Processed ServiceRequest")
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Finished processing the OpenMRS ServiceRequest event (exchange ID: ${exchangeId})")
                 .end();
         // spotless:on
     }

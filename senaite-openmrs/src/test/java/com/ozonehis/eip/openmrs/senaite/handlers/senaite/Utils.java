@@ -16,7 +16,7 @@ public class Utils {
     public String readJSON(String filePath) {
         InputStream is = getClass().getClassLoader().getResourceAsStream(filePath);
         if (is == null) {
-            throw new IllegalArgumentException("File not found! " + filePath);
+            throw new IllegalArgumentException("JSON test resource not found on the classpath: " + filePath);
         } else {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));

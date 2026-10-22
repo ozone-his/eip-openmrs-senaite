@@ -29,7 +29,7 @@ public class GetAnalysisRequestByClientSampleIDRoute extends RouteBuilder {
     public void configure() {
         // spotless:off
         from("direct:senaite-get-analysis-request-by-client-sample-id-route")
-                .log(LoggingLevel.INFO, "Fetching AnalysisRequest in SENAITE...")
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Searching SENAITE for an analysis request by client sample ID (exchange ID: ${exchangeId})")
                 .routeId("senaite-get-analysis-request-by-client-sample-id-route")
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))

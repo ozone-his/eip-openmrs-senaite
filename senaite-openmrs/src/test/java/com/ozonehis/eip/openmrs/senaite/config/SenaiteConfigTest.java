@@ -57,13 +57,21 @@ class SenaiteConfigTest {
     void shouldThrowsExceptionWhenUsernameIsEmpty() {
         ReflectionTestUtils.setField(senaiteConfig, senaiteUsername, "");
 
-        assertThrows(IllegalArgumentException.class, () -> senaiteConfig.authHeader(), "Username cannot be empty");
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> senaiteConfig.authHeader());
+        assertEquals(
+                "Cannot authenticate with SENAITE: configure a non-empty 'senaite.username' property",
+                exception.getMessage());
     }
 
     @Test
     void shouldThrowsExceptionWhenPasswordIsEmpty() {
         ReflectionTestUtils.setField(senaiteConfig, senaitePassword, "");
 
-        assertThrows(IllegalArgumentException.class, () -> senaiteConfig.authHeader(), "Password cannot be empty");
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> senaiteConfig.authHeader());
+        assertEquals(
+                "Cannot authenticate with SENAITE: configure a non-empty 'senaite.password' property",
+                exception.getMessage());
     }
 }

@@ -33,15 +33,15 @@ public class TaskRouting extends RouteBuilder {
         getContext().getTypeConverterRegistry().addTypeConverters(resourceConverter);
         // spotless:off
         from("direct:poll-senaite")
-            .routeId("poll-senaite")
-            .log(LoggingLevel.INFO, "Polling Tasks started...")
-            .setProperty(NEXT_PAGE_URL, constant(GET_BY_STATUS_ENDPOINT))
-            .loopDoWhile(exchangeProperty(NEXT_PAGE_URL).isNotNull())
+                .routeId("poll-senaite")
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Starting OpenMRS Task polling and SENAITE result synchronization (exchange ID: ${exchangeId})")
+                .setProperty(NEXT_PAGE_URL, constant(GET_BY_STATUS_ENDPOINT))
+                .loopDoWhile(exchangeProperty(NEXT_PAGE_URL).isNotNull())
                 .to("direct:openmrs-get-task-by-status-route")
                 .process(taskProcessor)
-            .end()
-            .removeProperty(NEXT_PAGE_URL)
-            .log(LoggingLevel.INFO, "Polling Tasks completed.")
+                .end()
+                .removeProperty(NEXT_PAGE_URL)
+                .log(LoggingLevel.DEBUG, getClass().getName(), "Completed OpenMRS Task polling and SENAITE result synchronization (exchange ID: ${exchangeId})")
                 .end();
         // spotless:on
     }

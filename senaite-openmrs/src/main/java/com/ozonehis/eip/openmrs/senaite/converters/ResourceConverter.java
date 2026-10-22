@@ -25,6 +25,8 @@ public class ResourceConverter {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final FhirContext FHIR_CONTEXT = FhirContext.forR4();
+
     @Converter
     public static InputStream convertSenaiteResourceToInputStream(SenaiteResource senaiteResource) throws IOException {
         String json = objectMapper.writeValueAsString(senaiteResource);
@@ -33,8 +35,7 @@ public class ResourceConverter {
 
     @Converter
     public static InputStream toInputStream(Bundle bundle) {
-        FhirContext ctx = FhirContext.forR4();
-        String json = ctx.newJsonParser().encodeResourceToString(bundle);
+        String json = FHIR_CONTEXT.newJsonParser().encodeResourceToString(bundle);
         return new ByteArrayInputStream(json.getBytes());
     }
 }
