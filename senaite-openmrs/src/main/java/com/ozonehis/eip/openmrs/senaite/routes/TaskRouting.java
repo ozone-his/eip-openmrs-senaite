@@ -7,6 +7,9 @@
  */
 package com.ozonehis.eip.openmrs.senaite.routes;
 
+import static com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask.GetOpenmrsFhirTaskByStatusRoute.GET_BY_STATUS_ENDPOINT;
+import static com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask.GetOpenmrsFhirTaskByStatusRoute.NEXT_PAGE_URL;
+
 import com.ozonehis.eip.openmrs.senaite.converters.ResourceConverter;
 import com.ozonehis.eip.openmrs.senaite.processors.TaskProcessor;
 import lombok.Setter;
@@ -32,8 +35,12 @@ public class TaskRouting extends RouteBuilder {
         from("direct:poll-senaite")
             .routeId("poll-senaite")
             .log(LoggingLevel.INFO, "Polling Tasks started...")
-            .to("direct:openmrs-get-task-by-status-route")
-            .process(taskProcessor)
+            .setProperty(NEXT_PAGE_URL, constant(GET_BY_STATUS_ENDPOINT))
+            .loopDoWhile(exchangeProperty(NEXT_PAGE_URL).isNotNull())
+                .to("direct:openmrs-get-task-by-status-route")
+                .process(taskProcessor)
+            .end()
+            .removeProperty(NEXT_PAGE_URL)
             .log(LoggingLevel.INFO, "Polling Tasks completed.")
                 .end();
         // spotless:on
