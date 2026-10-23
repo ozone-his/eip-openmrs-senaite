@@ -56,6 +56,24 @@ public class AnalysisRequestHandler {
         return AnalysisRequestMapper.map(responseWrapper);
     }
 
+    /**
+     * Cheap lookup for polling: returns the review state, contact, client and publication date from the SENAITE catalog
+     * without loading the sample. The DTO has no analyses, fetch them with
+     * {@link AnalysesHandler#getAnalysesByAnalysisRequestUID(ProducerTemplate, String)} once the sample is published.
+     */
+    public AnalysisRequestDTO getAnalysisRequestStatusByClientIDAndClientSampleID(
+            ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_ID, clientID);
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-get-analysis-request-status-route", null, headers, String.class);
+
+        TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
+        return AnalysisRequestMapper.map(responseWrapper);
+    }
+
     public AnalysisRequestDTO getAnalysisRequestByClientSampleID(
             ProducerTemplate producerTemplate, String clientSampleID) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();

@@ -19,7 +19,6 @@ import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysesHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -82,24 +81,7 @@ public class TaskProcessor implements Processor {
         try (ProducerTemplate producerTemplate = exchange.getContext().createProducerTemplate()) {
             Bundle bundle = exchange.getMessage().getBody(Bundle.class);
             log.debug("TaskProcessor: bundle {}", bundle.getId());
-            List<Bundle.BundleEntryComponent> entries = bundle.getEntry();
-            for (Bundle.BundleEntryComponent entry : entries) {
-                Task task = null;
-                Resource resource = entry.getResource();
-                if (resource instanceof Task) {
-                    task = (Task) resource;
-                }
-
-                if (!taskHandler.doesTaskExists(task)) {
-                    continue;
-                }
-                if (task.getStatus() == Task.TaskStatus.COMPLETED || task.getStatus() == Task.TaskStatus.CANCELLED) {
-                    log.debug(
-                            "TaskProcessor: Skipping duplicate or terminal task {} with status {}",
-                            task.getIdPart(),
-                            task.getStatus());
-                    continue;
-                }
+            for (Task task : selectTasksToCheck(bundle.getEntry())) {
                 if (task.getBasedOn() == null || task.getBasedOn().isEmpty()) {
                     continue;
                 }
@@ -113,17 +95,31 @@ public class TaskProcessor implements Processor {
                 } else {
                     String serviceRequestSubjectID =
                             serviceRequest.getSubject().getReference().split("/")[1];
+                    // Catalog-only lookup: the review state is all that is needed until the sample is published
                     AnalysisRequestDTO analysisRequestDTO =
-                            analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                            analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(
                                     producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
                     if (analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO)) {
-                        Analyses[] analyses = analysisRequestDTO.getAnalyses();
                         String analysisRequestTaskStatus =
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
+                            // Results exist only once published, so this is the only complete=true request
+                            List<AnalysesDTO> analysesDTOs = analysesHandler.getAnalysesByAnalysisRequestUID(
+                                    producerTemplate, analysisRequestDTO.getUid());
+                            if (analysesDTOs.isEmpty()) {
+                                log.warn(
+                                        "TaskProcessor: No analyses found in SENAITE for published AnalysisRequest {}"
+                                                + " of task {}, will retry next cycle",
+                                        analysisRequestDTO.getUid(),
+                                        task.getIdPart());
+                                continue;
+                            }
                             createResultsInOpenMRS(
-                                    producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
+                                    producerTemplate,
+                                    serviceRequest,
+                                    analysesDTOs,
+                                    analysisRequestDTO.getDatePublished());
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
@@ -148,22 +144,52 @@ public class TaskProcessor implements Processor {
         }
     }
 
+    /**
+     * Returns the open Tasks of this page, skipping missing and terminal ones.
+     */
+    private List<Task> selectTasksToCheck(List<Bundle.BundleEntryComponent> entries) {
+        List<Task> openTasks = new ArrayList<>();
+        for (Bundle.BundleEntryComponent entry : entries) {
+            Task task = null;
+            Resource resource = entry.getResource();
+            if (resource instanceof Task) {
+                task = (Task) resource;
+            }
+
+            if (!taskHandler.doesTaskExists(task)) {
+                continue;
+            }
+            if (task.getStatus() == Task.TaskStatus.COMPLETED || task.getStatus() == Task.TaskStatus.CANCELLED) {
+                log.debug(
+                        "TaskProcessor: Skipping duplicate or terminal task {} with status {}",
+                        task.getIdPart(),
+                        task.getStatus());
+                continue;
+            }
+            openTasks.add(task);
+        }
+        return openTasks;
+    }
+
     private String getTaskStatusCorrespondingToAnalysisRequestStatus(AnalysisRequestDTO analysisRequestDTO) {
         String analysisRequestStatus = analysisRequestDTO.getReviewState();
-        if (analysisRequestStatus.equalsIgnoreCase("sample_due")) {
-            return "requested";
-        } else if (analysisRequestStatus.equalsIgnoreCase("sample_received")) {
-            return "accepted";
-        } else if (analysisRequestStatus.equalsIgnoreCase("published")) {
-            return "completed";
-        } else if (analysisRequestStatus.equalsIgnoreCase("cancelled")) {
-            return "rejected";
+        if (analysisRequestStatus == null) {
+            return null;
         }
-        return null;
+        return switch (analysisRequestStatus.toLowerCase()) {
+            case "sample_due" -> "requested";
+            case "sample_received" -> "accepted";
+            case "published" -> "completed";
+            case "cancelled", "rejected" -> "rejected";
+            default -> null;
+        };
     }
 
     private void createResultsInOpenMRS(
-            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String datePublished)
+            ProducerTemplate producerTemplate,
+            ServiceRequest serviceRequest,
+            List<AnalysesDTO> analysesDTOs,
+            String datePublished)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubjectAndStartDate(
@@ -176,7 +202,7 @@ public class TaskProcessor implements Processor {
             // Result Encounter exists
             log.debug("TaskProcessor: LabResults Encounter exists with ID {}", resultEncounter.getIdPart());
             saveObservationAndDiagnosticReport(
-                    producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
+                    producerTemplate, serviceRequest, analysesDTOs, resultEncounter, datePublished);
         } else {
             // Result Encounter does not exist, create a new one
             log.debug("TaskProcessor: LabResults Encounter does not exist, creating a new one");
@@ -187,7 +213,7 @@ public class TaskProcessor implements Processor {
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
             saveObservationAndDiagnosticReport(
-                    producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
+                    producerTemplate, serviceRequest, analysesDTOs, savedResultEncounter, datePublished);
         }
     }
 
@@ -209,19 +235,12 @@ public class TaskProcessor implements Processor {
     private void saveObservationAndDiagnosticReport(
             ProducerTemplate producerTemplate,
             ServiceRequest serviceRequest,
-            Analyses[] analyses,
+            List<AnalysesDTO> analysesDTOs,
             Encounter savedResultEncounter,
             String datePublished)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
-
-        ArrayList<AnalysesDTO> analysesDTOs = new ArrayList<>();
-        for (Analyses analysis : analyses) {
-            AnalysesDTO resultAnalysesDTO =
-                    analysesHandler.getAnalysesByAnalysesApiUrl(producerTemplate, analysis.getAnalysesApiUrl());
-            analysesDTOs.add(resultAnalysesDTO);
-        }
 
         if (Boolean.parseBoolean(runWithBahmniEmr)) {
             Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(

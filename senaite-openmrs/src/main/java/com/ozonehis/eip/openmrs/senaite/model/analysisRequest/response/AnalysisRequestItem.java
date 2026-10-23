@@ -7,6 +7,7 @@
  */
 package com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ozonehis.eip.openmrs.senaite.model.SenaiteResource;
@@ -20,7 +21,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysisRequestItem implements SenaiteResource {
 
+    // Full object responses use "ContactUID", catalog-only responses use "getContactUID"
     @JsonProperty("ContactUID")
+    @JsonAlias("getContactUID")
     private String contactUid;
 
     @JsonProperty("SampleTypeUID")
@@ -41,7 +44,9 @@ public class AnalysisRequestItem implements SenaiteResource {
     @JsonProperty("Analyses")
     private Analyses[] analyses;
 
+    // Full object responses use "ClientSampleID", catalog-only responses use "getClientSampleID"
     @JsonProperty("ClientSampleID")
+    @JsonAlias("getClientSampleID")
     private String clientSampleID;
 
     @JsonProperty("getClientUID")

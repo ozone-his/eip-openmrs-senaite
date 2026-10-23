@@ -1,0 +1,35 @@
+{
+  "count": 2,
+  "pagesize": 25,
+  "items": [
+    {
+      "uid": "11afa09663054c18b1ae7a1cd2cd7601",
+      "id": "WB-0001",
+      "portal_type": "AnalysisRequest",
+      "review_state": "invalid",
+      "getClientSampleID": "bbaea498-e046-43c6-bf9c-dbbc7d39f38c",
+      "getClientID": "7f4aebaf3d4a4a2f8e8ebb5881d4ce73",
+      "getClientUID": "3e6fb3b4bf8e4593a76b659f886704ae",
+      "getContactUID": "1baac45668fc49cbbd5c4fd35d804b72",
+      "getDatePublished": "2024-10-07T09:00:00+00:00",
+      "api_url": "http://senaite:8080/senaite/@@API/senaite/v1/AnalysisRequest/11afa09663054c18b1ae7a1cd2cd7601"
+    },
+    {
+      "uid": "99afa09663054c18b1ae7a1cd2cd7693",
+      "id": "WB-0001-R01",
+      "portal_type": "AnalysisRequest",
+      "review_state": "published",
+      "getClientSampleID": "bbaea498-e046-43c6-bf9c-dbbc7d39f38c",
+      "getClientID": "7f4aebaf3d4a4a2f8e8ebb5881d4ce73",
+      "getClientUID": "3e6fb3b4bf8e4593a76b659f886704ae",
+      "getContactUID": "1baac45668fc49cbbd5c4fd35d804b72",
+      "getDatePublished": "2024-10-08T10:30:00+00:00",
+      "api_url": "http://senaite:8080/senaite/@@API/senaite/v1/AnalysisRequest/99afa09663054c18b1ae7a1cd2cd7693"
+    }
+  ],
+  "page": 1,
+  "_runtime": 0.007,
+  "next": null,
+  "pages": 1,
+  "previous": null
+}

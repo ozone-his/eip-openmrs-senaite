@@ -8,6 +8,8 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
@@ -271,5 +273,33 @@ class AnalysisRequestHandlerTest {
 
         // Verify
         assertEquals(analysisRequestDTO, result);
+    }
+
+    @Test
+    void shouldReturnStatusFromCatalogPreferringRetestOverInvalidSample() throws JsonProcessingException {
+        // Setup
+        String responseBody = new Utils().readJSON("senaite/response/get-analysis-request-status.json");
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_ID, CLIENT_ID);
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, CLIENT_SAMPLE_ID);
+        when(producerTemplate.requestBodyAndHeaders(
+                        eq("direct:senaite-get-analysis-request-status-route"),
+                        isNull(),
+                        eq(headers),
+                        eq(String.class)))
+                .thenReturn(responseBody);
+
+        // Act
+        AnalysisRequestDTO result = analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(
+                producerTemplate, CLIENT_ID, CLIENT_SAMPLE_ID);
+
+        // Verify: catalog field names (getContactUID, getClientSampleID) are mapped, and the retest is picked
+        assertEquals("99afa09663054c18b1ae7a1cd2cd7693", result.getUid());
+        assertEquals("published", result.getReviewState());
+        assertEquals(CONTACT_ID, result.getContact());
+        assertEquals(CLIENT_SAMPLE_ID, result.getClientSampleID());
+        assertEquals("2024-10-08T10:30:00+00:00", result.getDatePublished());
+        assertNull(result.getAnalyses());
+        assertTrue(analysisRequestHandler.doesAnalysisRequestExists(result));
     }
 }
