@@ -44,6 +44,7 @@ public class AnalysisRequestItem implements SenaiteResource {
     @JsonProperty("Analyses")
     private Analyses[] analyses;
 
+    // Full object responses use "ClientSampleID", catalog-only responses use "getClientSampleID"
     @JsonProperty("ClientSampleID")
     @JsonAlias("getClientSampleID")
     private String clientSampleID;
