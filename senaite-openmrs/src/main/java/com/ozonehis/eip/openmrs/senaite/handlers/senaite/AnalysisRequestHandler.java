@@ -58,8 +58,8 @@ public class AnalysisRequestHandler {
 
     /**
      * Cheap lookup for polling: returns the review state, contact, client and publication date from the SENAITE catalog
-     * without loading the sample. The DTO has no analyses, use
-     * {@link #getAnalysisRequestByClientIDAndClientSampleID(ProducerTemplate, String, String)} when they are needed.
+     * without loading the sample. The DTO has no analyses, fetch them with
+     * {@link AnalysesHandler#getAnalysesByAnalysisRequestUID(ProducerTemplate, String)} once the sample is published.
      */
     public AnalysisRequestDTO getAnalysisRequestStatusByClientIDAndClientSampleID(
             ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {

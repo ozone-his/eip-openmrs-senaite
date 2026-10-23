@@ -22,6 +22,7 @@ import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesItem;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.camel.ProducerTemplate;
 import org.junit.jupiter.api.AfterAll;
@@ -86,7 +87,7 @@ class AnalysesHandlerTest {
     }
 
     @Test
-    void shouldReturnAllAnalysesOfAnalysisRequestKeyedByUid() throws JsonProcessingException {
+    void shouldReturnAllAnalysesOfAnalysisRequest() throws JsonProcessingException {
         // Setup
         String analysisRequestUid = "99afa09663054c18b1ae7a1cd2cd7693";
         String responseBody = new Utils().readJSON("senaite/response/get-analyses-by-analysis-request.json");
@@ -100,15 +101,17 @@ class AnalysesHandlerTest {
                 .thenReturn(responseBody);
 
         // Act
-        Map<String, AnalysesDTO> result =
+        List<AnalysesDTO> result =
                 analysesHandler.getAnalysesByAnalysisRequestUID(producerTemplate, analysisRequestUid);
 
         // Verify
         assertEquals(2, result.size());
-        AnalysesDTO analysesDTO = result.get("06d1e902317047d1b90b27df5122ab78");
+        AnalysesDTO analysesDTO = result.get(0);
+        assertEquals("06d1e902317047d1b90b27df5122ab78", analysesDTO.getUid());
         assertEquals("4.5", analysesDTO.getResult());
         assertEquals("2024-09-30T11:21:36+00:00", analysesDTO.getResultCaptureDate());
         assertEquals("Sample slightly hemolysed; result verified.", analysesDTO.getRemarks());
-        assertEquals("12", result.get("50276c33096c472aa2c2958851c24899").getResult());
+        assertEquals("50276c33096c472aa2c2958851c24899", result.get(1).getUid());
+        assertEquals("12", result.get(1).getResult());
     }
 }

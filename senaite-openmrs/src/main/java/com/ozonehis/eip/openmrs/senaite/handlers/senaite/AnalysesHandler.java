@@ -16,6 +16,7 @@ import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesMapper;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesItem;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +42,9 @@ public class AnalysesHandler {
     }
 
     /**
-     * Fetches the analyses of an AnalysisRequest in a single SENAITE request, keyed by analysis UID.
+     * Fetches all analyses of an AnalysisRequest, with their results, in a single SENAITE request.
      */
-    public Map<String, AnalysesDTO> getAnalysesByAnalysisRequestUID(
+    public List<AnalysesDTO> getAnalysesByAnalysisRequestUID(
             ProducerTemplate producerTemplate, String analysisRequestUID) throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_ANALYSIS_REQUEST_UID, analysisRequestUID);
@@ -51,10 +52,6 @@ public class AnalysesHandler {
                 "direct:senaite-get-analyses-by-analysis-request-route", null, headers, String.class);
         TypeReference<SenaiteResponseWrapper<AnalysesItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysesItem> responseWrapper = objectMapper.readValue(response, typeReference);
-        Map<String, AnalysesDTO> analysesByUid = new HashMap<>();
-        for (AnalysesDTO analysesDTO : AnalysesMapper.mapAll(responseWrapper)) {
-            analysesByUid.put(analysesDTO.getUid(), analysesDTO);
-        }
-        return analysesByUid;
+        return AnalysesMapper.mapAll(responseWrapper);
     }
 }
