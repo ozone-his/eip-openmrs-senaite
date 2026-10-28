@@ -117,13 +117,29 @@ public class TaskProcessor implements Processor {
                             analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
                                     producerTemplate, serviceRequestSubjectID, taskBasedOnReference);
                     if (analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO)) {
-                        Analyses[] analyses = analysisRequestDTO.getAnalyses();
                         String analysisRequestTaskStatus =
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            createResultsInOpenMRS(
-                                    producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
+                            AnalysisRequestDTO publishedAnalysisRequest =
+                                    analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                                            producerTemplate, serviceRequestSubjectID, taskBasedOnReference, true);
+                            if (publishedAnalysisRequest == null) {
+                                log.warn(
+                                        "TaskProcessor: Published AnalysisRequest {} could not be loaded; leaving task {} unchanged",
+                                        taskBasedOnReference,
+                                        task.getIdPart());
+                                analysisRequestTaskStatus = null;
+                            } else {
+                                Analyses[] analyses = publishedAnalysisRequest.getAnalyses() == null
+                                        ? new Analyses[0]
+                                        : publishedAnalysisRequest.getAnalyses();
+                                createResultsInOpenMRS(
+                                        producerTemplate,
+                                        serviceRequest,
+                                        analyses,
+                                        publishedAnalysisRequest.getDatePublished());
+                            }
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",

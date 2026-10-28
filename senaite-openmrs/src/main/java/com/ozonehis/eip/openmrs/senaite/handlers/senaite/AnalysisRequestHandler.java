@@ -45,9 +45,18 @@ public class AnalysisRequestHandler {
 
     public AnalysisRequestDTO getAnalysisRequestByClientIDAndClientSampleID(
             ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
+        return getAnalysisRequestByClientIDAndClientSampleID(producerTemplate, clientID, clientSampleID, false);
+    }
+
+    public AnalysisRequestDTO getAnalysisRequestByClientIDAndClientSampleID(
+            ProducerTemplate producerTemplate, String clientID, String clientSampleID, boolean complete)
+            throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_ID, clientID);
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
+        if (complete) {
+            headers.put(Constants.HEADER_SENAITE_COMPLETE, Boolean.TRUE);
+        }
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
 
@@ -82,7 +91,7 @@ public class AnalysisRequestHandler {
 
     public boolean doesAnalysisRequestExists(AnalysisRequestDTO analysisRequestDTO) {
         return analysisRequestDTO != null
-                && analysisRequestDTO.getContact() != null
-                && !analysisRequestDTO.getContact().isEmpty();
+                && analysisRequestDTO.getUid() != null
+                && !analysisRequestDTO.getUid().isEmpty();
     }
 }
