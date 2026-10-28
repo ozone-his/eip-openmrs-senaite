@@ -23,10 +23,24 @@ public class GetAnalysisRequestRoute extends RouteBuilder {
     private SenaiteConfig senaiteConfig;
 
     private static final String GET_ANALYSIS_REQUEST_ENDPOINT =
-            "/@@API/senaite/v1/AnalysisRequest?getClientSampleID=%s&getClientID=%s&catalog=senaite_catalog_sample&complete=true";
+            "/@@API/senaite/v1/AnalysisRequest?getClientSampleID=%s&getClientID=%s&catalog=senaite_catalog_sample";
+
+    static String catalogEndpoint(String baseUrl) {
+        return baseUrl
+                + String.format(
+                        GET_ANALYSIS_REQUEST_ENDPOINT,
+                        "${header." + Constants.HEADER_CLIENT_SAMPLE_ID + "}",
+                        "${header." + Constants.HEADER_CLIENT_ID + "}");
+    }
+
+    static String completeEndpoint(String baseUrl) {
+        return catalogEndpoint(baseUrl) + "&complete=true";
+    }
 
     @Override
     public void configure() {
+        String catalogEndpoint = catalogEndpoint(senaiteConfig.getSenaiteBaseUrl());
+        String completeEndpoint = completeEndpoint(senaiteConfig.getSenaiteBaseUrl());
         // spotless:off
         from("direct:senaite-get-analysis-request-route")
                 .log(LoggingLevel.INFO, "Fetching AnalysisRequest in SENAITE...")
@@ -34,11 +48,11 @@ public class GetAnalysisRequestRoute extends RouteBuilder {
                 .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.GET))
                 .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
                 .setHeader(Constants.AUTHORIZATION, constant(senaiteConfig.authHeader()))
-                .toD(senaiteConfig.getSenaiteBaseUrl()
-                        + String.format(
-                                GET_ANALYSIS_REQUEST_ENDPOINT,
-                                "${header." + Constants.HEADER_CLIENT_SAMPLE_ID + "}",
-                                "${header." + Constants.HEADER_CLIENT_ID + "}"))
+                .choice()
+                    .when(header(Constants.HEADER_SENAITE_COMPLETE).isEqualTo(true))
+                        .toD(completeEndpoint)
+                    .otherwise()
+                        .toD(catalogEndpoint)
                 .end();
         // spotless:on
     }

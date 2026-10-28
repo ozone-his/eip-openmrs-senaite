@@ -8,6 +8,8 @@
 package com.ozonehis.eip.openmrs.senaite.handlers.senaite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
@@ -271,5 +273,33 @@ class AnalysisRequestHandlerTest {
 
         // Verify
         assertEquals(analysisRequestDTO, result);
+    }
+
+    @Test
+    void shouldTreatUidAsAnalysisRequestExistence() {
+        AnalysisRequestDTO analysisRequestDTO = new AnalysisRequestDTO();
+        analysisRequestDTO.setUid(UID);
+
+        assertTrue(analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO));
+
+        analysisRequestDTO.setUid("");
+        assertFalse(analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO));
+        assertFalse(analysisRequestHandler.doesAnalysisRequestExists(null));
+    }
+
+    @Test
+    void shouldRequestCompleteAnalysisRequestWhenAsked() throws JsonProcessingException {
+        String responseBody = new Utils().readJSON("senaite/response/get-analysis-request.json");
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_CLIENT_ID, CLIENT_ID);
+        headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, CLIENT_SAMPLE_ID);
+        headers.put(Constants.HEADER_SENAITE_COMPLETE, Boolean.TRUE);
+
+        when(producerTemplate.requestBodyAndHeaders(
+                        eq("direct:senaite-get-analysis-request-route"), isNull(), eq(headers), eq(String.class)))
+                .thenReturn(responseBody);
+
+        analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                producerTemplate, CLIENT_ID, CLIENT_SAMPLE_ID, true);
     }
 }

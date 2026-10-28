@@ -38,5 +38,7 @@ public class Constants {
 
     public static final String HEADER_ANALYSIS_REQUEST_UID = "senaite.resource.analysis.request.uid";
 
+    public static final String HEADER_SENAITE_COMPLETE = "senaite.resource.complete";
+
     public static final String SERVICE_REQUEST_PREFIX = "ServiceRequest/";
 }

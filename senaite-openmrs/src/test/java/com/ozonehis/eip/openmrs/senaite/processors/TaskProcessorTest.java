@@ -10,6 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.processors;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -163,6 +164,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, never())
+                .getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any(), eq(true));
     }
 
     @Test
@@ -178,11 +181,13 @@ class TaskProcessorTest extends BaseProcessorTest {
         ServiceRequest serviceRequest = buildServiceRequest();
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
         analysisRequestDTO.setReviewState("sample_due");
+        task.setStatus(Task.TaskStatus.REQUESTED);
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
-                .thenReturn(getAnalysisRequestDTO());
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
 
         Exchange exchange = createExchange(bundle, "c"); // NOTE: EventType is not required
 
@@ -193,6 +198,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, never())
+                .getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any(), eq(true));
     }
 
     @Test
@@ -224,6 +231,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any(), eq(true)))
+                .thenReturn(analysisRequestDTO);
         when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
         when(encounterHandler.getEncounterByTypeAndSubjectAndStartDate(any(), any(), any()))
                 .thenReturn(savedEncounter);
@@ -252,6 +261,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, times(1))
+                .getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any(), eq(true));
         verify(analysisRequestHandler, times(1)).doesAnalysisRequestExists(any());
         verify(encounterHandler, times(1)).getEncounterByTypeAndSubjectAndStartDate(any(), any(), any());
         verify(encounterHandler, times(1)).getEncounterByEncounterID(any());
