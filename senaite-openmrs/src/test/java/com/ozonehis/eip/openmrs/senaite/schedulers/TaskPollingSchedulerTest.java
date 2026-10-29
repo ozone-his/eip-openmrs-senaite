@@ -9,6 +9,7 @@ package com.ozonehis.eip.openmrs.senaite.schedulers;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -23,6 +24,9 @@ class TaskPollingSchedulerTest {
 
     @Mock
     private ProducerTemplate producerTemplate;
+
+    @Mock
+    private AnalysisRequestChangePoller analysisRequestChangePoller;
 
     @InjectMocks
     private TaskPollingScheduler taskPollingScheduler;
@@ -40,8 +44,16 @@ class TaskPollingSchedulerTest {
     }
 
     @Test
-    void shouldPollSenaiteTasks() {
+    void shouldPollSenaiteChanges() {
         taskPollingScheduler.pollTasks();
+
+        verify(analysisRequestChangePoller).poll(producerTemplate);
+        verify(producerTemplate, never()).sendBody(eq("direct:poll-senaite"), isNull());
+    }
+
+    @Test
+    void shouldScanOpenTasksOnTheSlowSchedule() {
+        taskPollingScheduler.pollAllOpenTasks();
 
         verify(producerTemplate).sendBody(eq("direct:poll-senaite"), isNull());
     }

@@ -146,21 +146,51 @@ public class TaskProcessor implements Processor {
                                     task.getIdPart(),
                                     task.getStatus());
                         }
-                        if (analysisRequestTaskStatus != null
-                                && !analysisRequestTaskStatus.equalsIgnoreCase(
-                                        task.getStatus().toString())) {
-                            Task updatedTask = taskHandler.updateTask(
-                                    taskHandler.updateTaskStatus(task, analysisRequestTaskStatus), task.getIdPart());
-                            log.debug(
-                                    "TaskProcessor: Updated Task {} with status {}",
-                                    updatedTask.getIdPart(),
-                                    updatedTask.getStatus());
-                        }
+                        updateTaskStatusIfChanged(task, analysisRequestTaskStatus);
                     }
                 }
             }
         } catch (Exception e) {
             throw new EIPException(String.format("Error processing Task %s", e.getMessage()));
+        }
+    }
+
+    public void syncCatalogSample(
+            ProducerTemplate producerTemplate, Task task, String clientSampleId, String reviewState)
+            throws JsonProcessingException {
+        ServiceRequest serviceRequest = serviceRequestHandler.getServiceRequestByID(clientSampleId);
+        if (serviceRequest.getStatus() == ServiceRequest.ServiceRequestStatus.REVOKED) {
+            taskHandler.updateTask(taskHandler.markTaskRejected(task), task.getIdPart());
+            return;
+        }
+        if ("published".equalsIgnoreCase(reviewState)) {
+            String subjectId = serviceRequest.getSubject().getReference().split("/")[1];
+            AnalysisRequestDTO publishedAnalysisRequest =
+                    analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(
+                            producerTemplate, subjectId, clientSampleId, true);
+            if (publishedAnalysisRequest == null) {
+                throw new EIPException("Published AnalysisRequest " + clientSampleId + " could not be loaded");
+            }
+            Analyses[] analyses = publishedAnalysisRequest.getAnalyses() == null
+                    ? new Analyses[0]
+                    : publishedAnalysisRequest.getAnalyses();
+            createResultsInOpenMRS(
+                    producerTemplate, serviceRequest, analyses, publishedAnalysisRequest.getDatePublished());
+            updateTaskStatusIfChanged(task, "completed");
+            return;
+        }
+        if ("sample_received".equalsIgnoreCase(reviewState)) {
+            updateTaskStatusIfChanged(task, "accepted");
+        }
+    }
+
+    private void updateTaskStatusIfChanged(Task task, String analysisRequestTaskStatus) {
+        if (analysisRequestTaskStatus != null
+                && !analysisRequestTaskStatus.equalsIgnoreCase(task.getStatus().toString())) {
+            Task updatedTask = taskHandler.updateTask(
+                    taskHandler.updateTaskStatus(task, analysisRequestTaskStatus), task.getIdPart());
+            log.debug(
+                    "TaskProcessor: Updated Task {} with status {}", updatedTask.getIdPart(), updatedTask.getStatus());
         }
     }
 

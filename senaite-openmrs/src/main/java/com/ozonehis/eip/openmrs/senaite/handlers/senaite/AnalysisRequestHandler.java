@@ -17,7 +17,9 @@ import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMap
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestItem;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.CatalogSample;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +89,23 @@ public class AnalysisRequestHandler {
         TypeReference<SenaiteResponseWrapper<AnalysisRequestItem>> typeReference = new TypeReference<>() {};
         SenaiteResponseWrapper<AnalysisRequestItem> responseWrapper = objectMapper.readValue(response, typeReference);
         return AnalysisRequestMapper.map(responseWrapper);
+    }
+
+    public List<CatalogSample> searchAnalysisRequests(ProducerTemplate producerTemplate, String query)
+            throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_SENAITE_SEARCH_QUERY, query);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-search-analysis-requests-route", null, headers, String.class);
+        if (response == null || response.isEmpty()) {
+            return List.of();
+        }
+        TypeReference<SenaiteResponseWrapper<CatalogSample>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<CatalogSample> responseWrapper = objectMapper.readValue(response, typeReference);
+        if (responseWrapper == null || responseWrapper.getItems() == null) {
+            return List.of();
+        }
+        return responseWrapper.getItems();
     }
 
     public boolean doesAnalysisRequestExists(AnalysisRequestDTO analysisRequestDTO) {
