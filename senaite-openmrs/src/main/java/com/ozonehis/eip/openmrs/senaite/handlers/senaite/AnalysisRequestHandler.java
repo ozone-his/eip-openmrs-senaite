@@ -17,7 +17,9 @@ import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestMap
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.AnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.request.CancelAnalysisRequest;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestItem;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.CatalogSample;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +47,18 @@ public class AnalysisRequestHandler {
 
     public AnalysisRequestDTO getAnalysisRequestByClientIDAndClientSampleID(
             ProducerTemplate producerTemplate, String clientID, String clientSampleID) throws JsonProcessingException {
+        return getAnalysisRequestByClientIDAndClientSampleID(producerTemplate, clientID, clientSampleID, false);
+    }
+
+    public AnalysisRequestDTO getAnalysisRequestByClientIDAndClientSampleID(
+            ProducerTemplate producerTemplate, String clientID, String clientSampleID, boolean complete)
+            throws JsonProcessingException {
         Map<String, Object> headers = new HashMap<>();
         headers.put(Constants.HEADER_CLIENT_ID, clientID);
         headers.put(Constants.HEADER_CLIENT_SAMPLE_ID, clientSampleID);
+        if (complete) {
+            headers.put(Constants.HEADER_SENAITE_COMPLETE, Boolean.TRUE);
+        }
         String response = producerTemplate.requestBodyAndHeaders(
                 "direct:senaite-get-analysis-request-route", null, headers, String.class);
 
@@ -80,9 +91,26 @@ public class AnalysisRequestHandler {
         return AnalysisRequestMapper.map(responseWrapper);
     }
 
+    public List<CatalogSample> searchAnalysisRequests(ProducerTemplate producerTemplate, String query)
+            throws JsonProcessingException {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(Constants.HEADER_SENAITE_SEARCH_QUERY, query);
+        String response = producerTemplate.requestBodyAndHeaders(
+                "direct:senaite-search-analysis-requests-route", null, headers, String.class);
+        if (response == null || response.isEmpty()) {
+            return List.of();
+        }
+        TypeReference<SenaiteResponseWrapper<CatalogSample>> typeReference = new TypeReference<>() {};
+        SenaiteResponseWrapper<CatalogSample> responseWrapper = objectMapper.readValue(response, typeReference);
+        if (responseWrapper == null || responseWrapper.getItems() == null) {
+            return List.of();
+        }
+        return responseWrapper.getItems();
+    }
+
     public boolean doesAnalysisRequestExists(AnalysisRequestDTO analysisRequestDTO) {
         return analysisRequestDTO != null
-                && analysisRequestDTO.getContact() != null
-                && !analysisRequestDTO.getContact().isEmpty();
+                && analysisRequestDTO.getUid() != null
+                && !analysisRequestDTO.getUid().isEmpty();
     }
 }

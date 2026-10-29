@@ -18,8 +18,18 @@ public class TaskPollingScheduler {
     @Autowired
     private ProducerTemplate producerTemplate;
 
+    @Autowired
+    private AnalysisRequestChangePoller analysisRequestChangePoller;
+
     @Scheduled(initialDelayString = "${task.update.initial.delay}", fixedDelayString = "${task.update.delay}")
     public void pollTasks() {
+        analysisRequestChangePoller.poll(producerTemplate);
+    }
+
+    @Scheduled(
+            initialDelayString = "${task.update.full.scan.initial.delay}",
+            fixedDelayString = "${task.update.full.scan.delay}")
+    public void pollAllOpenTasks() {
         producerTemplate.sendBody("direct:poll-senaite", null);
     }
 }
