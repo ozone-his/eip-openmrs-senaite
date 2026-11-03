@@ -1,0 +1,25 @@
+{
+  "count": 2,
+  "pagesize": 1000,
+  "items": [
+    {
+      "uid": "06d1e902317047d1b90b27df5122ab78",
+      "Result": "4.5",
+      "ResultCaptureDate": "2024-09-30T11:21:36+00:00",
+      "Remarks": "Sample slightly hemolysed; result verified.",
+      "description": "Blood test to measure the number of red blood cells.(679AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)"
+    },
+    {
+      "uid": "50276c33096c472aa2c2958851c24899",
+      "Result": "12",
+      "ResultCaptureDate": "2024-09-30T11:25:00+00:00",
+      "Remarks": "",
+      "description": "Haemoglobin.(21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)"
+    }
+  ],
+  "page": 1,
+  "_runtime": 0.4,
+  "next": null,
+  "pages": 1,
+  "previous": null
+}

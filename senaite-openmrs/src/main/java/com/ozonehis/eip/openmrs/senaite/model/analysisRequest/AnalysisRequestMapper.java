@@ -11,6 +11,7 @@ import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.AnalysisRequestItem;
 import java.util.Arrays;
+import java.util.List;
 
 public class AnalysisRequestMapper {
 
@@ -19,8 +20,7 @@ public class AnalysisRequestMapper {
         if (analysisRequestResponse != null
                 && analysisRequestResponse.getItems() != null
                 && !analysisRequestResponse.getItems().isEmpty()) {
-            AnalysisRequestItem analysisRequestItem =
-                    analysisRequestResponse.getItems().get(0);
+            AnalysisRequestItem analysisRequestItem = selectCurrentSample(analysisRequestResponse.getItems());
 
             analysisRequestDTO.setContact(analysisRequestItem.getContactUid());
             analysisRequestDTO.setSampleType(analysisRequestItem.getSampleTypeUid());
@@ -46,5 +46,16 @@ public class AnalysisRequestMapper {
         }
 
         return null;
+    }
+
+    /**
+     * Invalidating a sample in SENAITE creates a retest that keeps the same ClientSampleID, so a lookup can return both.
+     * The retest is the sample that will carry the results, so prefer any sample that is not invalid.
+     */
+    private static AnalysisRequestItem selectCurrentSample(List<AnalysisRequestItem> items) {
+        return items.stream()
+                .filter(item -> !"invalid".equalsIgnoreCase(item.getReviewState()))
+                .findFirst()
+                .orElse(items.get(0));
     }
 }

@@ -10,6 +10,7 @@ package com.ozonehis.eip.openmrs.senaite.processors;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -151,7 +152,7 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
-        when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
+        when(analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(null);
 
         Exchange exchange = createExchange(bundle, "c"); // NOTE: EventType is not required
@@ -162,7 +163,9 @@ class TaskProcessorTest extends BaseProcessorTest {
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
-        verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, times(1))
+                .getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, never()).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
     }
 
     @Test
@@ -175,14 +178,16 @@ class TaskProcessorTest extends BaseProcessorTest {
         entries.add(new Bundle.BundleEntryComponent().setResource(task));
         bundle.setEntry(entries);
 
+        task.setStatus(Task.TaskStatus.REQUESTED);
         ServiceRequest serviceRequest = buildServiceRequest();
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
         analysisRequestDTO.setReviewState("sample_due");
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
-        when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
-                .thenReturn(getAnalysisRequestDTO());
+        when(analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any()))
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
 
         Exchange exchange = createExchange(bundle, "c"); // NOTE: EventType is not required
 
@@ -192,7 +197,10 @@ class TaskProcessorTest extends BaseProcessorTest {
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
-        verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, times(1))
+                .getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, never()).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(taskHandler, never()).updateTask(any(), any());
     }
 
     @Test
@@ -222,7 +230,7 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
-        when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
+        when(analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any()))
                 .thenReturn(analysisRequestDTO);
         when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
         when(encounterHandler.getEncounterByTypeAndSubjectAndStartDate(any(), any(), any()))
@@ -232,7 +240,8 @@ class TaskProcessorTest extends BaseProcessorTest {
         when(encounterHandler.sendEncounter(any())).thenReturn(savedEncounter);
         var resultAnalyses = getAnalysesDTO();
         resultAnalyses.setRemarks("Sample slightly hemolysed; result verified.");
-        when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(resultAnalyses);
+        when(analysesHandler.getAnalysesByAnalysisRequestUID(any(), eq(analysisRequestDTO.getUid())))
+                .thenReturn(List.of(resultAnalyses));
         when(observationHandler.getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
         when(observationHandler.buildResultObservation(any(), any(), any(), any(), any()))
@@ -251,13 +260,16 @@ class TaskProcessorTest extends BaseProcessorTest {
         // Verify
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
-        verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, times(1))
+                .getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any());
+        verify(analysisRequestHandler, never()).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
         verify(analysisRequestHandler, times(1)).doesAnalysisRequestExists(any());
         verify(encounterHandler, times(1)).getEncounterByTypeAndSubjectAndStartDate(any(), any(), any());
         verify(encounterHandler, times(1)).getEncounterByEncounterID(any());
         verify(encounterHandler, times(1)).buildLabResultEncounter(any());
         verify(encounterHandler, times(1)).sendEncounter(any());
-        verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
+        verify(analysesHandler, times(1)).getAnalysesByAnalysisRequestUID(any(), any());
+        verify(analysesHandler, never()).getAnalysesByAnalysesApiUrl(any(), any());
         verify(observationHandler, times(1))
                 .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
         verify(observationHandler, times(1))
@@ -267,5 +279,54 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(diagnosticReportHandler, times(1)).sendDiagnosticReport(any());
         verify(taskHandler, times(1)).updateTaskStatus(any(), any());
         verify(taskHandler, times(1)).updateTask(any(), any());
+    }
+
+    @Test
+    void shouldNotCompleteTaskWhenPublishedSampleHasNoAnalyses() throws JsonProcessingException {
+        Task task = getTask();
+        AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
+        analysisRequestDTO.setReviewState("published");
+
+        when(taskHandler.doesTaskExists(task)).thenReturn(true);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(buildServiceRequest());
+        when(analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any()))
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
+        when(analysesHandler.getAnalysesByAnalysisRequestUID(any(), any())).thenReturn(List.of());
+
+        taskProcessor.process(createExchange(bundleOf(task), "c"));
+
+        verify(encounterHandler, never()).sendEncounter(any());
+        verify(diagnosticReportHandler, never()).sendDiagnosticReport(any());
+        verify(taskHandler, never()).updateTask(any(), any());
+    }
+
+    @Test
+    void shouldMarkTaskRejectedWhenSampleIsRejectedInSenaite() throws JsonProcessingException {
+        Task task = getTask();
+        AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
+        analysisRequestDTO.setReviewState("rejected");
+
+        when(taskHandler.doesTaskExists(task)).thenReturn(true);
+        when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(buildServiceRequest());
+        when(analysisRequestHandler.getAnalysisRequestStatusByClientIDAndClientSampleID(any(), any(), any()))
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(any())).thenReturn(true);
+        when(taskHandler.updateTaskStatus(any(), any())).thenReturn(task);
+        when(taskHandler.updateTask(any(), any())).thenReturn(task);
+
+        taskProcessor.process(createExchange(bundleOf(task), "c"));
+
+        verify(taskHandler, times(1)).updateTaskStatus(task, "rejected");
+        verify(taskHandler, times(1)).updateTask(any(), any());
+        verify(analysisRequestHandler, never()).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+    }
+
+    private Bundle bundleOf(Task... tasks) {
+        Bundle bundle = new Bundle();
+        for (Task task : tasks) {
+            bundle.addEntry(new Bundle.BundleEntryComponent().setResource(task));
+        }
+        return bundle;
     }
 }

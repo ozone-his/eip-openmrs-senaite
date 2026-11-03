@@ -9,19 +9,33 @@ package com.ozonehis.eip.openmrs.senaite.model.analyses;
 
 import com.ozonehis.eip.openmrs.senaite.model.SenaiteResponseWrapper;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.response.AnalysesItem;
+import java.util.Collections;
+import java.util.List;
 
 public class AnalysesMapper {
 
     public static AnalysesDTO map(SenaiteResponseWrapper<AnalysesItem> analysesResponse) {
-        AnalysesDTO analysesDTO = new AnalysesDTO();
         if (analysesResponse != null && !analysesResponse.getItems().isEmpty()) {
-            analysesDTO.setResult(analysesResponse.getItems().get(0).getResult());
-            analysesDTO.setResultCaptureDate(analysesResponse.getItems().get(0).getResultCaptureDate());
-            analysesDTO.setDescription(analysesResponse.getItems().get(0).getDescription());
-            analysesDTO.setRemarks(analysesResponse.getItems().get(0).getRemarks());
-            return analysesDTO;
+            return toDTO(analysesResponse.getItems().get(0));
         }
 
         return null;
+    }
+
+    public static List<AnalysesDTO> mapAll(SenaiteResponseWrapper<AnalysesItem> analysesResponse) {
+        if (analysesResponse == null || analysesResponse.getItems() == null) {
+            return Collections.emptyList();
+        }
+        return analysesResponse.getItems().stream().map(AnalysesMapper::toDTO).toList();
+    }
+
+    private static AnalysesDTO toDTO(AnalysesItem analysesItem) {
+        AnalysesDTO analysesDTO = new AnalysesDTO();
+        analysesDTO.setUid(analysesItem.getUid());
+        analysesDTO.setResult(analysesItem.getResult());
+        analysesDTO.setResultCaptureDate(analysesItem.getResultCaptureDate());
+        analysesDTO.setDescription(analysesItem.getDescription());
+        analysesDTO.setRemarks(analysesItem.getRemarks());
+        return analysesDTO;
     }
 }

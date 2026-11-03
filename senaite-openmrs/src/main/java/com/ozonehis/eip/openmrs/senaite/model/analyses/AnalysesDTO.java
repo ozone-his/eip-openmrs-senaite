@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AnalysesDTO {
 
+    private String uid;
+
     private String result;
 
     private String resultCaptureDate;

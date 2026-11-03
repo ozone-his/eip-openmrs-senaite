@@ -19,6 +19,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalysesItem {
 
+    @JsonProperty("uid")
+    private String uid;
+
     @JsonProperty("Result")
     private String result;
 
