@@ -9,9 +9,13 @@ package com.ozonehis.eip.openmrs.senaite.config;
 
 import org.openmrs.eip.app.config.AppConfig;
 import org.openmrs.eip.fhir.spring.OpenmrsFhirAppConfig;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 /**
  * Import the {@link AppConfig} class to ensure that the required beans are created.
@@ -19,4 +23,18 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 @Import({AppConfig.class, OpenmrsFhirAppConfig.class})
-public class EIPAppConfig {}
+public class EIPAppConfig implements SchedulingConfigurer {
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        taskRegistrar.setTaskScheduler(senaiteTaskScheduler());
+    }
+
+    @Bean(destroyMethod = "shutdown")
+    public ThreadPoolTaskScheduler senaiteTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(2);
+        scheduler.setThreadNamePrefix("senaite-task-poll-");
+        return scheduler;
+    }
+}
