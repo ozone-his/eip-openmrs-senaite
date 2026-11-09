@@ -47,12 +47,15 @@ public class AnalysisRequestChangePoller {
 
     private static final String SAMPLE_RECEIVED = "sample_received";
 
+    @Setter
     @Autowired
     private AnalysisRequestHandler analysisRequestHandler;
 
+    @Setter
     @Autowired
     private TaskHandler taskHandler;
 
+    @Setter
     @Autowired
     private TaskProcessor taskProcessor;
 
