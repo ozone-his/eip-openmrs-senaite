@@ -25,6 +25,8 @@ public class AnalysisRequestDTO {
 
     private String datePublished;
 
+    private String dateVerified;
+
     private String template; // Template UUID
 
     private String profiles; // Profiles UUID

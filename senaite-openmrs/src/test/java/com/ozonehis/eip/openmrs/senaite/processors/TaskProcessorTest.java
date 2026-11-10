@@ -7,6 +7,8 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -28,7 +30,6 @@ import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysesHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
-import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,8 @@ class TaskProcessorTest extends BaseProcessorTest {
 
     private static final String TASK_ID = "zzaea498-e046-43c6-bf9c-dbbc7d39f40c";
     private static final String SERVICE_REQUEST_ID = "bbaea498-e046-43c6-bf9c-dbbc7d39f38c";
+    private static final String DATE_PUBLISHED = "2024-10-01T08:00:00+00:00";
+    private static final String DATE_VERIFIED = "2024-09-30T12:00:00+00:00";
 
     @Mock
     private ServiceRequestHandler serviceRequestHandler;
@@ -82,6 +85,7 @@ class TaskProcessorTest extends BaseProcessorTest {
     @BeforeEach
     void setup() {
         mocksCloser = openMocks(this);
+        taskProcessor.setAnalysisRequestCompletedStatus("published");
     }
 
     @AfterAll
@@ -236,45 +240,58 @@ class TaskProcessorTest extends BaseProcessorTest {
 
     @Test
     void shouldCreateResultsInOpenMRSWhenAnalysisRequestStatusIsCompleted() throws JsonProcessingException {
-        assertResultsImported("published", false, "2024-10-01T08:00:00+00:00");
+        assertResultsImported("published", false, DATE_PUBLISHED, DATE_VERIFIED, DATE_PUBLISHED);
     }
 
     @Test
     void shouldImportVerifiedResultsInOpenMRSWhenConfigured() throws JsonProcessingException {
         taskProcessor.setAnalysisRequestCompletedStatus("verified");
-        assertResultsImported("verified", false, null);
+        assertResultsImported("verified", false, null, DATE_VERIFIED, DATE_VERIFIED);
     }
 
     @Test
     void shouldImportVerifiedResultsInBahmniWithoutPublicationDate() throws JsonProcessingException {
         taskProcessor.setAnalysisRequestCompletedStatus("VERIFIED");
-        assertResultsImported("verified", true, null);
-    }
-
-    @Test
-    void shouldUseResultCaptureDateInBahmniWhenPublicationDateIsBlank() throws JsonProcessingException {
-        taskProcessor.setAnalysisRequestCompletedStatus("verified");
-        assertResultsImported("verified", true, " ");
+        assertResultsImported("verified", true, null, DATE_VERIFIED, DATE_VERIFIED);
     }
 
     @Test
     void shouldPreservePublicationDateInBahmni() throws JsonProcessingException {
-        assertResultsImported("published", true, "2024-10-01T08:00:00+00:00");
+        taskProcessor.setAnalysisRequestCompletedStatus("PUBLISHED");
+        assertResultsImported("published", true, DATE_PUBLISHED, DATE_VERIFIED, DATE_PUBLISHED);
     }
 
     @Test
-    void shouldAllowCompletionStatusToOverrideSampleReceivedMapping() throws JsonProcessingException {
-        taskProcessor.setAnalysisRequestCompletedStatus("sample_received");
-        assertResultsImported("sample_received", false, null);
+    void shouldUseVerificationDateInBahmniWhenBothDatesArePresent() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", true, DATE_PUBLISHED, DATE_VERIFIED, DATE_VERIFIED);
     }
 
     @Test
-    void shouldImportResultsForCustomCompletionStatus() throws JsonProcessingException {
-        taskProcessor.setAnalysisRequestCompletedStatus("custom_ready");
-        assertResultsImported("custom_ready", true, null);
+    void shouldNotFallBackToPublicationDateWhenVerificationDateIsMissing() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", true, DATE_PUBLISHED, null, null);
     }
 
-    private void assertResultsImported(String reviewState, boolean bahmni, String datePublished)
+    @Test
+    void shouldNotFallBackToVerificationDateWhenPublicationDateIsMissing() throws JsonProcessingException {
+        assertResultsImported("published", true, null, DATE_VERIFIED, null);
+    }
+
+    @Test
+    void shouldRejectUnsupportedCompletionStatus() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> taskProcessor.setAnalysisRequestCompletedStatus("sample_received"));
+        assertEquals("senaite.analysis.request.completed.status must be published or verified", exception.getMessage());
+        assertThrows(
+                IllegalArgumentException.class, () -> taskProcessor.setAnalysisRequestCompletedStatus("custom_ready"));
+        assertThrows(IllegalArgumentException.class, () -> taskProcessor.setAnalysisRequestCompletedStatus(""));
+        assertThrows(IllegalArgumentException.class, () -> taskProcessor.setAnalysisRequestCompletedStatus(null));
+    }
+
+    private void assertResultsImported(
+            String reviewState, boolean bahmni, String datePublished, String dateVerified, String expectedResultDate)
             throws JsonProcessingException {
         taskProcessor.setRunWithBahmniEmr(Boolean.toString(bahmni));
         // Setup
@@ -289,6 +306,7 @@ class TaskProcessorTest extends BaseProcessorTest {
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
         analysisRequestDTO.setReviewState(reviewState);
         analysisRequestDTO.setDatePublished(datePublished);
+        analysisRequestDTO.setDateVerified(dateVerified);
 
         Encounter savedEncounter = buildEncounter();
         Coding coding = new Coding();
@@ -315,11 +333,6 @@ class TaskProcessorTest extends BaseProcessorTest {
         resultAnalyses.setRemarks("Sample slightly hemolysed; result verified.");
         when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(resultAnalyses);
         if (bahmni) {
-            Analyses analysis = analysisRequestDTO.getAnalyses()[0];
-            analysisRequestDTO.setAnalyses(new Analyses[] {analysis, analysis});
-            var earlierAnalysis = getAnalysesDTO();
-            earlierAnalysis.setResultCaptureDate("2024-09-30T12:30:00+02:00");
-            when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(earlierAnalysis, resultAnalyses);
             when(bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest))
                     .thenReturn("panel-concept");
             when(bahmniResultsHandler.buildAndSendBahmniResultObservation(any(), any(), any(), any(), any()))
@@ -349,20 +362,17 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(encounterHandler, times(1)).getEncounterByEncounterID(any());
         verify(encounterHandler, times(1)).buildLabResultEncounter(any());
         verify(encounterHandler, times(1)).sendEncounter(any());
+        verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
         var ordered = inOrder(observationHandler, diagnosticReportHandler, bahmniResultsHandler, taskHandler);
         if (bahmni) {
-            String resultDate = datePublished == null || datePublished.isBlank()
-                    ? resultAnalyses.getResultCaptureDate()
-                    : datePublished;
-            verify(analysesHandler, times(2)).getAnalysesByAnalysesApiUrl(any(), any());
             verify(observationHandler)
-                    .getObservationByCodeSubjectEncounterAndDate(eq("panel-concept"), any(), any(), eq(resultDate));
+                    .getObservationByCodeSubjectEncounterAndDate(
+                            eq("panel-concept"), any(), any(), eq(expectedResultDate));
             ordered.verify(bahmniResultsHandler)
                     .buildAndSendBahmniResultObservation(
-                            any(), eq(savedEncounter), eq(serviceRequest), any(), eq(resultDate));
+                            any(), eq(savedEncounter), eq(serviceRequest), any(), eq(expectedResultDate));
             verifyNoInteractions(diagnosticReportHandler);
         } else {
-            verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
             verify(observationHandler, times(1))
                     .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
             verify(observationHandler, times(1))
