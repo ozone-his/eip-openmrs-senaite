@@ -20,7 +20,9 @@ import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analyses.AnalysesDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +54,9 @@ public class TaskProcessor implements Processor {
 
     @Value("${run.with.bahmni.emr}")
     private String runWithBahmniEmr;
+
+    @Value("${senaite.analysis.request.completed.status}")
+    private String analysisRequestCompletedStatus = "published";
 
     @Autowired
     private ServiceRequestHandler serviceRequestHandler;
@@ -150,13 +155,13 @@ public class TaskProcessor implements Processor {
 
     private String getTaskStatusCorrespondingToAnalysisRequestStatus(AnalysisRequestDTO analysisRequestDTO) {
         String analysisRequestStatus = analysisRequestDTO.getReviewState();
-        if (analysisRequestStatus.equalsIgnoreCase("sample_due")) {
-            return "requested";
-        } else if (analysisRequestStatus.equalsIgnoreCase("sample_received")) {
-            return "accepted";
-        } else if (analysisRequestStatus.equalsIgnoreCase("published")) {
+        if (analysisRequestStatus != null && analysisRequestStatus.equalsIgnoreCase(analysisRequestCompletedStatus)) {
             return "completed";
-        } else if (analysisRequestStatus.equalsIgnoreCase("cancelled")) {
+        } else if ("sample_due".equalsIgnoreCase(analysisRequestStatus)) {
+            return "requested";
+        } else if ("sample_received".equalsIgnoreCase(analysisRequestStatus)) {
+            return "accepted";
+        } else if ("cancelled".equalsIgnoreCase(analysisRequestStatus)) {
             return "rejected";
         }
         return null;
@@ -224,15 +229,25 @@ public class TaskProcessor implements Processor {
         }
 
         if (Boolean.parseBoolean(runWithBahmniEmr)) {
+            // Before publication, use a stable result date for the group and duplicate lookup.
+            String resultDate = datePublished;
+            if (resultDate == null || resultDate.isBlank()) {
+                resultDate = analysesDTOs.stream()
+                        .map(AnalysesDTO::getResultCaptureDate)
+                        .filter(date -> date != null && !date.isBlank())
+                        .max(Comparator.comparing(Instant::parse))
+                        .orElseThrow(() -> new IllegalStateException(
+                                "Cannot import Bahmni results without a publication or result capture date"));
+            }
             Observation savedObservation = observationHandler.getObservationByCodeSubjectEncounterAndDate(
                     bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest),
                     subjectID,
                     savedResultEncounter.getIdPart(),
-                    datePublished);
+                    resultDate);
             if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create Bahmni result Observation
                 savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                        producerTemplate, savedResultEncounter, serviceRequest, analysesDTOs, datePublished);
+                        producerTemplate, savedResultEncounter, serviceRequest, analysesDTOs, resultDate);
             }
             observationUuids.add(savedObservation.getIdPart());
         } else {

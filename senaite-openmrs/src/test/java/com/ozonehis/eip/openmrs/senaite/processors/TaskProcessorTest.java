@@ -10,12 +10,16 @@ package com.ozonehis.eip.openmrs.senaite.processors;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.handlers.bahmni.BahmniResultsHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
@@ -24,6 +28,7 @@ import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.TaskHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysesHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.senaite.AnalysisRequestHandler;
 import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.AnalysisRequestDTO;
+import com.ozonehis.eip.openmrs.senaite.model.analysisRequest.response.Analyses;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,6 +70,9 @@ class TaskProcessorTest extends BaseProcessorTest {
 
     @Mock
     private DiagnosticReportHandler diagnosticReportHandler;
+
+    @Mock
+    private BahmniResultsHandler bahmniResultsHandler;
 
     @InjectMocks
     private TaskProcessor taskProcessor;
@@ -167,8 +175,33 @@ class TaskProcessorTest extends BaseProcessorTest {
 
     @Test
     void shouldNotUpdateAnalysisRequestWhenAnalysisRequestStatusIsNotCompleted() throws JsonProcessingException {
-        // Setup
+        assertResultsNotImported("sample_due");
+    }
+
+    @Test
+    void shouldNotImportVerifiedResultsByDefault() throws JsonProcessingException {
+        assertResultsNotImported("verified");
+    }
+
+    @Test
+    void shouldNotImportPublishedResultsWhenConfiguredForVerified() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsNotImported("published");
+    }
+
+    @Test
+    void shouldNotImportResultsForUnknownStatus() throws JsonProcessingException {
+        assertResultsNotImported("custom_ready");
+    }
+
+    @Test
+    void shouldNotImportResultsWhenStatusIsMissing() throws JsonProcessingException {
+        assertResultsNotImported(null);
+    }
+
+    private void assertResultsNotImported(String reviewState) throws JsonProcessingException {
         Task task = getTask();
+        task.setStatus(Task.TaskStatus.REQUESTED);
 
         Bundle bundle = new Bundle();
         List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
@@ -177,12 +210,14 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         ServiceRequest serviceRequest = buildServiceRequest();
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
-        analysisRequestDTO.setReviewState("sample_due");
+        analysisRequestDTO.setReviewState(reviewState);
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
-                .thenReturn(getAnalysisRequestDTO());
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO))
+                .thenReturn(true);
 
         Exchange exchange = createExchange(bundle, "c"); // NOTE: EventType is not required
 
@@ -193,10 +228,55 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verifyNoInteractions(
+                encounterHandler, analysesHandler, observationHandler, diagnosticReportHandler, bahmniResultsHandler);
+        verify(taskHandler, never()).updateTaskStatus(any(), any());
+        verify(taskHandler, never()).updateTask(any(), any());
     }
 
     @Test
     void shouldCreateResultsInOpenMRSWhenAnalysisRequestStatusIsCompleted() throws JsonProcessingException {
+        assertResultsImported("published", false, "2024-10-01T08:00:00+00:00");
+    }
+
+    @Test
+    void shouldImportVerifiedResultsInOpenMRSWhenConfigured() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", false, null);
+    }
+
+    @Test
+    void shouldImportVerifiedResultsInBahmniWithoutPublicationDate() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("VERIFIED");
+        assertResultsImported("verified", true, null);
+    }
+
+    @Test
+    void shouldUseResultCaptureDateInBahmniWhenPublicationDateIsBlank() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", true, " ");
+    }
+
+    @Test
+    void shouldPreservePublicationDateInBahmni() throws JsonProcessingException {
+        assertResultsImported("published", true, "2024-10-01T08:00:00+00:00");
+    }
+
+    @Test
+    void shouldAllowCompletionStatusToOverrideSampleReceivedMapping() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("sample_received");
+        assertResultsImported("sample_received", false, null);
+    }
+
+    @Test
+    void shouldImportResultsForCustomCompletionStatus() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("custom_ready");
+        assertResultsImported("custom_ready", true, null);
+    }
+
+    private void assertResultsImported(String reviewState, boolean bahmni, String datePublished)
+            throws JsonProcessingException {
+        taskProcessor.setRunWithBahmniEmr(Boolean.toString(bahmni));
         // Setup
         Task task = getTask();
 
@@ -207,7 +287,8 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         ServiceRequest serviceRequest = buildServiceRequest();
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
-        analysisRequestDTO.setReviewState("published");
+        analysisRequestDTO.setReviewState(reviewState);
+        analysisRequestDTO.setDatePublished(datePublished);
 
         Encounter savedEncounter = buildEncounter();
         Coding coding = new Coding();
@@ -233,6 +314,17 @@ class TaskProcessorTest extends BaseProcessorTest {
         var resultAnalyses = getAnalysesDTO();
         resultAnalyses.setRemarks("Sample slightly hemolysed; result verified.");
         when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(resultAnalyses);
+        if (bahmni) {
+            Analyses analysis = analysisRequestDTO.getAnalyses()[0];
+            analysisRequestDTO.setAnalyses(new Analyses[] {analysis, analysis});
+            var earlierAnalysis = getAnalysesDTO();
+            earlierAnalysis.setResultCaptureDate("2024-09-30T12:30:00+02:00");
+            when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(earlierAnalysis, resultAnalyses);
+            when(bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest))
+                    .thenReturn("panel-concept");
+            when(bahmniResultsHandler.buildAndSendBahmniResultObservation(any(), any(), any(), any(), any()))
+                    .thenReturn(buildObservation());
+        }
         when(observationHandler.getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
         when(observationHandler.buildResultObservation(any(), any(), any(), any(), any()))
@@ -257,15 +349,30 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(encounterHandler, times(1)).getEncounterByEncounterID(any());
         verify(encounterHandler, times(1)).buildLabResultEncounter(any());
         verify(encounterHandler, times(1)).sendEncounter(any());
-        verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
-        verify(observationHandler, times(1))
-                .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
-        verify(observationHandler, times(1))
-                .buildResultObservation(any(), any(), any(), any(), eq(resultAnalyses.getRemarks()));
-        verify(observationHandler, times(1)).sendObservation(any());
-        verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());
-        verify(diagnosticReportHandler, times(1)).sendDiagnosticReport(any());
-        verify(taskHandler, times(1)).updateTaskStatus(any(), any());
-        verify(taskHandler, times(1)).updateTask(any(), any());
+        var ordered = inOrder(observationHandler, diagnosticReportHandler, bahmniResultsHandler, taskHandler);
+        if (bahmni) {
+            String resultDate = datePublished == null || datePublished.isBlank()
+                    ? resultAnalyses.getResultCaptureDate()
+                    : datePublished;
+            verify(analysesHandler, times(2)).getAnalysesByAnalysesApiUrl(any(), any());
+            verify(observationHandler)
+                    .getObservationByCodeSubjectEncounterAndDate(eq("panel-concept"), any(), any(), eq(resultDate));
+            ordered.verify(bahmniResultsHandler)
+                    .buildAndSendBahmniResultObservation(
+                            any(), eq(savedEncounter), eq(serviceRequest), any(), eq(resultDate));
+            verifyNoInteractions(diagnosticReportHandler);
+        } else {
+            verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
+            verify(observationHandler, times(1))
+                    .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
+            verify(observationHandler, times(1))
+                    .buildResultObservation(any(), any(), any(), any(), eq(resultAnalyses.getRemarks()));
+            verify(observationHandler, times(1)).sendObservation(any());
+            verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());
+            ordered.verify(diagnosticReportHandler).sendDiagnosticReport(any());
+            verifyNoInteractions(bahmniResultsHandler);
+        }
+        ordered.verify(taskHandler).updateTaskStatus(task, "completed");
+        ordered.verify(taskHandler).updateTask(updatedTask, task.getIdPart());
     }
 }
