@@ -63,7 +63,7 @@ public class BahmniResultsHandler {
             Encounter savedResultEncounter,
             ServiceRequest serviceRequest,
             ArrayList<AnalysesDTO> analysesDTOs,
-            String datePublished) {
+            String resultDate) {
 
         String panelConceptUuid = serviceRequest.getIdPart();
 
@@ -74,7 +74,7 @@ public class BahmniResultsHandler {
         resultMap.put("concept", getServiceRequestCodingIdentifier(serviceRequest));
         resultMap.put("order", panelConceptUuid);
         resultMap.put("person", savedResultEncounter.getSubject().getReference().substring("Patient/".length()));
-        resultMap.put("obsDatetime", datePublished);
+        resultMap.put("obsDatetime", resultDate);
 
         // Create the groupMembers list for the first level
         List<Map<String, Object>> groupMembersLevel1 = new ArrayList<>();

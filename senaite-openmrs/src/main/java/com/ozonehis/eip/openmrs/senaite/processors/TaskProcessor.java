@@ -53,6 +53,8 @@ public class TaskProcessor implements Processor {
     @Value("${run.with.bahmni.emr}")
     private String runWithBahmniEmr;
 
+    private String analysisRequestCompletedStatus;
+
     @Autowired
     private ServiceRequestHandler serviceRequestHandler;
 
@@ -76,6 +78,16 @@ public class TaskProcessor implements Processor {
 
     @Autowired
     private BahmniResultsHandler bahmniResultsHandler;
+
+    @Value("${senaite.analysis.request.completed.status}")
+    public void setAnalysisRequestCompletedStatus(String analysisRequestCompletedStatus) {
+        if (!"published".equalsIgnoreCase(analysisRequestCompletedStatus)
+                && !"verified".equalsIgnoreCase(analysisRequestCompletedStatus)) {
+            throw new IllegalArgumentException(
+                    "senaite.analysis.request.completed.status must be published or verified");
+        }
+        this.analysisRequestCompletedStatus = analysisRequestCompletedStatus;
+    }
 
     @Override
     public void process(Exchange exchange) {
@@ -122,8 +134,10 @@ public class TaskProcessor implements Processor {
                                 getTaskStatusCorrespondingToAnalysisRequestStatus(analysisRequestDTO);
                         if (analysisRequestTaskStatus != null
                                 && analysisRequestTaskStatus.equalsIgnoreCase("completed")) {
-                            createResultsInOpenMRS(
-                                    producerTemplate, serviceRequest, analyses, analysisRequestDTO.getDatePublished());
+                            String resultDate = "verified".equalsIgnoreCase(analysisRequestCompletedStatus)
+                                    ? analysisRequestDTO.getDateVerified()
+                                    : analysisRequestDTO.getDatePublished();
+                            createResultsInOpenMRS(producerTemplate, serviceRequest, analyses, resultDate);
                         } else {
                             log.debug(
                                     "TaskProcessor: Nothing to update for task {} with status {}",
@@ -150,20 +164,20 @@ public class TaskProcessor implements Processor {
 
     private String getTaskStatusCorrespondingToAnalysisRequestStatus(AnalysisRequestDTO analysisRequestDTO) {
         String analysisRequestStatus = analysisRequestDTO.getReviewState();
-        if (analysisRequestStatus.equalsIgnoreCase("sample_due")) {
-            return "requested";
-        } else if (analysisRequestStatus.equalsIgnoreCase("sample_received")) {
-            return "accepted";
-        } else if (analysisRequestStatus.equalsIgnoreCase("published")) {
+        if (analysisRequestStatus != null && analysisRequestStatus.equalsIgnoreCase(analysisRequestCompletedStatus)) {
             return "completed";
-        } else if (analysisRequestStatus.equalsIgnoreCase("cancelled")) {
+        } else if ("sample_due".equalsIgnoreCase(analysisRequestStatus)) {
+            return "requested";
+        } else if ("sample_received".equalsIgnoreCase(analysisRequestStatus)) {
+            return "accepted";
+        } else if ("cancelled".equalsIgnoreCase(analysisRequestStatus)) {
             return "rejected";
         }
         return null;
     }
 
     private void createResultsInOpenMRS(
-            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String datePublished)
+            ProducerTemplate producerTemplate, ServiceRequest serviceRequest, Analyses[] analyses, String resultDate)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         Encounter resultEncounter = encounterHandler.getEncounterByTypeAndSubjectAndStartDate(
@@ -175,8 +189,7 @@ public class TaskProcessor implements Processor {
         if (hasSameStartDate(resultEncounter, serviceRequest)) {
             // Result Encounter exists
             log.debug("TaskProcessor: LabResults Encounter exists with ID {}", resultEncounter.getIdPart());
-            saveObservationAndDiagnosticReport(
-                    producerTemplate, serviceRequest, analyses, resultEncounter, datePublished);
+            saveObservationAndDiagnosticReport(producerTemplate, serviceRequest, analyses, resultEncounter, resultDate);
         } else {
             // Result Encounter does not exist, create a new one
             log.debug("TaskProcessor: LabResults Encounter does not exist, creating a new one");
@@ -187,7 +200,7 @@ public class TaskProcessor implements Processor {
             Encounter savedResultEncounter =
                     encounterHandler.sendEncounter(encounterHandler.buildLabResultEncounter(orderEncounter));
             saveObservationAndDiagnosticReport(
-                    producerTemplate, serviceRequest, analyses, savedResultEncounter, datePublished);
+                    producerTemplate, serviceRequest, analyses, savedResultEncounter, resultDate);
         }
     }
 
@@ -211,7 +224,7 @@ public class TaskProcessor implements Processor {
             ServiceRequest serviceRequest,
             Analyses[] analyses,
             Encounter savedResultEncounter,
-            String datePublished)
+            String resultDate)
             throws JsonProcessingException {
         String subjectID = serviceRequest.getSubject().getReference().split("/")[1];
         ArrayList<String> observationUuids = new ArrayList<>();
@@ -228,11 +241,11 @@ public class TaskProcessor implements Processor {
                     bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest),
                     subjectID,
                     savedResultEncounter.getIdPart(),
-                    datePublished);
+                    resultDate);
             if (!observationHandler.doesObservationExists(savedObservation)) {
                 // Create Bahmni result Observation
                 savedObservation = bahmniResultsHandler.buildAndSendBahmniResultObservation(
-                        producerTemplate, savedResultEncounter, serviceRequest, analysesDTOs, datePublished);
+                        producerTemplate, savedResultEncounter, serviceRequest, analysesDTOs, resultDate);
             }
             observationUuids.add(savedObservation.getIdPart());
         } else {

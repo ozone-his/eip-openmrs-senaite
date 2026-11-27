@@ -32,6 +32,9 @@ public class AnalysisRequestItem implements SenaiteResource {
     @JsonProperty("getDatePublished")
     private String datePublished;
 
+    @JsonProperty("getDateVerified")
+    private String dateVerified;
+
     @JsonProperty("TemplateUID")
     private String templateUid;
 

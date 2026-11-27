@@ -7,15 +7,21 @@
  */
 package com.ozonehis.eip.openmrs.senaite.processors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ozonehis.eip.openmrs.senaite.handlers.bahmni.BahmniResultsHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.DiagnosticReportHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.EncounterHandler;
 import com.ozonehis.eip.openmrs.senaite.handlers.openmrs.ObservationHandler;
@@ -44,6 +50,8 @@ class TaskProcessorTest extends BaseProcessorTest {
 
     private static final String TASK_ID = "zzaea498-e046-43c6-bf9c-dbbc7d39f40c";
     private static final String SERVICE_REQUEST_ID = "bbaea498-e046-43c6-bf9c-dbbc7d39f38c";
+    private static final String DATE_PUBLISHED = "2024-10-01T08:00:00+00:00";
+    private static final String DATE_VERIFIED = "2024-09-30T12:00:00+00:00";
 
     @Mock
     private ServiceRequestHandler serviceRequestHandler;
@@ -66,6 +74,9 @@ class TaskProcessorTest extends BaseProcessorTest {
     @Mock
     private DiagnosticReportHandler diagnosticReportHandler;
 
+    @Mock
+    private BahmniResultsHandler bahmniResultsHandler;
+
     @InjectMocks
     private TaskProcessor taskProcessor;
 
@@ -74,6 +85,7 @@ class TaskProcessorTest extends BaseProcessorTest {
     @BeforeEach
     void setup() {
         mocksCloser = openMocks(this);
+        taskProcessor.setAnalysisRequestCompletedStatus("published");
     }
 
     @AfterAll
@@ -167,8 +179,33 @@ class TaskProcessorTest extends BaseProcessorTest {
 
     @Test
     void shouldNotUpdateAnalysisRequestWhenAnalysisRequestStatusIsNotCompleted() throws JsonProcessingException {
-        // Setup
+        assertResultsNotImported("sample_due");
+    }
+
+    @Test
+    void shouldNotImportVerifiedResultsByDefault() throws JsonProcessingException {
+        assertResultsNotImported("verified");
+    }
+
+    @Test
+    void shouldNotImportPublishedResultsWhenConfiguredForVerified() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsNotImported("published");
+    }
+
+    @Test
+    void shouldNotImportResultsForUnknownStatus() throws JsonProcessingException {
+        assertResultsNotImported("custom_ready");
+    }
+
+    @Test
+    void shouldNotImportResultsWhenStatusIsMissing() throws JsonProcessingException {
+        assertResultsNotImported(null);
+    }
+
+    private void assertResultsNotImported(String reviewState) throws JsonProcessingException {
         Task task = getTask();
+        task.setStatus(Task.TaskStatus.REQUESTED);
 
         Bundle bundle = new Bundle();
         List<Bundle.BundleEntryComponent> entries = new ArrayList<>();
@@ -177,12 +214,14 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         ServiceRequest serviceRequest = buildServiceRequest();
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
-        analysisRequestDTO.setReviewState("sample_due");
+        analysisRequestDTO.setReviewState(reviewState);
 
         when(taskHandler.doesTaskExists(task)).thenReturn(true);
         when(serviceRequestHandler.getServiceRequestByID(SERVICE_REQUEST_ID)).thenReturn(serviceRequest);
         when(analysisRequestHandler.getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any()))
-                .thenReturn(getAnalysisRequestDTO());
+                .thenReturn(analysisRequestDTO);
+        when(analysisRequestHandler.doesAnalysisRequestExists(analysisRequestDTO))
+                .thenReturn(true);
 
         Exchange exchange = createExchange(bundle, "c"); // NOTE: EventType is not required
 
@@ -193,10 +232,68 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(taskHandler, times(1)).doesTaskExists(any());
         verify(serviceRequestHandler, times(1)).getServiceRequestByID(SERVICE_REQUEST_ID);
         verify(analysisRequestHandler, times(1)).getAnalysisRequestByClientIDAndClientSampleID(any(), any(), any());
+        verifyNoInteractions(
+                encounterHandler, analysesHandler, observationHandler, diagnosticReportHandler, bahmniResultsHandler);
+        verify(taskHandler, never()).updateTaskStatus(any(), any());
+        verify(taskHandler, never()).updateTask(any(), any());
     }
 
     @Test
     void shouldCreateResultsInOpenMRSWhenAnalysisRequestStatusIsCompleted() throws JsonProcessingException {
+        assertResultsImported("published", false, DATE_PUBLISHED, DATE_VERIFIED, DATE_PUBLISHED);
+    }
+
+    @Test
+    void shouldImportVerifiedResultsInOpenMRSWhenConfigured() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", false, null, DATE_VERIFIED, DATE_VERIFIED);
+    }
+
+    @Test
+    void shouldImportVerifiedResultsInBahmniWithoutPublicationDate() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("VERIFIED");
+        assertResultsImported("verified", true, null, DATE_VERIFIED, DATE_VERIFIED);
+    }
+
+    @Test
+    void shouldPreservePublicationDateInBahmni() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("PUBLISHED");
+        assertResultsImported("published", true, DATE_PUBLISHED, DATE_VERIFIED, DATE_PUBLISHED);
+    }
+
+    @Test
+    void shouldUseVerificationDateInBahmniWhenBothDatesArePresent() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", true, DATE_PUBLISHED, DATE_VERIFIED, DATE_VERIFIED);
+    }
+
+    @Test
+    void shouldNotFallBackToPublicationDateWhenVerificationDateIsMissing() throws JsonProcessingException {
+        taskProcessor.setAnalysisRequestCompletedStatus("verified");
+        assertResultsImported("verified", true, DATE_PUBLISHED, null, null);
+    }
+
+    @Test
+    void shouldNotFallBackToVerificationDateWhenPublicationDateIsMissing() throws JsonProcessingException {
+        assertResultsImported("published", true, null, DATE_VERIFIED, null);
+    }
+
+    @Test
+    void shouldRejectUnsupportedCompletionStatus() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> taskProcessor.setAnalysisRequestCompletedStatus("sample_received"));
+        assertEquals("senaite.analysis.request.completed.status must be published or verified", exception.getMessage());
+        assertThrows(
+                IllegalArgumentException.class, () -> taskProcessor.setAnalysisRequestCompletedStatus("custom_ready"));
+        assertThrows(IllegalArgumentException.class, () -> taskProcessor.setAnalysisRequestCompletedStatus(""));
+        assertThrows(IllegalArgumentException.class, () -> taskProcessor.setAnalysisRequestCompletedStatus(null));
+    }
+
+    private void assertResultsImported(
+            String reviewState, boolean bahmni, String datePublished, String dateVerified, String expectedResultDate)
+            throws JsonProcessingException {
+        taskProcessor.setRunWithBahmniEmr(Boolean.toString(bahmni));
         // Setup
         Task task = getTask();
 
@@ -207,7 +304,9 @@ class TaskProcessorTest extends BaseProcessorTest {
 
         ServiceRequest serviceRequest = buildServiceRequest();
         AnalysisRequestDTO analysisRequestDTO = getAnalysisRequestDTO();
-        analysisRequestDTO.setReviewState("published");
+        analysisRequestDTO.setReviewState(reviewState);
+        analysisRequestDTO.setDatePublished(datePublished);
+        analysisRequestDTO.setDateVerified(dateVerified);
 
         Encounter savedEncounter = buildEncounter();
         Coding coding = new Coding();
@@ -233,6 +332,12 @@ class TaskProcessorTest extends BaseProcessorTest {
         var resultAnalyses = getAnalysesDTO();
         resultAnalyses.setRemarks("Sample slightly hemolysed; result verified.");
         when(analysesHandler.getAnalysesByAnalysesApiUrl(any(), any())).thenReturn(resultAnalyses);
+        if (bahmni) {
+            when(bahmniResultsHandler.getServiceRequestCodingIdentifier(serviceRequest))
+                    .thenReturn("panel-concept");
+            when(bahmniResultsHandler.buildAndSendBahmniResultObservation(any(), any(), any(), any(), any()))
+                    .thenReturn(buildObservation());
+        }
         when(observationHandler.getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any()))
                 .thenReturn(buildObservation());
         when(observationHandler.buildResultObservation(any(), any(), any(), any(), any()))
@@ -258,14 +363,26 @@ class TaskProcessorTest extends BaseProcessorTest {
         verify(encounterHandler, times(1)).buildLabResultEncounter(any());
         verify(encounterHandler, times(1)).sendEncounter(any());
         verify(analysesHandler, times(1)).getAnalysesByAnalysesApiUrl(any(), any());
-        verify(observationHandler, times(1))
-                .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
-        verify(observationHandler, times(1))
-                .buildResultObservation(any(), any(), any(), any(), eq(resultAnalyses.getRemarks()));
-        verify(observationHandler, times(1)).sendObservation(any());
-        verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());
-        verify(diagnosticReportHandler, times(1)).sendDiagnosticReport(any());
-        verify(taskHandler, times(1)).updateTaskStatus(any(), any());
-        verify(taskHandler, times(1)).updateTask(any(), any());
+        var ordered = inOrder(observationHandler, diagnosticReportHandler, bahmniResultsHandler, taskHandler);
+        if (bahmni) {
+            verify(observationHandler)
+                    .getObservationByCodeSubjectEncounterAndDate(
+                            eq("panel-concept"), any(), any(), eq(expectedResultDate));
+            ordered.verify(bahmniResultsHandler)
+                    .buildAndSendBahmniResultObservation(
+                            any(), eq(savedEncounter), eq(serviceRequest), any(), eq(expectedResultDate));
+            verifyNoInteractions(diagnosticReportHandler);
+        } else {
+            verify(observationHandler, times(1))
+                    .getObservationByCodeSubjectEncounterDateAndValue(any(), any(), any(), any(), any());
+            verify(observationHandler, times(1))
+                    .buildResultObservation(any(), any(), any(), any(), eq(resultAnalyses.getRemarks()));
+            verify(observationHandler, times(1)).sendObservation(any());
+            verify(diagnosticReportHandler, times(1)).buildDiagnosticReport(any(), any(), any());
+            ordered.verify(diagnosticReportHandler).sendDiagnosticReport(any());
+            verifyNoInteractions(bahmniResultsHandler);
+        }
+        ordered.verify(taskHandler).updateTaskStatus(task, "completed");
+        ordered.verify(taskHandler).updateTask(updatedTask, task.getIdPart());
     }
 }
